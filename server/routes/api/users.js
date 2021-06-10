@@ -57,7 +57,7 @@ router.post("/users/login", function (req, res, next) {
   }
 
   passport.authenticate(
-    "local",
+    "login",
     { session: false },
     function (err, user, info) {
       if (err) {
@@ -75,6 +75,9 @@ router.post("/users/login", function (req, res, next) {
 })
 
 router.post("/users/signup", function (req, res, next) {
+    if (!req.body.user.name) {
+      return res.status(422).json({ errors: { name: "can't be blank" } })
+    }
     if (!req.body.user.email) {
       return res.status(422).json({ errors: { email: "can't be blank" } })
     }
@@ -84,19 +87,14 @@ router.post("/users/signup", function (req, res, next) {
     }
   
     passport.authenticate(
-      "local",
+      "signup",
       { session: false },
-      function (err, user, info) {
+      function (err, user) {
         if (err) {
           return next(err)
         }
   
-        if (user) {
-          user.token = user.generateJWT()
-          return res.json({ user: user.toAuthJSON() })
-        } else {
-          return res.status(422).json(info)
-        }
+        return res.json({ success: true })
       }
     )(req, res, next)
   })

@@ -4,6 +4,28 @@ var mongoose = require("mongoose")
 var User = mongoose.model("User")
 
 passport.use(
+  "signup",
+  new LocalStrategy(
+    {
+      usernameField: "user[email]",
+      passwordField: "user[password]",
+      passReqToCallback: true
+    },
+    async (req, email, password, done) => {
+      try {
+        const username = req.body.user.name
+        const user = await User.create({ username, email, password })
+        return done(null, user)
+      } 
+      catch (error) {
+        done(error)
+      }
+    }
+  )
+)
+
+passport.use(
+  "login",
   new LocalStrategy(
     {
       usernameField: "user[email]",
