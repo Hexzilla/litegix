@@ -48,8 +48,8 @@ var authToken *TokenDetails
 
 var user = User{
 	ID:       1,
-	Username: "rightvalue",
-	Password: "android1987",
+	Username: "tester",
+	Password: "tester",
 }
 
 func init() {
