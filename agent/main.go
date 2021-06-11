@@ -3,8 +3,11 @@ package main
 import (
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
+	"os/exec"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -68,14 +71,15 @@ func init() {
 }
 
 func main() {
-	router.POST("/login", Login)
-	router.POST("/todo", CreateTodo)
-	router.POST("/logout", Logout)
-	router.POST("/refresh", Refresh)
+	router.POST("/login", login)
+	router.POST("/todo", createTodo)
+	router.POST("/logout", logout)
+	router.POST("/refresh", refresh)
+	router.POST("/upload", upload)
 	log.Fatal(router.Run(":8080"))
 }
 
-func Login(c *gin.Context) {
+func login(c *gin.Context) {
 	var u User
 	if err := c.ShouldBindJSON(&u); err != nil {
 		c.JSON(http.StatusUnprocessableEntity, "Invalid json provided")
@@ -242,7 +246,7 @@ func FetchAuth(auth *AccessDetails) (uint64, error) {
 	return 0, errors.New("unauthorized")
 }
 
-func CreateTodo(c *gin.Context) {
+func createTodo(c *gin.Context) {
 	var td Todo
 	if err := c.ShouldBindJSON(&td); err != nil {
 		c.JSON(http.StatusUnprocessableEntity, "invalid json")
@@ -279,7 +283,7 @@ func DeleteAuth(givenUuid string) (uint64, error) {
 	return deleted, nil
 }
 
-func Logout(c *gin.Context) {
+func logout(c *gin.Context) {
 	metadata, err := ExtractTokenMetadata(c.Request)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, "unauthorized")
@@ -293,7 +297,7 @@ func Logout(c *gin.Context) {
 	c.JSON(http.StatusOK, "Successfully logged out")
 }
 
-func Refresh(c *gin.Context) {
+func refresh(c *gin.Context) {
 	mapToken := map[string]string{}
 	if err := c.ShouldBindJSON(&mapToken); err != nil {
 		c.JSON(http.StatusUnprocessableEntity, err.Error())
@@ -383,4 +387,74 @@ func DeleteTokens(auth *AccessDetails) error {
 	authUserId = 0
 	authToken = nil
 	return nil
+}
+
+func upload(c *gin.Context) {
+	file, err := c.FormFile("file")
+
+	// The file cannot be received.
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": "No file is received",
+		})
+		return
+	}
+
+	// Retrieve file information
+	extension := filepath.Ext(file.Filename)
+	// Generate random file name for the new uploaded file so it doesn't override the old file with same name
+	newFileName := uuid.NewV4().String() + extension
+
+	// The file is received, so let's save it
+	if err := c.SaveUploadedFile(file, "/home/root/.webfeul/"+newFileName); err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"message": "Unable to save the file",
+		})
+		return
+	}
+
+	// File saved successfully. Return proper result
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Your file has been successfully uploaded.",
+	})
+}
+
+func executeScript(script string) error {
+	cmd := exec.Command("sh", "-c", script)
+
+	stdout, _ := cmd.StdoutPipe()
+	stderr, _ := cmd.StderrPipe()
+
+	if err := cmd.Start(); err != nil {
+		log.Printf("Error starting command: %s......", err.Error())
+		return err
+	}
+
+	go asyncLog(stdout)
+	go asyncLog(stderr)
+
+	if err := cmd.Wait(); err != nil {
+		log.Printf("Error waiting for command execution: %s......", err.Error())
+		return err
+	}
+
+	return nil
+}
+
+func asyncLog(reader io.ReadCloser) error {
+	cache := "" //Cache less than one line of log information
+	buf := make([]byte, 1024)
+	for {
+		num, err := reader.Read(buf)
+		if err != nil && err != io.EOF {
+			return err
+		}
+		if num > 0 {
+			b := buf[:num]
+			s := strings.Split(string(b), "\n")
+			line := strings.Join(s[:len(s)-1], "\n") //Retrieve the entire line of logs
+			fmt.Printf("%s%s\n", cache, line)
+			cache = s[len(s)-1]
+		}
+	}
 }
