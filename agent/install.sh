@@ -16,6 +16,12 @@ then
 fi
 echo "installed: $installed"
 
+if [[ $installed == "false" ]]
+then
+  echo "installing nginx webserver"
+  sudo apt install -qq --yes nginx
+fi
+
 
 
 
