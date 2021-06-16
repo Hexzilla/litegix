@@ -76,32 +76,46 @@ func main() {
 	router.POST("/logout", logout)
 	router.POST("/refresh", refresh)
 	router.POST("/upload", upload)
+	router.POST("/execute", executeScript)
 	log.Fatal(router.Run(":8080"))
 }
 
 func login(c *gin.Context) {
 	var u User
 	if err := c.ShouldBindJSON(&u); err != nil {
-		c.JSON(http.StatusUnprocessableEntity, "Invalid json provided")
+		c.JSON(http.StatusUnprocessableEntity, map[string]string{
+			"success": "false",
+			"message": "Invalid json provided",
+		})
 		return
 	}
 
 	//compare the user from the request, with the one we defined:
 	if user.Username != u.Username || user.Password != u.Password {
-		c.JSON(http.StatusUnauthorized, "Please provide valid login details")
+		c.JSON(http.StatusUnauthorized, map[string]string{
+			"success": "false",
+			"message": "Please provide valid login details",
+		})
 		return
 	}
 
 	ts, err := CreateToken(user.ID)
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, err.Error())
+		c.JSON(http.StatusUnprocessableEntity, map[string]string{
+			"success": "false",
+			"message": err.Error(),
+		})
 		return
 	}
 	saveErr := CreateAuth(user.ID, ts)
 	if saveErr != nil {
-		c.JSON(http.StatusUnprocessableEntity, saveErr.Error())
+		c.JSON(http.StatusUnprocessableEntity, map[string]string{
+			"success": "false",
+			"message": saveErr.Error(),
+		})
 	}
 	tokens := map[string]string{
+		"success":       "true",
 		"access_token":  ts.AccessToken,
 		"refresh_token": ts.RefreshToken,
 	}
@@ -168,7 +182,7 @@ type Todo struct {
 	Title  string `json:"title"`
 }
 
-func ExtractToken(r *http.Request) string {
+func extractToken(r *http.Request) string {
 	bearToken := r.Header.Get("Authorization")
 	strArr := strings.Split(bearToken, " ")
 	if len(strArr) == 2 {
@@ -179,8 +193,8 @@ func ExtractToken(r *http.Request) string {
 
 // Parse, validate, and return a token.
 // keyFunc will receive the parsed token and should return the key for validating.
-func VerifyToken(r *http.Request) (*jwt.Token, error) {
-	tokenString := ExtractToken(r)
+func verifyToken(r *http.Request) (*jwt.Token, error) {
+	tokenString := extractToken(r)
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
@@ -193,8 +207,8 @@ func VerifyToken(r *http.Request) (*jwt.Token, error) {
 	return token, nil
 }
 
-func TokenValid(r *http.Request) error {
-	token, err := VerifyToken(r)
+func tokenValid(r *http.Request) error {
+	token, err := verifyToken(r)
 	if err != nil {
 		return err
 	}
@@ -204,8 +218,8 @@ func TokenValid(r *http.Request) error {
 	return nil
 }
 
-func ExtractTokenMetadata(r *http.Request) (*AccessDetails, error) {
-	token, err := VerifyToken(r)
+func extractTokenMetadata(r *http.Request) (*AccessDetails, error) {
+	token, err := verifyToken(r)
 	if err != nil {
 		return nil, err
 	}
@@ -253,7 +267,7 @@ func createTodo(c *gin.Context) {
 		return
 	}
 	//Extract the access token metadata�
-	metadata, err := ExtractTokenMetadata(c.Request)
+	metadata, err := extractTokenMetadata(c.Request)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, "unauthorized")
 		return
@@ -284,12 +298,12 @@ func DeleteAuth(givenUuid string) (uint64, error) {
 }
 
 func logout(c *gin.Context) {
-	metadata, err := ExtractTokenMetadata(c.Request)
+	metadata, err := extractTokenMetadata(c.Request)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, "unauthorized")
 		return
 	}
-	delErr := DeleteTokens(metadata)
+	delErr := deleteTokens(metadata)
 	if delErr != nil {
 		c.JSON(http.StatusUnauthorized, delErr.Error())
 		return
@@ -365,7 +379,7 @@ func refresh(c *gin.Context) {
 	}
 }
 
-func DeleteTokens(auth *AccessDetails) error {
+func deleteTokens(auth *AccessDetails) error {
 	/*//get the refresh uuid
 	refreshUuid := fmt.Sprintf("%s++%d", auth.AccessUuid, auth.UserId)
 
@@ -419,41 +433,47 @@ func upload(c *gin.Context) {
 	})
 }
 
-func executeScript(script string) error {
+func executeScript(c *gin.Context) {
+	log.Printf("ExecuteScript")
+	var script = "./install.sh"
 	cmd := exec.Command("sh", "-c", script)
 
 	stdout, _ := cmd.StdoutPipe()
 	stderr, _ := cmd.StderrPipe()
 
-	if err := cmd.Start(); err != nil {
-		log.Printf("Error starting command: %s......", err.Error())
-		return err
-	}
-
 	go asyncLog(stdout)
 	go asyncLog(stderr)
 
-	if err := cmd.Wait(); err != nil {
-		log.Printf("Error waiting for command execution: %s......", err.Error())
-		return err
+	go cmd.Start()
+	/*if err := cmd.Start(); err != nil {
+		log.Printf("Error starting command: %s......", err.Error())
+		return
 	}
 
-	return nil
+	if err := cmd.Wait(); err != nil {
+		log.Printf("Error waiting for command execution: %s......", err.Error())
+		return
+	}*/
+
+	log.Printf("ExecuteScript Completed")
 }
 
 func asyncLog(reader io.ReadCloser) error {
+	log.Printf("AsyncLog")
 	cache := "" //Cache less than one line of log information
 	buf := make([]byte, 1024)
 	for {
 		num, err := reader.Read(buf)
 		if err != nil && err != io.EOF {
+			log.Printf("AsyncLog-Err: %s", err.Error())
 			return err
 		}
 		if num > 0 {
 			b := buf[:num]
 			s := strings.Split(string(b), "\n")
 			line := strings.Join(s[:len(s)-1], "\n") //Retrieve the entire line of logs
-			fmt.Printf("%s%s\n", cache, line)
+			//fmt.Printf("%s%s\n", cache, line)
+			log.Printf("%s%s\n", cache, line)
 			cache = s[len(s)-1]
 		}
 	}
