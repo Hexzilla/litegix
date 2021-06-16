@@ -1,36 +1,51 @@
-echo "Webserver: $1"
-echo "PHP: $2"
-echo "Database: $3"
+echo "[Agent] Webserver: $1"
+echo "[Agent] PHP: $2"
+echo "[Agent] Database: $3"
 
-echo "updating all system packages"
+echo "[Agent] updating all system packages"
 #sudo apt update -qq
 
-echo "checking nginx installed or not"
+echo "[Agent] checking nginx installed or not"
 result=$(sudo apt -qq list nginx 2>/dev/null)
-echo $result
-
+#echo $result
 installed="false"
 if [[ $result == *installed* ]] # * is used for pattern matching
 then
   installed="true";
 fi
-echo "installed: $installed"
 
-if [[ $installed == "false" ]]
+if [[ $installed == "true" ]]
 then
-  echo "installing nginx webserver"
+  echo "[Agent] nginx is already installed"
+else
+  echo "[Agent] installing nginx webserver"
   sudo apt install -qq --yes nginx
 fi
 
+echo "[Agent] Adjusting the Firewall"
+sudo ufw allow 'Nginx Full'
 
 
+#Method 1: Managing services in Linux with systemd
+#systemctl start <service-name>
+#systemctl stop <service-name>
+#systemctl restart <service-name>
+#systemctl status <service-name>
 
+#Method 2: Managing services in Linux with init
+#service --status-all
+#service <service-name> start
+#service <service-name> stop
+#service <service-name> restart
+#service <service-name> status
 
+#netstat -napl | grep 80
 
+#List Ubuntu Services with Service command
+#service  --status-all
 
-
-
-
+#List Services with systemctl command
+#systemctl list-units
 
 # Installing nginx
 # sudo apt install nginx
