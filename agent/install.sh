@@ -153,4 +153,4 @@ password=$ROOTPASS
 
     chmod 600 /etc/mysql/conf.d/root.cnf
 }
-}
+
