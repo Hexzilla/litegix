@@ -1,17 +1,27 @@
-echo "[Agent] Webserver: $1"
-echo "[Agent] PHP: $2"
-echo "[Agent] Database: $3"
+#!/bin/bash
+
+webserver=$1
+php=$2
+database=$3
+echo "[Agent] Webserver: $webserver"
+echo "[Agent] PHP: $php"
+echo "[Agent] Database: $database"
 
 echo "[Agent] updating all system packages"
 #sudo apt update -qq
 
+
+
+#############################################################################
+# Install Nginx
+#############################################################################
 echo "[Agent] checking nginx installed or not"
 result=$(sudo apt -qq list nginx 2>/dev/null)
 #echo $result
 installed="false"
 if [[ $result == *installed* ]] # * is used for pattern matching
 then
-  installed="true";
+  installed="true"
 fi
 
 if [[ $installed == "true" ]]
@@ -24,6 +34,35 @@ fi
 
 echo "[Agent] Adjusting the Firewall"
 sudo ufw allow 'Nginx Full'
+
+
+#############################################################################
+# Install MySQL 5.7
+#############################################################################
+export DEBIAN_FRONTEND=noninteractive
+MYSQL_ROOT_PASSWORD='root'
+
+# Install MySQL
+echo debconf mysql-server/root_password password $MYSQL_ROOT_PASSWORD | sudo debconf-set-selections
+echo debconf mysql-server/root_password_again password $MYSQL_ROOT_PASSWORD | sudo debconf-set-selections
+
+sudo apt-get -qq install mysql-server > /dev/null # Install MySQL quietly
+
+
+
+
+#debconf-set-selections <<< 'mysql-server mysql-server/root_password password MySuperPassword'
+#debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password MySuperPassword'
+#apt-get update
+#apt-get install -y mysql-server
+
+
+
+
+
+
+
+
 
 
 #Method 1: Managing services in Linux with systemd
