@@ -1,117 +1,156 @@
 #!/bin/bash
 
-webserver=$1
-php=$2
-database=$3
-echo "[Agent] Webserver: $webserver"
-echo "[Agent] PHP: $php"
-echo "[Agent] Database: $database"
 
-echo "[Agent] updating all system packages"
-#sudo apt update -qq
+# Constants
+EASY_CLOUD_URL="http://localhost:3600"
+INSTALL_STATE_URL="$EASY_CLOUD_URL/api/installation/status"
 
 
+# Initialize
+osname=$(lsb_release -si)
+osversion=$(lsb_release -sr)
+oscodename=$(lsb_release -sc)
 
-#############################################################################
-# Install Nginx
-#############################################################################
-echo "[Agent] checking nginx installed or not"
-result=$(sudo apt -qq list nginx 2>/dev/null)
-#echo $result
-installed="false"
-if [[ $result == *installed* ]] # * is used for pattern matching
-then
-  installed="true"
+############################################################
+# Helpers
+############################################################
+function get_rand_string {
+  tr -dc A-Za-z0-9 </dev/urandom | head -c 16
+}
+
+function send_state {
+  state=$1
+  curl --ipv4 --header "Content-Type: application/json" -X POST $INSTALL_STATE_URL -d '{"state": "'"$state"'"}'
+  sleep 2
+}
+
+function throw_error {
+  message=$1
+  echo $message 1>&2
+  curl --ipv4 --header "Content-Type: application/json" -X POST $INSTALL_STATE_URL -d '{"state": "err", "message": "'"$message"'"}' 
+  exit 1
+}
+
+
+############################################################
+# Checking
+############################################################
+
+# Check root user
+if [[ $EUID -ne 0 ]]; then
+  throw_error "This script must be run as root" 
 fi
 
-if [[ $installed == "true" ]]
-then
-  echo "[Agent] nginx is already installed"
-else
-  echo "[Agent] installing nginx webserver"
-  sudo apt install -qq --yes nginx
+# Check OS Version
+if [[ "$osname" != "Ubuntu" ]]; then
+  throw_error "This script only support Ubuntu"
 fi
 
-echo "[Agent] Adjusting the Firewall"
-sudo ufw allow 'Nginx Full'
+# Check system architecture
+if [[ $(uname -m) != "x86_64" ]]; then
+  throw_error "This script only support x86_64 architecture"
+fi
 
-
-#############################################################################
-# Install MySQL 5.7
-#############################################################################
-export DEBIAN_FRONTEND=noninteractive
-MYSQL_ROOT_PASSWORD='root'
-
-# Install MySQL
-echo debconf mysql-server/root_password password $MYSQL_ROOT_PASSWORD | sudo debconf-set-selections
-echo debconf mysql-server/root_password_again password $MYSQL_ROOT_PASSWORD | sudo debconf-set-selections
-
-sudo apt-get -qq install mysql-server > /dev/null # Install MySQL quietly
+# Check OS Version
+grep -q $osversion <<< "16.04 18.04 20.04"
+if [[ $? -ne 0 ]]; then
+  throw_error "This script does not support $osname $osversion"
+fi
 
 
 
+############################################################
+# Installing
+############################################################
 
-#debconf-set-selections <<< 'mysql-server mysql-server/root_password password MySuperPassword'
-#debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password MySuperPassword'
-#apt-get update
-#apt-get install -y mysql-server
+# Install packages
+send_state "packages"
+function install_packages {
+  apt-get update
+  apt-get remove mysql-common --purge -y
+  apt-get install $INSTALLPACKAGE -y
+}
+install_packages
+
+# Fail2Ban
+send_state "fail2ban"
+function install_fail2Ban {
+
+}
+install_fail2Ban
+
+# MySQL
+send_state "mysql"
+function install_mysql {
+  mkdir -p /tmp/lens
+  curl --ipv4 $EASY_CLOUD_URL/files/lenses/augeas-mysql.aug --create-dirs -o /tmp/lens/mysql.aug 
+
+  ROOTPASS=$(get_rand_string)
+
+  # Start mariadb untuk initialize
+  systemctl start mysql
+
+  SECURE_MYSQL=$(expect -c "
+set timeout 5
+spawn mysql_secure_installation
+
+expect \"Enter current password for root (enter for none):\"
+send \"\r\"
+
+expect \"Switch to unix_socket authentication\"
+send \"y\r\"
+
+expect \"Change the root password?\"
+send \"y\r\"
+
+expect \"New password:\"
+send \"$ROOTPASS\r\"
+
+expect \"Re-enter new password:\"
+send \"$ROOTPASS\r\"
+
+expect \"Remove anonymous users?\"
+send \"y\r\"
+
+expect \"Disallow root login remotely?\"
+send \"y\r\"
+
+expect \"Remove test database and access to it?\"
+send \"y\r\"
+
+expect \"Reload privilege tables now?\"
+send \"y\r\"
+
+expect eof
+")
+    echo "$SECURE_MYSQL"
 
 
+#     /usr/bin/augtool -I /tmp/lens/ <<EOF
+# set /files/etc/mysql/my.cnf/target[ . = "client" ]/user root
+# set /files/etc/mysql/my.cnf/target[ . = "client" ]/password $ROOTPASS
+# save
+# EOF
 
+/usr/bin/augtool -I /tmp/lens/ <<EOF
+set /files/etc/mysql/my.cnf/target[ . = "client" ]/user root
+set /files/etc/mysql/my.cnf/target[ . = "client" ]/password $ROOTPASS
+set /files/etc/mysql/my.cnf/target[ . = "mysqld" ]/bind-address 0.0.0.0
+set /files/etc/mysql/conf.d/mariadb.cnf/target[ . = "mysqld" ]/innodb_file_per_table 1
+set /files/etc/mysql/conf.d/mariadb.cnf/target[ . = "mysqld" ]/max_connections 15554
+set /files/etc/mysql/conf.d/mariadb.cnf/target[ . = "mysqld" ]/query_cache_size 80M
+set /files/etc/mysql/conf.d/mariadb.cnf/target[ . = "mysqld" ]/query_cache_type 1
+set /files/etc/mysql/conf.d/mariadb.cnf/target[ . = "mysqld" ]/query_cache_limit 2M
+set /files/etc/mysql/conf.d/mariadb.cnf/target[ . = "mysqld" ]/query_cache_min_res_unit 2k
+set /files/etc/mysql/conf.d/mariadb.cnf/target[ . = "mysqld" ]/thread_cache_size 60
+save
+EOF
 
+echo "[client]
+user=root
+password=$ROOTPASS
+" > /etc/mysql/conf.d/root.cnf
 
-
-
-
-
-
-#Method 1: Managing services in Linux with systemd
-#systemctl start <service-name>
-#systemctl stop <service-name>
-#systemctl restart <service-name>
-#systemctl status <service-name>
-
-#Method 2: Managing services in Linux with init
-#service --status-all
-#service <service-name> start
-#service <service-name> stop
-#service <service-name> restart
-#service <service-name> status
-
-#netstat -napl | grep 80
-
-#List Ubuntu Services with Service command
-#service  --status-all
-
-#List Services with systemctl command
-#systemctl list-units
-
-# Installing nginx
-# sudo apt install nginx
-
-# Installing PHP
-#result=$(sudo apt list --installed | grep nginx | cut -d ":" -f2)
-#result=$(sudo apt -qq list nginx)
-#echo $result
-
-# Installing PHP 7.4 with Apache
-#sudo apt-get install --yes php
-#sudo apt install libapache2-mod-php
-
-# Installing Apache
-#sudo apt install apache2
-
-
-#Enabling PHP Repository
-#sudo apt install software-properties-common
-#require reboot
-#sudo add-apt-repository ppa:ondrej/php
-#sudo apt update
-
-
-#Installing PHP 8.0 with Nginx
-#sudo apt update
-#sudo apt install php8.0-fpm
-
-#sudo apt -qq list php
-#sudo apt -qq list php8.0-fpm
+    chmod 600 /etc/mysql/conf.d/root.cnf
+}
+}
