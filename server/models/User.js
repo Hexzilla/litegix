@@ -23,6 +23,7 @@ UserSchema.methods.validPassword = function(password) {
 };
 
 UserSchema.methods.setPassword = function(password){
+  console.log('set_password', password)
   this.salt = crypto.randomBytes(16).toString('hex');
   this.hash = crypto.pbkdf2Sync(password, this.salt, 10000, 512, 'sha512').toString('hex');
 };

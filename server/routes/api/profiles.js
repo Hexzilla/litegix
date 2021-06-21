@@ -19,6 +19,7 @@ router.param("username", function (req, res, next, username) {
 })
 
 router.get("/:username", auth.optional, function (req, res, next) {
+  console.log('payload', req.payload)
   if (req.payload) {
     User.findById(req.payload.id).then(function (user) {
       if (!user) {
