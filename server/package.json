@@ -1,7 +1,7 @@
 {
-  "name": "conduit-node",
+  "name": "litegix",
   "version": "1.0.0",
-  "description": "conduit on node",
+  "description": "litegix",
   "main": "app.js",
   "scripts": {
     "mongo:start": "docker run --name realworld-mongo -p 27017:27017 mongo & sleep 5",
@@ -19,11 +19,13 @@
   "dependencies": {
     "body-parser": "1.15.0",
     "cors": "2.7.1",
+    "crypto": "^1.0.1",
     "ejs": "2.4.1",
     "errorhandler": "1.4.3",
     "express": "4.13.4",
     "express-jwt": "3.3.0",
     "express-session": "1.13.0",
+    "express-validator": "^6.12.0",
     "jsonwebtoken": "7.1.9",
     "method-override": "2.3.5",
     "methods": "1.1.2",
