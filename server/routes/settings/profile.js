@@ -1,7 +1,5 @@
 const { body } = require('express-validator')
-const mongoose = require("mongoose")
 const router = require("express").Router()
-const User = mongoose.model("User")
 const auth = require("../auth")
 const ProfileService = require("../../services/profile-service")
 
