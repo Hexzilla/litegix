@@ -12,7 +12,8 @@ var UserSchema = new mongoose.Schema({
   favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Article' }],
   following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   hash: String,
-  salt: String
+  salt: String,
+  company: { type: mongoose.Schema.Types.ObjectId, ref: 'Company' }
 }, {timestamps: true});
 
 UserSchema.plugin(uniqueValidator, {message: 'is already taken.'});
@@ -48,6 +49,21 @@ UserSchema.methods.toAuthJSON = function(){
     bio: this.bio,
     image: this.image
   };
+};
+
+UserSchema.methods.toJSON = function() {
+  return  {
+    username: this.username,
+    email: this.email,
+    timezone: 10,
+  };
+};
+
+UserSchema.methods.toProfileJSON = function() {
+  return {
+    user: this.toJSON(),
+    company: this.company ? this.company.toJSON() : {}
+  }
 };
 
 UserSchema.methods.toProfileJSONFor = function(user){
