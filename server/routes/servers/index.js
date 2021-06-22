@@ -2,6 +2,7 @@ const { body } = require('express-validator')
 const router = require("express").Router()
 const auth = require("../auth")
 const server = require("../../services/server-service")
+const crypto = require('../../services/crypto-service')
 
 router.post("/create", 
   auth.required, 
@@ -13,5 +14,7 @@ router.post("/create",
   body('php').notEmpty(),
   server.create)
 
+
+router.get("/script/:token", server.getScript)
 
 module.exports = router
