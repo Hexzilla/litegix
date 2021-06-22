@@ -9,7 +9,6 @@ const getProfile = function (req, res, next) {
     .then(user => {
       if (!user) { return res.sendStatus(404); }
 
-      console.log('user', user.company.id)
       res.json(user.toProfileJSON())
     })
     .catch(next);

@@ -1,22 +1,13 @@
-const crypto = require('crypto');
+const CryptoJS = require("crypto-js");
 
-const algorithm = 'aes-256-ctr';
-const secretKey = 'xJpNWjRRIqCc7rdxVdms01lcHzdrH6s9';
-const iv = crypto.randomBytes(16);
+const SecretKey = 'xJpNWjRRIqCc7rdxVdms01lcHzdrH6s9';
 
 const encrypt = (text) => {
-    const cipher = crypto.createCipheriv(algorithm, secretKey, iv);
-    const encrypted = Buffer.concat([cipher.update(text), cipher.final()]);
-    return {
-        iv: iv.toString('hex'),
-        content: encrypted.toString('hex')
-    };
+  return CryptoJS.AES.encrypt(text, SecretKey).toString();
 };
 
 const decrypt = (hash) => {
-    const decipher = crypto.createDecipheriv(algorithm, secretKey, Buffer.from(hash.iv, 'hex'));
-    const decrpyted = Buffer.concat([decipher.update(Buffer.from(hash.content, 'hex')), decipher.final()]);
-    return decrpyted.toString();
+  return CryptoJS.AES.decrypt(hash, SecretKey).toString(CryptoJS.enc.Utf8);
 };
 
 module.exports = {

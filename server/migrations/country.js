@@ -7,11 +7,10 @@ const countries = [
 ]
 
 module.exports = function() {
-  Country.find().remove((err) => {
-    countries.forEach(name => {
-      console.log('country', name)
-      const country = new Country({name: name})
-      country.save()
-    })
-  })
+  Country.collection.drop()
+  countries.forEach(name => {
+    console.log('country', name)
+    const country = new Country({name: name})
+    country.save()
+  })  
 }

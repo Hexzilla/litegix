@@ -18,8 +18,10 @@ app.use(cors());
 
 // Normal express config defaults
 app.use(require('morgan')('dev'));
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+app.use(express.json());
+app.use(express.urlencoded({
+  extended: true
+}));
 
 app.use(require('method-override')());
 app.use(express.static(__dirname + '/public'));
@@ -30,10 +32,15 @@ if (!isProduction) {
   app.use(errorhandler());
 }
 
-if (isProduction){
-  mongoose.connect(process.env.MONGODB_URI);
+mongoose.set('useNewUrlParser', true);
+mongoose.set('useFindAndModify', false);
+mongoose.set('useCreateIndex', true);
+mongoose.set('useUnifiedTopology', true);
+
+if (isProduction) {
+  mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true });
 } else {
-  mongoose.connect('mongodb://localhost/litegix');
+  mongoose.connect('mongodb://localhost/litegix', { useNewUrlParser: true });
   mongoose.set('debug', true);
 }
 

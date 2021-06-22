@@ -23,4 +23,9 @@ router.use(function (err, req, res, next) {
   return next(err)
 })
 
+const cryptoService = require('../services/crypto-service')
+const encrypted = cryptoService.encrypt("Hello World. www.maazone.com!!!192020$$$###")
+const decrypted = cryptoService.decrypt(encrypted)
+console.log('crypto', encrypted, decrypted)
+
 module.exports = router;
