@@ -40,7 +40,16 @@ if (isProduction){
 require('./models/User');
 require('./models/Article');
 require('./models/Comment');
+require('./models/Timezone');
 require('./config/passport');
+
+/*var Timezone = mongoose.model( 'Timezone' );
+Timezone.find().remove().then(() => {
+  new Timezone({
+    region: 'Africa',
+    zones: ['abc', 'ddd']
+  }).save()
+})*/
 
 app.use(require('./routes'));
 
