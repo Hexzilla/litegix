@@ -1,9 +1,9 @@
 const { body } = require('express-validator')
 const router = require("express").Router()
 const auth = require("../auth")
-const ProfileService = require("../../services/profile-service")
+const profile = require("../../services/profile-service")
 
-router.get("/", auth.required, ProfileService.getProfile)
+router.get("/", auth.required, profile.getProfile)
 
 // Upate user profile
 router.post("/update", 
@@ -11,7 +11,7 @@ router.post("/update",
   body('email').isEmail(),
   body('name').isLength({ min: 3, max: 20 }).trim().escape(),
   body('timezone').isNumeric(),
-  ProfileService.updateProfile)
+  profile.updateProfile)
 
 // Update company info
 router.post("/updatecompany", 
@@ -23,6 +23,6 @@ router.post("/updatecompany",
   body('state').notEmpty(),
   body('country').notEmpty(),
   body('tax').isNumeric(),
-  ProfileService.updateCompany)
+  profile.updateCompany)
 
 module.exports = router
