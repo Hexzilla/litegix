@@ -2,16 +2,32 @@ const path = require('path')
 const fs = require('fs')
 const util = require('util')
 const readFile = util.promisify(fs.readFile);
-const { validationResult } = require('express-validator')
+const valiator = require('express-validator')
+const mongoose = require("mongoose")
+const Server = mongoose.model("Server")
 const crypto = require('./crypto-service')
 
 const defaultScript = "export DEBIAN_FRONTEND=noninteractive; echo 'Acquire::ForceIPv4 \"true\";' | tee /etc/apt/apt.conf.d/99force-ipv4; apt-get update; apt-get install curl netcat-openbsd -y; curl -4 --silent --location http://localhost:3000/servers/script/USER_INFO | bash -; export DEBIAN_FRONTEND=newt"
 
+const getServers = function (req, res, next) {
+  Server.find({user: req.payload.id})
+    .then(servers => {
+      console.log(servers)
+      res.json({success: true, data: servers})
+    })
+    .catch(next)
+}
+
 const create = function (req, res, next) {
-  const errors = validationResult(req);
+  const errors = valiator.validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(422).json({ errors: errors.array() });
   }
+
+  const server = new Server(req.body)
+  server.connected = false
+  server.user = req.payload.id
+  server.save()
 
   //const token = req.headers.authorization.split(' ')[1]
   const token = {
@@ -51,6 +67,7 @@ const getScript = async function (req, res, next) {
 }
 
 module.exports = {
+  getServers,
   create,
   getScript,
 }

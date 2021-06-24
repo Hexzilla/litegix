@@ -1,4 +1,3 @@
-const { validationResult } = require('express-validator')
 const mongoose = require("mongoose")
 const User = mongoose.model("User")
 const Company = mongoose.model("Company")

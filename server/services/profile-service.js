@@ -1,4 +1,4 @@
-const { validationResult } = require('express-validator')
+const validator = require('express-validator')
 const mongoose = require("mongoose")
 const User = mongoose.model("User")
 const Company = mongoose.model("Company")
@@ -15,7 +15,7 @@ const getProfile = function (req, res, next) {
 }
 
 const updateProfile = function(req, res, next) {
-  const errors = validationResult(req);
+  const errors = validator.validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(422).json({ errors: errors.array() });
   }
@@ -34,7 +34,7 @@ const updateProfile = function(req, res, next) {
 }
 
 const updateCompany = function(req, res, next) {
-  const errors = validationResult(req);
+  const errors = validator.validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(422).json({ errors: errors.array() });
   }

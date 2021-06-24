@@ -50,6 +50,7 @@ require('./models/Comment');
 require('./models/Country');
 require('./models/Timezone');
 require('./models/Company');
+require('./models/Server');
 require('./config/passport');
 
 require('./migrations/country')()
