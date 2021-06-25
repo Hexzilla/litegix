@@ -7,13 +7,13 @@ passport.use(
   "signup",
   new LocalStrategy(
     {
-      usernameField: "user[email]",
-      passwordField: "user[password]",
+      usernameField: "email",
+      passwordField: "password",
       passReqToCallback: true
     },
     async (req, email, password, done) => {
       try {
-        const username = req.body.user.name
+        const username = req.body.name
         const user = await User.create({ username, email })
         user.setPassword(password)
         user.save()
@@ -30,8 +30,8 @@ passport.use(
   "login",
   new LocalStrategy(
     {
-      usernameField: "user[email]",
-      passwordField: "user[password]",
+      usernameField: "email",
+      passwordField: "password",
     },
     function (email, password, done) {
       User.findOne({ email: email })

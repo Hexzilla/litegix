@@ -1,3 +1,4 @@
+const { body } = require('express-validator')
 const mongoose = require("mongoose")
 const router = require("express").Router()
 const User = mongoose.model("User")
@@ -47,7 +48,15 @@ router.put("/user", auth.required, function (req, res, next) {
     .catch(next)
 })
 
-router.post("/users/login", authService.login)
-router.post("/users/signup", authService.signup)
+router.post("/users/login", 
+  body('email').notEmpty(),
+  body('password').notEmpty(),
+  authService.login)
+
+router.post("/users/signup", 
+  body('name').notEmpty(),
+  body('email').notEmpty(),
+  body('password').notEmpty(),
+  authService.signup)
 
 module.exports = router

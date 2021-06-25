@@ -1,3 +1,4 @@
+const { body } = require('express-validator')
 const router = require('express').Router();
 const authService = require('../services/auth-service')
 
@@ -5,8 +6,16 @@ router.use('/api', require('./api'));
 router.use('/settings', require('./settings'));
 router.use('/servers', require('./servers'));
 
-router.post('/login', authService.login);
-router.post('/signup', authService.signup);
+router.post('/login', 
+  body('email').notEmpty(),
+  body('password').notEmpty(),
+  authService.login);
+
+router.post('/signup', 
+  body('name').notEmpty(),
+  body('email').notEmpty(),
+  body('password').notEmpty(),
+  authService.signup);
 
 router.use(function (err, req, res, next) {
   if (err.name === "ValidationError") {
