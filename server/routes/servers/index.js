@@ -15,6 +15,7 @@ router.post("/create",
   body('php').notEmpty(),
   server.create)
 
+router.get("/script", auth.required, server.getShellCommand)
 
 router.get("/script/:token", server.getScript)
 

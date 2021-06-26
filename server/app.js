@@ -54,7 +54,7 @@ require('./models/Company');
 require('./models/Server');
 require('./config/passport');
 
-require('./migrations/country')()
+//require('./migrations/country')()
 
 app.use(require('./routes'));
 

@@ -13,7 +13,10 @@ const getServers = function (req, res, next) {
   Server.find({user: req.payload.id})
     .then(servers => {
       console.log(servers)
-      res.json({success: true, data: servers})
+      res.json({
+        success: true, 
+        servers: servers
+      })
     })
     .catch(next)
 }
@@ -29,6 +32,13 @@ const create = function (req, res, next) {
   server.user = req.payload.id
   server.save()
 
+  res.json({
+    success: true,
+    message: "Your server has been successfully created."
+  })
+}
+
+const getShellCommand = function(req, res) {
   //const token = req.headers.authorization.split(' ')[1]
   const token = {
     userId: req.payload.id,
@@ -39,10 +49,12 @@ const create = function (req, res, next) {
   const scriptId = encrypted.split('/').join('.')
   const script = defaultScript.replace('USER_INFO', scriptId)
   console.log('script', script)
-  
+
   res.json({
     success: true,
-    script: script
+    data: {
+      script: script
+    }
   })
 }
 
@@ -70,4 +82,5 @@ module.exports = {
   getServers,
   create,
   getScript,
+  getShellCommand
 }
