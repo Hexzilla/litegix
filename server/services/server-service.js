@@ -21,16 +21,38 @@ const getServers = function (req, res, next) {
     .catch(next)
 }
 
-const create = function (req, res, next) {
+const create = async function (req, res, next) {
   const errors = valiator.validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(422).json({ errors: errors.array() });
   }
 
+  let result = await Server.findOne({ address: req.body.address })
+  if (result) {
+    return res.status(422).json({
+      success: false,
+      message: "IP address already exists.",
+      errors: { 
+        address: 'already exists'
+      }
+    })
+  }
+
+  result = await Server.findOne({ name: req.body.name, user: req.payload.id })
+  if (result) {
+    return res.status(422).json({
+      success: false,
+      message: "Server name already exists.",
+      errors: { 
+        name: 'already exists'
+      }
+    })
+  }
+
   const server = new Server(req.body)
   server.connected = false
   server.user = req.payload.id
-  server.save()
+  await server.save()
 
   res.json({
     success: true,
