@@ -1,18 +1,22 @@
 const { body } = require('express-validator')
 const router = require("express").Router()
 const auth = require("../auth")
-const server = require("../../services/server-service")
+const webapp = require("../../services/webapp-service")
 
-router.get("/", auth.required, server.getWebApplications)
+router.post("/", 
+  auth.required, 
+  body('serverId').isString(),
+  webapp.getWebApplications)
 
 router.post("/create", 
   auth.required, 
-  body('name').notEmpty(),
-  body('address').isIP(4),
-  body('provider').notEmpty(),
-  body('web_server').notEmpty(),
-  body('database').notEmpty(),
-  body('php').notEmpty(),
-  server.createWebApplications)
+  body('name').isString(),
+  body('serverId').isString(),
+  body('domain').isString(),
+  body('owner').isString(),
+  body('phpVersion').isString(),
+  body('stack').isString(),
+  body('sslMethod').isString(),
+  webapp.createWebApplication)
 
 module.exports = router

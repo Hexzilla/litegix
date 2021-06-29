@@ -13,7 +13,7 @@ router.post("/create",
   body('web_server').notEmpty(),
   body('database').notEmpty(),
   body('php').notEmpty(),
-  server.create)
+  server.createServer)
 
 router.post("/summary",
   auth.required,

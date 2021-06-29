@@ -1,9 +1,9 @@
 const { body } = require('express-validator')
 const router = require("express").Router()
 const auth = require("../auth")
-const server = require("../../services/server-service")
+const systemuser = require("../../services/systemuser-service")
 
-router.get("/", auth.required, server.getWebApplications)
+router.get("/", auth.required, systemuser.getSystemUsers)
 
 router.post("/create", 
   auth.required, 
@@ -13,6 +13,6 @@ router.post("/create",
   body('web_server').notEmpty(),
   body('database').notEmpty(),
   body('php').notEmpty(),
-  server.createWebApplications)
+  systemuser.createSystemUser)
 
 module.exports = router

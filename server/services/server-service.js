@@ -23,7 +23,7 @@ const getServers = function (req, res, next) {
     .catch(next)
 }
 
-const create = async function (req, res, next) {
+const createServer = async function (req, res, next) {
   const errors = valiator.validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(422).json({ errors: errors.array() });
@@ -149,22 +149,12 @@ const deleteServer = async function (req, res, next) {
   res.json({ success: true })
 }
 
-const getWebApplications = async function (req, res, next) {
-  res.json({ success: true })
-}
-
-const createWebApplications = async function (req, res, next) {
-  res.json({ success: true })
-}
-
 module.exports = {
   getServers,
-  create,
+  createServer,
   getScript,
   getShellCommands,
   updateState,
   summary,
-  deleteServer,
-  getWebApplications,
-  createWebApplications,
+  deleteServer
 }
