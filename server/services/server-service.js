@@ -15,7 +15,9 @@ const getServers = function (req, res, next) {
       console.log(servers)
       res.json({
         success: true, 
-        servers: servers
+        data: {
+          servers: servers
+        }
       })
     })
     .catch(next)
@@ -79,7 +81,9 @@ const getShellCommands = function(req, res) {
 
   res.json({
     success: true,
-    commands: commands
+    data: {
+      commands: commands
+    }
   })
 }
 
@@ -112,10 +116,40 @@ const updateState = async function (req, res, next) {
   })
 }
 
+const summary = async function (req, res, next) {
+  const server = await Server.findById(req.body.server);
+  if (!server) {
+    return res.status(422).json({
+      success: false,
+      message: "Server doesn't exists",
+      errors: { 
+        server: "doesn't exists"
+      }
+    })
+  }
+
+  //TODO
+  server.kernelVersion = "5.4.0-72-generic"
+  server.processorName = "Intel Xeon Processor (Skylake, IBRS)"
+  server.totalCPUCore = 2
+  server.totalMemory = 3.750080108642578
+  server.freeMemory = 3.2643470764160156
+  server.diskTotal = 40.18845696
+  server.diskFree = 33.756172288
+  server.loadAvg = 0
+  server.uptime = "475h 50m 20s"
+
+  res.json({
+    success: true,
+    data: server.toSummaryJSON()
+  })
+}
+
 module.exports = {
   getServers,
   create,
   getScript,
   getShellCommands,
-  updateState
+  updateState,
+  summary
 }

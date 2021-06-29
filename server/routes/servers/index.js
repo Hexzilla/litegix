@@ -17,4 +17,8 @@ router.post("/create",
   body('php').notEmpty(),
   server.create)
 
+router.post("/summary",
+  auth.required,
+  server.summary)
+
 module.exports = router
