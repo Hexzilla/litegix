@@ -3,6 +3,8 @@ const router = require("express").Router()
 const auth = require("../auth")
 const server = require("../../services/server-service")
 
+router.use("/config", require("./config"))
+
 router.get("/", auth.required, server.getServers)
 
 router.post("/create", 
@@ -14,9 +16,5 @@ router.post("/create",
   body('database').notEmpty(),
   body('php').notEmpty(),
   server.create)
-
-router.get("/script", auth.required, server.getShellCommand)
-
-router.get("/script/:token", server.getScript)
 
 module.exports = router

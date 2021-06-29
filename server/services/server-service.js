@@ -7,7 +7,7 @@ const mongoose = require("mongoose")
 const Server = mongoose.model("Server")
 const crypto = require('./crypto-service')
 
-const defaultScript = "export DEBIAN_FRONTEND=noninteractive; echo 'Acquire::ForceIPv4 \"true\";' | tee /etc/apt/apt.conf.d/99force-ipv4; apt-get update; apt-get install curl netcat-openbsd -y; curl -4 --silent --location http://localhost:3000/servers/script/USER_INFO | bash -; export DEBIAN_FRONTEND=newt"
+const defaultScript = "export DEBIAN_FRONTEND=noninteractive; echo 'Acquire::ForceIPv4 \"true\";' | tee /etc/apt/apt.conf.d/99force-ipv4; apt-get update; apt-get install curl netcat-openbsd -y; curl -4 --silent --location http://localhost:3000/servers/config/script/USER_INFO | bash -; export DEBIAN_FRONTEND=newt"
 
 const getServers = function (req, res, next) {
   Server.find({user: req.payload.id})
@@ -60,23 +60,26 @@ const create = async function (req, res, next) {
   })
 }
 
-const getShellCommand = function(req, res) {
-  //const token = req.headers.authorization.split(' ')[1]
+const getShellCommands = function(req, res) {
+  const errors = valiator.validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).json({ errors: errors.array() });
+  }
+  
   const token = {
     userId: req.payload.id,
     address: req.body.address,
-    token: '',
+    serverId: '',
   }
+  console.log('commands-token', token)
   const encrypted = crypto.encrypt(JSON.stringify(token))
   const scriptId = encrypted.split('/').join('.')
-  const script = defaultScript.replace('USER_INFO', scriptId)
-  console.log('script', script)
+  const commands = defaultScript.replace('USER_INFO', scriptId)
+  console.log('commands', commands)
 
   res.json({
     success: true,
-    data: {
-      script: script
-    }
+    commands: commands
   })
 }
 
@@ -88,6 +91,7 @@ const getToken = function(token) {
 
 const getScript = async function (req, res, next) {
   const token = getToken(req.params.token)
+  console.log('GetScript, Token:', token)
 
   const filePath = path.join(__dirname, '../scripts/install.sh')
   readFile(filePath, 'utf8')
@@ -100,9 +104,18 @@ const getScript = async function (req, res, next) {
     })
 }
 
+const updateState = async function (req, res, next) {
+  const token = getToken(req.params.token)
+  console.log('updateState, Token:', token, req.body)
+  res.json({
+    success: true
+  })
+}
+
 module.exports = {
   getServers,
   create,
   getScript,
-  getShellCommand
+  getShellCommands,
+  updateState
 }
