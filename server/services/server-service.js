@@ -145,11 +145,26 @@ const summary = async function (req, res, next) {
   })
 }
 
+const deleteServer = async function (req, res, next) {
+  res.json({ success: true })
+}
+
+const getWebApplications = async function (req, res, next) {
+  res.json({ success: true })
+}
+
+const createWebApplications = async function (req, res, next) {
+  res.json({ success: true })
+}
+
 module.exports = {
   getServers,
   create,
   getScript,
   getShellCommands,
   updateState,
-  summary
+  summary,
+  deleteServer,
+  getWebApplications,
+  createWebApplications,
 }

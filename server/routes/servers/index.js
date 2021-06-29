@@ -1,24 +1,20 @@
-const { body } = require('express-validator')
 const router = require("express").Router()
-const auth = require("../auth")
-const server = require("../../services/server-service")
 
+router.use("/", require("./servers"))
 router.use("/config", require("./config"))
+router.use("/webapplications", require("./webapplications"))
+router.use("/databases", require("./databases"))
+router.use("/systemusers", require("./systemusers"))
+router.use("/sshcredentials", require("./sshcredentials"))
+router.use("/deploymentkeys", require("./deploymentkeys"))
+router.use("/phpcli", require("./phpcli"))
+router.use("/cronjobs", require("./cronjobs"))
+router.use("/supervisors", require("./supervisors"))
+router.use("/notifications", require("./notifications"))
+router.use("/services", require("./services"))
+router.use("/securities", require("./securities"))
+router.use("/settings", require("./settings"))
+router.use("/logs", require("./logs"))
 
-router.get("/", auth.required, server.getServers)
-
-router.post("/create", 
-  auth.required, 
-  body('name').notEmpty(),
-  body('address').isIP(4),
-  body('provider').notEmpty(),
-  body('web_server').notEmpty(),
-  body('database').notEmpty(),
-  body('php').notEmpty(),
-  server.create)
-
-router.post("/summary",
-  auth.required,
-  server.summary)
 
 module.exports = router
