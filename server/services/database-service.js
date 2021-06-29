@@ -2,6 +2,7 @@ const valiator = require('express-validator')
 const mongoose = require("mongoose")
 const Server = mongoose.model("Server")
 const Database = mongoose.model("Database")
+const agent = require("./agent-service")
 
 const getDatabases = async function (req, res, next) {
   try {
@@ -30,7 +31,7 @@ const getDatabases = async function (req, res, next) {
 
 const createDatabase = async function (req, res, next) {
   try {
-    const errors = valiator.validationResult(req);
+    let errors = valiator.validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(422).json({ errors: errors.array() });
     }
@@ -42,6 +43,14 @@ const createDatabase = async function (req, res, next) {
         errors: { 
           serverId: "doesn't exists"
         }
+      })
+    }
+
+    errors = await agent.createDatabase(req)
+    if (errors) {
+      return res.status(422).json({
+        success: false,
+        errors: errors
       })
     }
 
