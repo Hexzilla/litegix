@@ -34,8 +34,22 @@ var ServerSchema = new mongoose.Schema({
     encoding: {type: String, required: [true, "can't be blank"]}
   }],
   databaseUsers: [{
-    name: String,
+    name: {type: String, required: [true, "can't be blank"]},
     password: String
+  }],
+  systemUsers: [{
+    name: {type: String, required: [true, "can't be blank"]},
+    password: String
+  }],
+  sshKeys: [{
+    name: {type: String, required: [true, "can't be blank"]},
+    userName: {type: String, required: [true, "can't be blank"]},
+    publicKey: {type: String, required: [true, "can't be blank"]},
+  }],
+  deploymentKeys: [{
+    name: {type: String, required: [true, "can't be blank"]},
+    userName: {type: String, required: [true, "can't be blank"]},
+    publicKey: {type: String, required: [true, "can't be blank"]},
   }],
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 }, { timestamps: false });

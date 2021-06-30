@@ -8,7 +8,7 @@ const deleteDatabase = async function (name) {
   return null
 }
 
-const createDatabaseUser = async function ({ name, assignUser, collectionName }) {
+const createDatabaseUser = async function({name, password}) {
   return null
 }
 
@@ -24,6 +24,22 @@ const deleteWebApplication = async function (name) {
   return null
 }
 
+const createSystemUser = async function({name, password}) {
+  return null
+}
+
+const deleteSystemUser = async function (name) {
+  return null
+}
+
+const createDeploymentKey = async function({name, password}) {
+  return null
+}
+
+const deleteDeploymentKey = async function (name) {
+  return null
+}
+
 module.exports = {
   createDatabase,
   deleteDatabase,
@@ -31,4 +47,8 @@ module.exports = {
   deleteDatabaseUser,
   createWebApplication,
   deleteWebApplication,
+  createSystemUser,
+  deleteSystemUser,
+  createDeploymentKey,
+  deleteDeploymentKey,
 }

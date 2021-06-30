@@ -1,18 +1,23 @@
 const { body } = require('express-validator')
 const router = require("express").Router()
 const auth = require("../auth")
-const server = require("../../services/server-service")
+const system = require("../../services/system-service")
 
-router.get("/", auth.required, server.getServers)
+router.get("/", auth.required, system.getSSHKeys)
 
 router.post("/create", 
   auth.required, 
-  body('name').notEmpty(),
-  body('address').isIP(4),
-  body('provider').notEmpty(),
-  body('web_server').notEmpty(),
-  body('database').notEmpty(),
-  body('php').notEmpty(),
-  server.createServer)
+  body('serverId').isString(),
+  body('name').isString(),
+  body('userName').isString(),
+  body('publicKey').isString(),
+  system.createSSHKey)
+
+router.delete("/", 
+  auth.required, 
+  body('serverId').isString(),
+  body('name').isString(),
+  system.deleteSSHKey)
+
 
 module.exports = router
