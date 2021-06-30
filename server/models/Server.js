@@ -51,23 +51,18 @@ var ServerSchema = new mongoose.Schema({
     userName: {type: String, required: [true, "can't be blank"]},
     publicKey: {type: String, required: [true, "can't be blank"]},
   }],
+  services: [{
+    name: {type: String, required: [true, "can't be blank"]},
+    cpuUsage: Number,
+    memoryUsage: Number,
+    status: String
+  }],
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 }, { timestamps: false });
 
 
 ServerSchema.methods.toSummaryJSON = function() {
   return this.system;
-  // return  {
-  //   kernelVersion: this.kernelVersion,
-  //   processorName: this.processorName,
-  //   totalCPUCore: this.totalCPUCore,
-  //   totalMemory: this.totalMemory,
-  //   freeMemory: this.freeMemory,
-  //   diskTotal: this.diskTotal,
-  //   diskFree: this.diskFree,
-  //   loadAvg: this.loadAvg,
-  //   uptime: this.uptime,
-  // };
 };
 
 

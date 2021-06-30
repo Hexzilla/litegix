@@ -1,6 +1,5 @@
-const valiator = require('express-validator')
-const mongoose = require("mongoose")
-const Server = mongoose.model("Server")
+const {getServer} = require("./server-service")
+const agent = require("./agent-service")
 
 const getSystemUsers = async function (req, res) {
   try {

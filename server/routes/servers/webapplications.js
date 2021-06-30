@@ -1,12 +1,12 @@
 const { body } = require('express-validator')
 const router = require("express").Router()
 const auth = require("../auth")
-const webapp = require("../../services/webapp-service")
+const application = require("../../services/application-service")
 
 router.post("/", 
   auth.required, 
   body('serverId').isString(),
-  webapp.getWebApplications)
+  application.getWebApplications)
 
 router.post("/create", 
   auth.required,
@@ -17,12 +17,12 @@ router.post("/create",
   body('phpVersion').isString(),
   body('stack').isString(),
   body('sslMethod').isString(),
-  webapp.createWebApplication)
+  application.createWebApplication)
 
 router.delete("/", 
   auth.required, 
   body('serverId').isString(),
   body('name').isString(),
-  webapp.deleteWebApplication)
+  application.deleteWebApplication)
 
 module.exports = router

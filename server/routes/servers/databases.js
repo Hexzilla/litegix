@@ -1,30 +1,30 @@
 const { body } = require('express-validator')
 const router = require("express").Router()
 const auth = require("../auth")
-const database = require("../../services/database-service")
+const application = require("../../services/application-service")
 
 router.post("/", 
   auth.required, 
   body('serverId').isString(),
-  database.getDatabases)
+  application.getDatabases)
 
 router.post("/create", 
   auth.required, 
   body('serverId').isString(),
   body('name').isString(),
   body('encoding').isString(),
-  database.createDatabase)
+  application.createDatabase)
 
 router.delete("/",
   auth.required, 
   body('serverId').isString(),
   body('name').isString(),
-  database.deleteDatabase)
+  application.deleteDatabase)
 
 router.post("/users", 
   auth.required, 
   body('serverId').isString(),
-  database.getDatabaseUsers)
+  application.getDatabaseUsers)
   
 router.post("/users/create", 
   auth.required, 
@@ -32,12 +32,12 @@ router.post("/users/create",
   body('name').isString(),
   body('password').isString(),
   body('confirm_password').isString(),
-  database.createDatabaseUser)
+  application.createDatabaseUser)
 
 router.delete("/users", 
   auth.required, 
   body('serverId').isString(),
   body('name').isString(),
-  database.deleteDatabaseUser)
+  application.deleteDatabaseUser)
 
 module.exports = router
