@@ -9,7 +9,7 @@ router.post("/",
   webapp.getWebApplications)
 
 router.post("/create", 
-  auth.required, 
+  auth.required,
   body('name').isString(),
   body('serverId').isString(),
   body('domain').isString(),
@@ -18,5 +18,11 @@ router.post("/create",
   body('stack').isString(),
   body('sslMethod').isString(),
   webapp.createWebApplication)
+
+router.delete("/", 
+  auth.required, 
+  body('serverId').isString(),
+  body('name').isString(),
+  webapp.deleteWebApplication)
 
 module.exports = router

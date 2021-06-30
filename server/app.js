@@ -52,8 +52,6 @@ require('./models/Country');
 require('./models/Timezone');
 require('./models/Company');
 require('./models/Server');
-require('./models/Database');
-require('./models/WebApplication');
 require('./config/passport');
 
 

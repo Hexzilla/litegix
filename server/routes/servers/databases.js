@@ -10,9 +10,34 @@ router.post("/",
 
 router.post("/create", 
   auth.required, 
-  body('name').isString(),
   body('serverId').isString(),
-  body('collection').isString(),
+  body('name').isString(),
+  body('encoding').isString(),
   database.createDatabase)
+
+router.delete("/",
+  auth.required, 
+  body('serverId').isString(),
+  body('name').isString(),
+  database.deleteDatabase)
+
+router.post("/users", 
+  auth.required, 
+  body('serverId').isString(),
+  database.getDatabaseUsers)
+  
+router.post("/users/create", 
+  auth.required, 
+  body('serverId').isString(),
+  body('name').isString(),
+  body('password').isString(),
+  body('confirm_password').isString(),
+  database.createDatabaseUser)
+
+router.delete("/users", 
+  auth.required, 
+  body('serverId').isString(),
+  body('name').isString(),
+  database.deleteDatabaseUser)
 
 module.exports = router

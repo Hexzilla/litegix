@@ -9,6 +9,30 @@ const crypto = require('./crypto-service')
 
 const defaultScript = "export DEBIAN_FRONTEND=noninteractive; echo 'Acquire::ForceIPv4 \"true\";' | tee /etc/apt/apt.conf.d/99force-ipv4; apt-get update; apt-get install curl netcat-openbsd -y; curl -4 --silent --location http://localhost:3000/servers/config/script/USER_INFO | bash -; export DEBIAN_FRONTEND=newt"
 
+const getServer = async function (req) {
+  try {
+    const reject = (errors) => {
+      return { errors: errors }
+    }
+
+    const errors = valiator.validationResult(req);
+    if (!errors.isEmpty()) {
+      return reject(errors.array())
+    }
+
+    const server = await Server.findById(req.body.serverId)
+    if (!server) {
+      return reject({
+        message: "Server doesn't exists" 
+      })
+    }
+    return { server }
+  }
+  catch (errors) {
+    return { errors: errors }
+  }
+}
+
 const getServers = function (req, res, next) {
   Server.find({user: req.payload.id})
     .then(servers => {
@@ -129,15 +153,18 @@ const summary = async function (req, res, next) {
   }
 
   //TODO
-  server.kernelVersion = "5.4.0-72-generic"
-  server.processorName = "Intel Xeon Processor (Skylake, IBRS)"
-  server.totalCPUCore = 2
-  server.totalMemory = 3.750080108642578
-  server.freeMemory = 3.2643470764160156
-  server.diskTotal = 40.18845696
-  server.diskFree = 33.756172288
-  server.loadAvg = 0
-  server.uptime = "475h 50m 20s"
+  server.system = {
+    kernelVersion: "5.4.0-72-generic",
+    processorName: "Intel Xeon Processor (Skylake, IBRS)",
+    totalCPUCore: 2,
+    totalMemory: 3.750080108642578,
+    freeMemory: 3.2643470764160156,
+    diskTotal: 40.18845696,
+    diskFree: 33.756172288,
+    loadAvg: 0,
+    uptime: "475h 50m 20s"
+  }
+  server.save()
 
   res.json({
     success: true,
@@ -150,6 +177,7 @@ const deleteServer = async function (req, res, next) {
 }
 
 module.exports = {
+  getServer,
   getServers,
   createServer,
   getScript,

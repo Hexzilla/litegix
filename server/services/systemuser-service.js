@@ -1,7 +1,6 @@
 const valiator = require('express-validator')
 const mongoose = require("mongoose")
 const Server = mongoose.model("Server")
-const WebApplication = mongoose.model("WebApplication")
 
 const getSystemUsers = async function (req, res, next) {
   try {
@@ -10,15 +9,7 @@ const getSystemUsers = async function (req, res, next) {
       return res.status(422).json({ errors: errors.array() });
     }
 
-    const applications = await WebApplication.find({ server: req.body.serverId })
-    if (applications) {
-      res.json({ 
-        success: true,
-        data: {
-          applications: applications
-        }
-      })
-    }
+    
   }
   catch (error) {
     return res.status(501).json({ 
