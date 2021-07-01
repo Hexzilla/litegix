@@ -52,7 +52,7 @@ const createDatabase = async function (req, res) {
 
     res.json({
       success: true,
-      message: "Database has been successfully created."
+      message: "It has been successfully created."
     })
   }
   catch (error) {
@@ -75,7 +75,7 @@ const deleteDatabase = async function (req, res) {
       return res.status(422).json({
         success: false,
         errors: { 
-          message: "Database doesn't exists",
+          message: "It doesn't exists",
         }
       })
     }
@@ -93,7 +93,7 @@ const deleteDatabase = async function (req, res) {
 
     res.json({
       success: true,
-      message: "Database has been successfully deleted."
+      message: "It has been successfully deleted."
     })
   }
   catch (error) {
@@ -155,7 +155,7 @@ const createDatabaseUser = async function (req, res) {
 
     res.json({
       success: true,
-      message: "Database user has been successfully created."
+      message: "It has been successfully created."
     })
   }
   catch (error) {
@@ -178,7 +178,7 @@ const deleteDatabaseUser = async function (req, res) {
       return res.status(422).json({
         success: false,
         errors: { 
-          message: "Database user doesn't exists",
+          message: "It doesn't exists",
         }
       })
     }
@@ -196,7 +196,7 @@ const deleteDatabaseUser = async function (req, res) {
 
     res.json({
       success: true,
-      message: "Database user has been successfully deleted."
+      message: "It has been successfully deleted."
     })
   }
   catch (error) {
@@ -258,7 +258,7 @@ const createWebApplication = async function (req, res) {
 
     res.json({
       success: true,
-      message: "Web application has been successfully created."
+      message: "It has been successfully created."
     })
   }
   catch (error) {
@@ -281,7 +281,7 @@ const deleteWebApplication = async function (req, res) {
       return res.status(422).json({
         success: false,
         errors: { 
-          message: "Web application doesn't exists",
+          message: "It doesn't exists",
         }
       })
     }
@@ -299,7 +299,7 @@ const deleteWebApplication = async function (req, res) {
 
     res.json({
       success: true,
-      message: "Web application has been successfully deleted."
+      message: "It has been successfully deleted."
     })
   }
   catch (error) {
@@ -332,6 +332,28 @@ const getSystemServices = async function (req, res) {
   }
 }
 
+const getPhpVersion = async function (req, res) {
+  try {
+    let {server, errors} = await getServer(req)
+    if (errors) {
+      return res.status(422).json({ success: false, errors: errors })
+    }
+
+    res.json({ 
+      success: true,
+      data: {
+        phpVersion: server.phpVersion
+      }
+    })
+  }
+  catch (error) {
+    return res.status(501).json({ 
+      success: false,
+      errors: error
+    });
+  }
+}
+
 module.exports = {
   getDatabases,
   createDatabase,
@@ -343,4 +365,5 @@ module.exports = {
   createWebApplication,
   deleteWebApplication,
   getSystemServices,
+  getPhpVersion,
 }

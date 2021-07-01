@@ -6,7 +6,7 @@ var ServerSchema = new mongoose.Schema({
   provider: String,
   webServer: String,
   database: String,
-  php: String,
+  phpVersion: String,
   connected: Boolean,
   system: {
     kernelVersion: String,
@@ -56,6 +56,16 @@ var ServerSchema = new mongoose.Schema({
     cpuUsage: Number,
     memoryUsage: Number,
     status: String
+  }],
+  supervisors: [{
+    name: {type: String, required: [true, "can't be blank"]},
+    userName: {type: String, required: [true, "can't be blank"]},
+    numprocs: {type: Number, required: [true, "can't be blank"]},
+    vendorBinary: {type: String, required: [true, "can't be blank"]},
+    command: {type: String, required: [true, "can't be blank"]},
+    autoStart: Boolean,
+    autoRestart: Boolean,
+    directory: String,
   }],
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 }, { timestamps: false });

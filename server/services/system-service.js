@@ -52,7 +52,7 @@ const createSystemUser = async function (req, res) {
 
     res.json({
       success: true,
-      message: "System user has been successfully created."
+      message: "It has been successfully created."
     })
   }
   catch (error) {
@@ -75,7 +75,7 @@ const deleteSystemUser = async function (req, res) {
       return res.status(422).json({
         success: false,
         errors: { 
-          message: "System user doesn't exists",
+          message: "It doesn't exists",
         }
       })
     }
@@ -155,7 +155,7 @@ const createSSHKey = async function (req, res) {
 
     res.json({
       success: true,
-      message: "SSH Key has been successfully created."
+      message: "It has been successfully created."
     })
   }
   catch (error) {
@@ -178,7 +178,7 @@ const deleteSSHKey = async function (req, res) {
       return res.status(422).json({
         success: false,
         errors: { 
-          message: "SSH Key doesn't exists",
+          message: "It doesn't exists",
         }
       })
     }
@@ -258,7 +258,7 @@ const createDeploymentKey = async function (req, res) {
 
     res.json({
       success: true,
-      message: "Deployment Key has been successfully created."
+      message: "It has been successfully created."
     })
   }
   catch (error) {
@@ -281,7 +281,7 @@ const deleteDeploymentKey = async function (req, res) {
       return res.status(422).json({
         success: false,
         errors: { 
-          message: "Deployment Key doesn't exists",
+          message: "It doesn't exists",
         }
       })
     }
@@ -310,6 +310,110 @@ const deleteDeploymentKey = async function (req, res) {
   }
 }
 
+const getSupervisorJobs = async function (req, res) {
+  try {
+    let {server, errors} = await getServer(req)
+    if (errors) {
+      return res.status(422).json({ success: false, errors: errors })
+    }
+
+    res.json({ 
+      success: true,
+      data: {
+        supervisors: server.supervisors
+      }
+    })
+  }
+  catch (error) {
+    return res.status(501).json({ 
+      success: false,
+      errors: error
+    });
+  }
+}
+
+const createSupervisorJob = async function (req, res) {
+  try {
+    let {server, errors} = await getServer(req)
+    if (errors) {
+      return res.status(422).json({ success: false, errors: errors })
+    }
+
+    if (server.supervisors.find(it => it.name === req.body.name)) {
+      return res.status(422).json({
+        success: false,
+        errors: {
+          message: "Name is duplicated",
+        }
+      })
+    }
+
+    errors = await agent.createSupervisorJob(req.body)
+    if (errors) {
+      return res.status(422).json({
+        success: false,
+        errors: errors
+      })
+    }
+
+    server.supervisors.push(req.body)
+    server.save()
+
+    res.json({
+      success: true,
+      message: "It has been successfully created."
+    })
+  }
+  catch (error) {
+    return res.status(501).json({ 
+      success: false,
+      errors: error
+    });
+  }
+}
+
+const deleteSupervisorJob = async function (req, res) {
+  try {
+    let {server, errors} = await getServer(req)
+    if (errors) {
+      return res.status(422).json({ success: false, errors: errors })
+    }
+
+    const index = server.supervisors.findIndex(it => it.name === req.body.name);
+    if (index < 0) {
+      return res.status(422).json({
+        success: false,
+        errors: { 
+          message: "It doesn't exists",
+        }
+      })
+    }
+
+    errors = await agent.deleteSupervisorJob(req.body.name)
+    if (errors) {
+      return res.status(422).json({
+        success: false,
+        errors: errors
+      })
+    }
+
+    server.supervisors.splice(index, 1)
+    server.save()
+
+    res.json({
+      success: true,
+      message: "It has been successfully deleted."
+    })
+  }
+  catch (error) {
+    return res.status(501).json({ 
+      success: false,
+      errors: error
+    });
+  }
+}
+
+
 module.exports = {
   getSystemUsers,
   createSystemUser,
@@ -319,5 +423,8 @@ module.exports = {
   deleteSSHKey,
   getDeploymentKeys,
   createDeploymentKey,
-  deleteDeploymentKey
+  deleteDeploymentKey,
+  getSupervisorJobs,
+  createSupervisorJob,
+  deleteSupervisorJob,
 }

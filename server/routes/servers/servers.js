@@ -12,7 +12,7 @@ router.post("/create",
   body('provider').notEmpty(),
   body('web_server').notEmpty(),
   body('database').notEmpty(),
-  body('php').notEmpty(),
+  body('phpVersion').notEmpty(),
   server.createServer)
 
 router.post("/summary",
