@@ -7,12 +7,8 @@ router.get("/", auth.required, system.getSystemUsers)
 
 router.post("/create", 
   auth.required, 
-  body('name').notEmpty(),
-  body('address').isIP(4),
-  body('provider').notEmpty(),
-  body('web_server').notEmpty(),
-  body('database').notEmpty(),
-  body('php').notEmpty(),
+  body('name').isString(),
+  body('password').isString(),
   system.createSystemUser)
 
 router.delete("/", 

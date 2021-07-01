@@ -2,6 +2,7 @@ const mongoose = require("mongoose")
 const Activity = mongoose.model("Activity")
 const {getServer} = require("./server-service")
 const agent = require("./agent-service")
+const moment = require('moment');
 
 const getActivityLogs = async function (req, res) {
   try {
@@ -26,6 +27,22 @@ const getActivityLogs = async function (req, res) {
   }
 }
 
+const createActivityLogInfo = async function (serverId, message) {
+  try {
+    const activity = new Activity({
+      serverId: serverId,
+      level: 1,
+      message: message,
+      date: moment()
+    });
+    await activity.save();
+  }
+  catch (error) {
+    return {errors: errors}
+  }
+}
+
 module.exports = {
   getActivityLogs,
+  createActivityLogInfo,
 }

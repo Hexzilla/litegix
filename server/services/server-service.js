@@ -164,7 +164,7 @@ const summary = async function (req, res, next) {
     loadAvg: 0,
     uptime: "475h 50m 20s"
   }
-  server.save()
+  await server.save()
 
   res.json({
     success: true,

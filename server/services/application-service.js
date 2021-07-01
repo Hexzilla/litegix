@@ -1,5 +1,6 @@
 const {getServer} = require("./server-service")
 const agent = require("./agent-service")
+const activity = require("./activity-service")
 
 const getDatabases = async function (req, res) {
   try {
@@ -48,7 +49,10 @@ const createDatabase = async function (req, res) {
     }
 
     server.databases.push(req.body)
-    server.save()
+    await server.save()
+
+    const message = `Added new database ${req.body.name} with collation ${req.body.encoding}`;
+    await activity.createActivityLogInfo(req.body.serverId, message)
 
     res.json({
       success: true,
@@ -89,7 +93,10 @@ const deleteDatabase = async function (req, res) {
     }
 
     server.databases.splice(index, 1)
-    server.save()
+    await server.save()
+
+    const message = `Deleted database ${req.body.name}`;
+    await activity.createActivityLogInfo(req.body.serverId, message)
 
     res.json({
       success: true,
@@ -151,7 +158,10 @@ const createDatabaseUser = async function (req, res) {
     }
 
     server.databaseUsers.push(req.body)
-    server.save()
+    await server.save()
+
+    const message = `Added new database user ${req.body.name} with password`;
+    await activity.createActivityLogInfo(req.body.serverId, message)
 
     res.json({
       success: true,
@@ -192,7 +202,10 @@ const deleteDatabaseUser = async function (req, res) {
     }
 
     server.databaseUsers.splice(index, 1)
-    server.save()
+    await server.save()
+
+    const message = `Deleted database user ${req.body.name}`;
+    await activity.createActivityLogInfo(req.body.serverId, message)
 
     res.json({
       success: true,
@@ -254,7 +267,10 @@ const createWebApplication = async function (req, res) {
     }
 
     server.applications.push(req.body)
-    server.save()
+    await server.save()
+
+    const message = `Added new web application ${req.body.name} with domain ${req.body.domain}`;
+    await activity.createActivityLogInfo(req.body.serverId, message)
 
     res.json({
       success: true,
@@ -295,7 +311,7 @@ const deleteWebApplication = async function (req, res) {
     }
 
     server.applications.splice(index, 1)
-    server.save()
+    await server.save()
 
     res.json({
       success: true,

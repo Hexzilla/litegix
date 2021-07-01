@@ -48,7 +48,10 @@ const createSystemUser = async function (req, res) {
     }
 
     server.systemUsers.push(req.body)
-    server.save()
+    await server.save()
+
+    const message = `Added new system user ${req.body.name} with password`;
+    await activity.createActivityLogInfo(req.body.serverId, message)
 
     res.json({
       success: true,
@@ -89,7 +92,7 @@ const deleteSystemUser = async function (req, res) {
     }
 
     server.systemUsers.splice(index, 1)
-    server.save()
+    await server.save()
 
     res.json({
       success: true,
@@ -151,7 +154,10 @@ const createSSHKey = async function (req, res) {
     }
 
     server.sshKeys.push(req.body)
-    server.save()
+    await server.save()
+
+    const message = `Added new SSH key ${req.body.name} with user ${req.body.userName}`;
+    await activity.createActivityLogInfo(req.body.serverId, message)
 
     res.json({
       success: true,
@@ -192,7 +198,7 @@ const deleteSSHKey = async function (req, res) {
     }
 
     server.sshKeys.splice(index, 1)
-    server.save()
+    await server.save()
 
     res.json({
       success: true,
@@ -254,7 +260,10 @@ const createDeploymentKey = async function (req, res) {
     }
 
     server.deploymentKeys.push(req.body)
-    server.save()
+    await server.save()
+
+    const message = `Added new deployment key ${req.body.name} with user ${req.body.userName}`;
+    await activity.createActivityLogInfo(req.body.serverId, message)
 
     res.json({
       success: true,
@@ -295,7 +304,7 @@ const deleteDeploymentKey = async function (req, res) {
     }
 
     server.deploymentKeys.splice(index, 1)
-    server.save()
+    await server.save()
 
     res.json({
       success: true,
@@ -357,7 +366,10 @@ const createSupervisorJob = async function (req, res) {
     }
 
     server.supervisors.push(req.body)
-    server.save()
+    await server.save()
+
+    const message = `Added new supervisor job ${req.body.name}`;
+    await activity.createActivityLogInfo(req.body.serverId, message)
 
     res.json({
       success: true,
@@ -398,7 +410,7 @@ const deleteSupervisorJob = async function (req, res) {
     }
 
     server.supervisors.splice(index, 1)
-    server.save()
+    await server.save()
 
     res.json({
       success: true,
