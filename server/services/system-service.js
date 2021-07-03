@@ -1,41 +1,50 @@
+const valiator = require('express-validator')
 const {getServer} = require("./server-service")
+const mongoose = require("mongoose")
+const SystemUser = mongoose.model("SystemUser")
 const agent = require("./agent-service")
+const activity = require("./activity-service")
 
 const getSystemUsers = async function (req, res) {
   try {
-    let {server, errors} = await getServer(req)
-    if (errors) {
-      return res.status(422).json({ success: false, errors: errors })
-    }
-
-    res.json({ 
+    const users = await SystemUser.find({ serverId: req.server.id })
+    return res.json({ 
       success: true,
-      data: {
-        systemUsers: server.systemUsers
-      }
+      data: { users: users }
     })
   }
-  catch (error) {
-    return res.status(501).json({ 
-      success: false,
-      errors: error
-    });
+  catch (e) {
+    console.error(e)
+    return res.status(501).json({ success: false });
   }
 }
 
 const createSystemUser = async function (req, res) {
   try {
-    let {server, errors} = await getServer(req)
-    if (errors) {
-      return res.status(422).json({ success: false, errors: errors })
+    res.json({
+      success: true,
+      data: {}
+    })
+  }
+  catch (e) {
+    console.error(e)
+    return res.status(501).json({ success: false });
+  }
+}
+
+const storeSystemUser = async function (req, res) {
+  try {
+    let errors = valiator.validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ success: false, errors: errors.array() })
     }
 
-    if (server.systemUsers.find(it => it.name === req.body.name)) {
+    let server = req.server
+    let user = await SystemUser.findOne({ serverId: server.id, name: req.body.name })
+    if (user) {
       return res.status(422).json({
         success: false,
-        errors: {
-          message: "Name is duplicated",
-        }
+        errors: { message: "Name is duplicated" }
       })
     }
 
@@ -47,63 +56,57 @@ const createSystemUser = async function (req, res) {
       })
     }
 
-    server.systemUsers.push(req.body)
-    await server.save()
+    user = new SystemUser(req.body)
+    user.serverId = server.id
+    await user.save()
 
     const message = `Added new system user ${req.body.name} with password`;
-    await activity.createActivityLogInfo(req.body.serverId, message)
+    await activity.createActivityLogInfo(server.id, message)
 
     res.json({
       success: true,
       message: "It has been successfully created."
     })
   }
-  catch (error) {
-    return res.status(501).json({ 
-      success: false,
-      errors: error
-    });
+  catch (e) {
+    console.error(e)
+    return res.status(501).json({ success: false });
   }
 }
 
 const deleteSystemUser = async function (req, res) {
   try {
-    let {server, errors} = await getServer(req)
+    let errors = valiator.validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ success: false, errors: errors.array() })
+    }
+
+    let user = await SystemUser.findById(req.body.id)
+    if (!user) {
+      return res.status(422).json({
+        success: false,
+        errors: { message: "It doesn't exists" }
+      })
+    }
+
+    errors = await agent.deleteSystemUser(user.name)
     if (errors) {
       return res.status(422).json({ success: false, errors: errors })
     }
 
-    const index = server.systemUsers.findIndex(it => it.name === req.body.name);
-    if (index < 0) {
-      return res.status(422).json({
-        success: false,
-        errors: { 
-          message: "It doesn't exists",
-        }
-      })
-    }
+    await user.remove()
 
-    errors = await agent.deleteSystemUser(req.body.name)
-    if (errors) {
-      return res.status(422).json({
-        success: false,
-        errors: errors
-      })
-    }
-
-    server.systemUsers.splice(index, 1)
-    await server.save()
+    const message = `Deleted system user ${req.body.name}`;
+    await activity.createActivityLogInfo(req.body.serverId, message)
 
     res.json({
       success: true,
-      message: "System user has been successfully deleted."
+      message: "It has been successfully deleted."
     })
   }
-  catch (error) {
-    return res.status(501).json({ 
-      success: false,
-      errors: error
-    });
+  catch (e) {
+    console.error(e)
+    return res.status(501).json({ success: false });
   }
 }
 
@@ -429,6 +432,7 @@ const deleteSupervisorJob = async function (req, res) {
 module.exports = {
   getSystemUsers,
   createSystemUser,
+  storeSystemUser,
   deleteSystemUser,
   getSSHKeys,
   createSSHKey,

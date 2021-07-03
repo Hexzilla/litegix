@@ -7,4 +7,5 @@ require('./Company');
 require('./Server');
 require('./Database');
 require('./DatabaseUser');
+require('./SystemUser');
 require('./Activity');

@@ -3,17 +3,19 @@ const router = require("express").Router()
 const auth = require("../auth")
 const system = require("../../services/system-service")
 
-router.get("/", auth.required, system.getSystemUsers)
+router.get("/",
+  auth.required,
+  system.getSystemUsers)
 
-router.post("/create", 
+router.post("/store", 
   auth.required, 
   body('name').isString(),
   body('password').isString(),
-  system.createSystemUser)
+  system.storeSystemUser)
 
 router.delete("/", 
   auth.required, 
-  body('name').notEmpty(),
+  body('id').isString(),
   system.deleteSystemUser)
 
 module.exports = router

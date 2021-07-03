@@ -1,4 +1,3 @@
-
 const valiator = require('express-validator')
 const {getServer} = require("./server-service")
 const mongoose = require("mongoose")
@@ -50,9 +49,7 @@ const storeDatabase = async function (req, res) {
     if (database) {
       return res.status(422).json({
         success: false,
-        errors: {
-          message: "Name is duplicated",
-        }
+        errors: { message: "Name is duplicated" }
       })
     }
 
