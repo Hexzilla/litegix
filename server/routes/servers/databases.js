@@ -7,17 +7,19 @@ router.get("/",
   auth.required, 
   database.getDatabases)
 
-router.post("/create", 
+router.get("/create", 
   auth.required, 
-  body('serverId').isString(),
+  database.createDatabase)
+
+router.post("/store", 
+  auth.required, 
   body('name').isString(),
   body('encoding').isString(),
   database.storeDatabase)
 
 router.delete("/",
   auth.required, 
-  body('serverId').isString(),
-  body('name').isString(),
+  body('id').isString(),
   database.deleteDatabase)
 
 router.post("/users", 

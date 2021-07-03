@@ -1,0 +1,9 @@
+require('./User');
+require('./Article');
+require('./Comment');
+require('./Country');
+require('./Timezone');
+require('./Company');
+require('./Server');
+require('./Database');
+require('./Activity');

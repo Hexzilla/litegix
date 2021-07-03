@@ -28,11 +28,6 @@ var ServerSchema = new mongoose.Schema({
     stack: String,
     sslMethod: String,
   }],
-  databases: [{
-    name: {type: String, required: [true, "can't be blank"]},
-    userName: String,
-    encoding: {type: String, required: [true, "can't be blank"]}
-  }],
   databaseUsers: [{
     name: {type: String, required: [true, "can't be blank"]},
     password: String
@@ -68,8 +63,13 @@ var ServerSchema = new mongoose.Schema({
     directory: String,
   }],
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
-}, { timestamps: false });
+}, {
+  timestamps: true,
+  autoIndex: false
+});
 
+
+ServerSchema.index({ name: 1, type: -1 }); // schema level
 
 ServerSchema.methods.toSummaryJSON = function() {
   return this.system;

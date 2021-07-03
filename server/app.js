@@ -45,14 +45,7 @@ if (isProduction) {
   mongoose.set('debug', true);
 }
 
-require('./models/User');
-require('./models/Article');
-require('./models/Comment');
-require('./models/Country');
-require('./models/Timezone');
-require('./models/Company');
-require('./models/Server');
-require('./models/Activity');
+require('./models');
 require('./config/passport');
 
 
@@ -93,6 +86,17 @@ app.use(function(err, req, res, next) {
     error: {}
   }});
 });
+
+
+// get the unhandled rejection and throw it to another fallback handler we already have.
+process.on('unhandledRejection', (reason, promise) => {
+  throw reason;
+});
+ 
+process.on('uncaughtException', err => {
+  console.error('There was an uncaught error', err)
+  process.exit(1) //mandatory (as per the Node.js docs)
+})
 
 // finally, let's start our server...
 var server = app.listen( process.env.PORT || 3000, function(){
