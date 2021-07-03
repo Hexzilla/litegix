@@ -2,7 +2,7 @@ const router = require("express").Router()
 
 router.use("/", require("./servers"))
 router.use("/config", require("./config"))
-router.use("/webapplications", require("./webapplications"))
+router.use("/webapp", require("./webapp"))
 router.use("/databases", require("./databases"))
 router.use("/systemusers", require("./systemusers"))
 router.use("/sshcredentials", require("./sshcredentials"))
