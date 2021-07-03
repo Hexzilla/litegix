@@ -1,6 +1,6 @@
-const {getServer} = require("./server-service")
-const agent = require("./agent-service")
-const activity = require("./activity-service")
+const {getServer} = require("./server")
+const agent = require("./agent")
+const activity = require("./activity")
 
 
 const getWebApplications = async function (req, res) {

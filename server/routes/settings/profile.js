@@ -1,7 +1,7 @@
 const { body } = require('express-validator')
 const router = require("express").Router()
 const auth = require("../auth")
-const profile = require("../../services/profile-service")
+const profile = require("../../services/profile")
 
 router.get("/", auth.required, profile.getProfile)
 

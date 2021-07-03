@@ -1,7 +1,7 @@
 const mongoose = require("mongoose")
 const Activity = mongoose.model("Activity")
-const {getServer} = require("./server-service")
-const agent = require("./agent-service")
+const {getServer} = require("./server")
+const agent = require("./agent")
 const moment = require('moment');
 
 const getActivityLogs = async function (req, res) {

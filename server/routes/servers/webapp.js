@@ -1,7 +1,7 @@
 const { body } = require('express-validator')
 const router = require("express").Router()
 const auth = require("../auth")
-const application = require("../../services/web-service")
+const application = require("../../services/web")
 
 router.post("/", 
   auth.required, 

@@ -28,10 +28,6 @@ var ServerSchema = new mongoose.Schema({
     stack: String,
     sslMethod: String,
   }],
-  systemUsers: [{
-    name: {type: String, required: [true, "can't be blank"]},
-    password: String
-  }],
   sshKeys: [{
     name: {type: String, required: [true, "can't be blank"]},
     userName: {type: String, required: [true, "can't be blank"]},
@@ -41,12 +37,6 @@ var ServerSchema = new mongoose.Schema({
     name: {type: String, required: [true, "can't be blank"]},
     userName: {type: String, required: [true, "can't be blank"]},
     publicKey: {type: String, required: [true, "can't be blank"]},
-  }],
-  services: [{
-    name: {type: String, required: [true, "can't be blank"]},
-    cpuUsage: Number,
-    memoryUsage: Number,
-    status: String
   }],
   supervisors: [{
     name: {type: String, required: [true, "can't be blank"]},

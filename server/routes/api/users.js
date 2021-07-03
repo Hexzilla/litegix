@@ -3,7 +3,7 @@ const mongoose = require("mongoose")
 const router = require("express").Router()
 const User = mongoose.model("User")
 const auth = require("../auth")
-const authService = require("../../services/auth-service")
+const authService = require("../../services/auth")
 
 router.get("/user", auth.required, function (req, res, next) {
   User.findById(req.payload.id)

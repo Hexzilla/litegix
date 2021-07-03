@@ -1,6 +1,6 @@
 const router = require("express").Router()
 const auth = require("../auth")
-const authService = require("../../services/auth-service")
+const authService = require("../../services/auth")
 
 router.get("/", auth.required, authService.getApiKeys)
 

@@ -1,10 +1,10 @@
 const valiator = require('express-validator')
-const {getServer} = require("./server-service")
+const {getServer} = require("./server")
 const mongoose = require("mongoose")
 const Database = mongoose.model("Database")
 const DatabaseUser = mongoose.model("DatabaseUser")
-const agent = require("./agent-service")
-const activity = require("./activity-service")
+const agent = require("./agent")
+const activity = require("./activity")
 
 const getDatabases = async function (req, res) {
   try {
