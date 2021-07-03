@@ -3,17 +3,47 @@ const agent = require("./agent-service")
 const activity = require("./activity-service")
 
 const getDatabases = async function (req, res) {
+  return res.json({ 
+    success: true,
+    data: {
+      databases: req.server.databases
+    }
+  })
+}
+
+const createDatabase = async function (req, res) {
   try {
     let {server, errors} = await getServer(req)
     if (errors) {
       return res.status(422).json({ success: false, errors: errors })
     }
 
-    res.json({ 
+    if (server.databases.find(it => it.name === req.body.name)) {
+      return res.status(422).json({
+        success: false,
+        errors: {
+          message: "Name is duplicated",
+        }
+      })
+    }
+
+    errors = await agent.createDatabase(req.body)
+    if (errors) {
+      return res.status(422).json({
+        success: false,
+        errors: errors
+      })
+    }
+
+    server.databases.push(req.body)
+    await server.save()
+
+    const message = `Added new database ${req.body.name} with collation ${req.body.encoding}`;
+    await activity.createActivityLogInfo(req.body.serverId, message)
+
+    res.json({
       success: true,
-      data: {
-        databases: server.databases
-      }
+      message: "It has been successfully created."
     })
   }
   catch (error) {
@@ -24,7 +54,7 @@ const getDatabases = async function (req, res) {
   }
 }
 
-const createDatabase = async function (req, res) {
+const storeDatabase = async function (req, res) {
   try {
     let {server, errors} = await getServer(req)
     if (errors) {
@@ -267,6 +297,7 @@ const getPhpVersion = async function (req, res) {
 module.exports = {
   getDatabases,
   createDatabase,
+  storeDatabase,
   deleteDatabase,
   getDatabaseUsers,
   createDatabaseUser,

@@ -3,9 +3,8 @@ const router = require("express").Router()
 const auth = require("../auth")
 const database = require("../../services/database-service")
 
-router.post("/", 
+router.get("/", 
   auth.required, 
-  body('serverId').isString(),
   database.getDatabases)
 
 router.post("/create", 
@@ -13,7 +12,7 @@ router.post("/create",
   body('serverId').isString(),
   body('name').isString(),
   body('encoding').isString(),
-  database.createDatabase)
+  database.storeDatabase)
 
 router.delete("/",
   auth.required, 
