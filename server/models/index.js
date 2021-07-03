@@ -8,4 +8,5 @@ require('./Server');
 require('./Database');
 require('./DatabaseUser');
 require('./SystemUser');
+require('./Service');
 require('./Activity');

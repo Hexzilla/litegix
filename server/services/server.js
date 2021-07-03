@@ -5,7 +5,7 @@ const readFile = util.promisify(fs.readFile);
 const valiator = require('express-validator')
 const mongoose = require("mongoose")
 const Server = mongoose.model("Server")
-const crypto = require('./crypto-service')
+const crypto = require('./crypto')
 
 const defaultScript = "export DEBIAN_FRONTEND=noninteractive; echo 'Acquire::ForceIPv4 \"true\";' | tee /etc/apt/apt.conf.d/99force-ipv4; apt-get update; apt-get install curl netcat-openbsd -y; curl -4 --silent --location http://localhost:3000/servers/config/script/USER_INFO | bash -; export DEBIAN_FRONTEND=newt"
 
@@ -48,42 +48,48 @@ const getServers = function (req, res, next) {
 }
 
 const createServer = async function (req, res, next) {
-  const errors = valiator.validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(422).json({ errors: errors.array() });
-  }
+  try {
+    const errors = valiator.validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
 
-  let result = await Server.findOne({ address: req.body.address })
-  if (result) {
-    return res.status(422).json({
-      success: false,
-      message: "IP address already exists.",
-      errors: { 
-        address: 'already exists'
-      }
+    let result = await Server.findOne({ address: req.body.address })
+    if (result) {
+      return res.status(422).json({
+        success: false,
+        message: "IP address already exists.",
+        errors: { 
+          address: 'already exists'
+        }
+      })
+    }
+
+    result = await Server.findOne({ name: req.body.name, user: req.payload.id })
+    if (result) {
+      return res.status(422).json({
+        success: false,
+        message: "Server name already exists.",
+        errors: { 
+          name: 'already exists'
+        }
+      })
+    }
+
+    const server = new Server(req.body)
+    server.connected = false
+    server.user = req.payload.id
+    await server.save()
+
+    res.json({
+      success: true,
+      message: "Your server has been successfully created."
     })
   }
-
-  result = await Server.findOne({ name: req.body.name, user: req.payload.id })
-  if (result) {
-    return res.status(422).json({
-      success: false,
-      message: "Server name already exists.",
-      errors: { 
-        name: 'already exists'
-      }
-    })
+  catch (e) {
+    console.error(e)
+    return res.status(501).json({ success: false });
   }
-
-  const server = new Server(req.body)
-  server.connected = false
-  server.user = req.payload.id
-  await server.save()
-
-  res.json({
-    success: true,
-    message: "Your server has been successfully created."
-  })
 }
 
 const getShellCommands = function(req, res) {

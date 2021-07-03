@@ -19,15 +19,6 @@ var ServerSchema = new mongoose.Schema({
     loadAvg: Number,
     uptime: String,
   },
-  applications: [{
-    name: {type: String, required: [true, "can't be blank"]},
-    status: String,
-    owner: String,
-    domain: String,
-    phpVersion: String,
-    stack: String,
-    sslMethod: String,
-  }],
   sshKeys: [{
     name: {type: String, required: [true, "can't be blank"]},
     userName: {type: String, required: [true, "can't be blank"]},

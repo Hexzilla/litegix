@@ -1,6 +1,6 @@
 const { body } = require('express-validator')
 const router = require('express').Router();
-const authService = require('../services/auth-service')
+const authService = require('../services/auth')
 
 router.use('/api', require('./api'));
 router.use('/settings', require('./settings'));
@@ -31,7 +31,7 @@ router.use(function (err, req, res, next) {
   return next(err)
 })
 
-/*const cryptoService = require('../services/crypto-service')
+/*const cryptoService = require('../services/crypto')
 const encrypted = cryptoService.encrypt("Hello World. www.maazone.com!!!192020$$$###")
 const decrypted = cryptoService.decrypt(encrypted)
 console.log('crypto', encrypted, decrypted)*/
