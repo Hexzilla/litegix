@@ -80,7 +80,7 @@ router.post("/store/wordpress",
   body('maxExecutionTime').isNumeric(),*/
   application.storeWordpressWebApplication)
 
-router.delete("/", 
+router.delete("/",
   auth.required, 
   body('serverId').isString(),
   body('name').isString(),
