@@ -13,6 +13,10 @@ var UserSchema = new mongoose.Schema({
   following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   hash: String,
   salt: String,
+  apiKeys: {
+    key: {type: String, required: [true, "can't be blank"]},
+    secret: {type: String, required: [true, "can't be blank"]},
+  },
   company: { type: mongoose.Schema.Types.ObjectId, ref: 'Company' }
 }, {timestamps: true});
 

@@ -1,15 +1,18 @@
 const { body } = require('express-validator')
 const router = require("express").Router()
 const auth = require("../auth")
-const account = require("../../services/account-service")
+const authService = require("../../services/auth-service")
 
 // Upate user profile
 router.post("/password/update", 
   auth.required,
-  body('current_password').notEmpty(),
-  body('password').isLength({ min: 8 }),
-  body('password_confirm').notEmpty(),
-  account.changePassword)
+  body('current_password').isString(),
+  body('password').isString().isLength({ min: 8 }),
+  body('password_confirm').isString(),
+  authService.changePassword)
 
+router.delete("/", 
+  auth.required,
+  authService.deleteAccount)
 
 module.exports = router

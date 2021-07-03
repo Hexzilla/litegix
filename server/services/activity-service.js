@@ -31,6 +31,7 @@ const createActivityLogInfo = async function (serverId, message) {
   try {
     const activity = new Activity({
       serverId: serverId,
+      category: 1,
       level: 1,
       message: message,
       date: moment()
