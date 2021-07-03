@@ -3,6 +3,7 @@ const valiator = require('express-validator')
 const {getServer} = require("./server-service")
 const mongoose = require("mongoose")
 const Database = mongoose.model("Database")
+const DatabaseUser = mongoose.model("DatabaseUser")
 const agent = require("./agent-service")
 const activity = require("./activity-service")
 
@@ -14,11 +15,9 @@ const getDatabases = async function (req, res) {
       data: { databases }
     })
   }
-  catch (error) {
-    return res.status(501).json({ 
-      success: false,
-      errors: error
-    });
+  catch (e) {
+    console.error(e)
+    return res.status(501).json({ success: false });
   }
 }
 
@@ -121,34 +120,35 @@ const deleteDatabase = async function (req, res) {
 
 const getDatabaseUsers = async function (req, res) {
   try {
-    let {server, errors} = await getServer(req)
-    if (errors) {
-      return res.status(422).json({ success: false, errors: errors })
-    }
-
-    res.json({
+    const users = await DatabaseUser.find({ serverId: req.server.id })
+    return res.json({ 
       success: true,
-      data: {
-        databaseUsers: server.databaseUsers
-      }
+      data: { users: users }
     })
   }
-  catch (error) {
-    return res.status(501).json({ 
-      success: false,
-      errors: error
-    });
+  catch (e) {
+    console.error(e)
+    return res.status(501).json({ success: false });
   }
 }
 
 const createDatabaseUser = async function (req, res) {
+  return res.json({
+    success: true,
+    data: {}
+  })
+}
+
+const storeDatabaseUser = async function (req, res) {
   try {
-    let {server, errors} = await getServer(req)
-    if (errors) {
-      return res.status(422).json({ success: false, errors: errors })
+    let errors = valiator.validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ success: false, errors: errors.array() })
     }
 
-    if (server.databaseUsers.find(it => it.name === req.body.name)) {
+    let server = req.server
+    let user = await DatabaseUser.findOne({ serverId: server.id, name: req.body.name })
+    if (user) {
       return res.status(422).json({
         success: false,
         errors: {
@@ -165,52 +165,45 @@ const createDatabaseUser = async function (req, res) {
       })
     }
 
-    server.databaseUsers.push(req.body)
-    await server.save()
+    user = new DatabaseUser(req.body)
+    user.serverId = server.id
+    await user.save()
 
     const message = `Added new database user ${req.body.name} with password`;
-    await activity.createActivityLogInfo(req.body.serverId, message)
+    await activity.createActivityLogInfo(server.id, message)
 
     res.json({
       success: true,
       message: "It has been successfully created."
     })
   }
-  catch (error) {
-    return res.status(501).json({ 
-      success: false,
-      errors: error
-    });
+  catch (e) {
+    console.error(e)
+    return res.status(501).json({ success: false });
   }
 }
 
 const deleteDatabaseUser = async function (req, res) {
   try {
-    let {server, errors} = await getServer(req)
+    let errors = valiator.validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ success: false, errors: errors.array() })
+    }
+
+    let user = await DatabaseUser.findById(req.body.id)
+    if (!user) {
+      return res.status(422).json({
+        success: false,
+        errors: { message: "It doesn't exists" }
+      })
+    }
+
+    errors = await agent.deleteDatabaseUser(user.name)
     if (errors) {
       return res.status(422).json({ success: false, errors: errors })
     }
 
-    const index = server.databaseUsers.findIndex(it => it.name === req.body.name);
-    if (index < 0) {
-      return res.status(422).json({
-        success: false,
-        errors: { 
-          message: "It doesn't exists",
-        }
-      })
-    }
-
-    errors = await agent.deleteDatabaseUser(req.body.name)
-    if (errors) {
-      return res.status(422).json({
-        success: false,
-        errors: errors
-      })
-    }
-
-    server.databaseUsers.splice(index, 1)
-    await server.save()
+    await user.remove()
 
     const message = `Deleted database user ${req.body.name}`;
     await activity.createActivityLogInfo(req.body.serverId, message)
@@ -220,11 +213,9 @@ const deleteDatabaseUser = async function (req, res) {
       message: "It has been successfully deleted."
     })
   }
-  catch (error) {
-    return res.status(501).json({ 
-      success: false,
-      errors: error
-    });
+  catch (e) {
+    console.error(e)
+    return res.status(501).json({ success: false });
   }
 }
 
@@ -279,6 +270,7 @@ module.exports = {
   deleteDatabase,
   getDatabaseUsers,
   createDatabaseUser,
+  storeDatabaseUser,
   deleteDatabaseUser,
   getSystemServices,
   getPhpVersion,

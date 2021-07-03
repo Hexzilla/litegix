@@ -28,10 +28,6 @@ var ServerSchema = new mongoose.Schema({
     stack: String,
     sslMethod: String,
   }],
-  databaseUsers: [{
-    name: {type: String, required: [true, "can't be blank"]},
-    password: String
-  }],
   systemUsers: [{
     name: {type: String, required: [true, "can't be blank"]},
     password: String

@@ -22,23 +22,19 @@ router.delete("/",
   body('id').isString(),
   database.deleteDatabase)
 
-router.post("/users", 
+router.get("/users", 
   auth.required, 
-  body('serverId').isString(),
   database.getDatabaseUsers)
   
-router.post("/users/create", 
+router.post("/users/store", 
   auth.required, 
-  body('serverId').isString(),
   body('name').isString(),
   body('password').isString(),
-  body('confirm_password').isString(),
-  database.createDatabaseUser)
+  database.storeDatabaseUser)
 
 router.delete("/users", 
   auth.required, 
-  body('serverId').isString(),
-  body('name').isString(),
+  body('id').isString(),
   database.deleteDatabaseUser)
 
 module.exports = router

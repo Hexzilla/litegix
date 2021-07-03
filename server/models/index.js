@@ -6,4 +6,5 @@ require('./Timezone');
 require('./Company');
 require('./Server');
 require('./Database');
+require('./DatabaseUser');
 require('./Activity');
