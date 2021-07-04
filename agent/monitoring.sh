@@ -1,12 +1,12 @@
 #! /bin/bash
 
 saveCurrent() {
-    grep 'cpu ' /proc/stat > /home/ploi/.ploi/.cpu
+    grep 'cpu ' /proc/stat > /home/litegix/.litegix/.cpu
 }
 
-[ ! -e /home/ploi/.ploi/.cpu ] && saveCurrent
+[ ! -e /home/litegix/.litegix/.cpu ] && saveCurrent
 
-previous=$(cat /home/ploi/.ploi/.cpu)
+previous=$(cat /home/litegix/.litegix/.cpu)
 current=$(grep 'cpu ' /proc/stat)
 
 awkscript='NR == 1 {
@@ -29,7 +29,7 @@ LOADAVG=$(top -bn1 | grep load | awk '{printf "%.2f%%", $(NF-2)}')
 SLEEPTIME=$[ ( $RANDOM % 40 )  + 1 ]s
 sleep $SLEEPTIME
 
-curl --max-time 15 --connect-timeout 60 --silent "http://localhost:3600/api/servers/21923/monitor?h=3fL3u71zefcVmauk" \
+curl --max-time 15 --connect-timeout 60 --silent "http://95.217.190.94/api/agent/SERVER_ID/monitor/state" \
 -H "Accept: application/json" \
 -H "Content-Type:application/json" \
 --data @<(cat <<EOF

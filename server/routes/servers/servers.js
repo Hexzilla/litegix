@@ -5,7 +5,7 @@ const server = require("../../services/server")
 
 router.get("/", auth.required, server.getServers)
 
-router.post("/create", 
+router.post("/store", 
   auth.required, 
   body('name').notEmpty(),
   body('address').isIP(4),
@@ -13,14 +13,6 @@ router.post("/create",
   body('web_server').notEmpty(),
   body('database').notEmpty(),
   body('phpVersion').notEmpty(),
-  server.createServer)
-
-router.post("/summary",
-  auth.required,
-  server.summary);
-
-router.post("/delete",
-  auth.required,
-  server.deleteServer);
+  server.storeServer)
 
 module.exports = router

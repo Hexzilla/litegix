@@ -17,6 +17,7 @@ router.param("serverId", function (req, res, next, serverId) {
 })
 
 router.use("/", require("./servers"))
+router.use("/:serverId", require("./server"))
 router.use("/:serverId/config", require("./config"))
 router.use("/:serverId/webapp", require("./webapp"))
 router.use("/:serverId/databases", require("./databases"))

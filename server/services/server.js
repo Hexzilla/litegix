@@ -47,7 +47,7 @@ const getServers = function (req, res, next) {
     .catch(next)
 }
 
-const createServer = async function (req, res, next) {
+const storeServer = async function (req, res, next) {
   try {
     const errors = valiator.validationResult(req);
     if (!errors.isEmpty()) {
@@ -58,9 +58,8 @@ const createServer = async function (req, res, next) {
     if (result) {
       return res.status(422).json({
         success: false,
-        message: "IP address already exists.",
         errors: { 
-          address: 'already exists'
+          address: 'has already been taken.'
         }
       })
     }
@@ -69,9 +68,8 @@ const createServer = async function (req, res, next) {
     if (result) {
       return res.status(422).json({
         success: false,
-        message: "Server name already exists.",
         errors: { 
-          name: 'already exists'
+          name: 'has already been taken.'
         }
       })
     }
@@ -90,6 +88,32 @@ const createServer = async function (req, res, next) {
     console.error(e)
     return res.status(501).json({ success: false });
   }
+}
+
+const deleteServer = async function (req, res, next) {
+  res.json({ success: true })
+}
+
+const getSummary = async function (req, res, next) {
+  console.log("getSummary", req.server)
+  let server = req.server
+  server.system = {
+    kernelVersion: "5.4.0-72-generic",
+    processorName: "Intel Xeon Processor (Skylake, IBRS)",
+    totalCPUCore: 2,
+    totalMemory: 3.750080108642578,
+    freeMemory: 3.2643470764160156,
+    diskTotal: 40.18845696,
+    diskFree: 33.756172288,
+    loadAvg: 0,
+    uptime: "475h 50m 20s"
+  }
+  await server.save()
+
+  res.json({
+    success: true,
+    data: server.toSummaryJSON()
+  })
 }
 
 const getShellCommands = function(req, res) {
@@ -146,49 +170,25 @@ const updateInstallState = async function (req, res, next) {
   })
 }
 
-const summary = async function (req, res, next) {
-  const server = await Server.findById(req.body.server);
-  if (!server) {
-    return res.status(422).json({
-      success: false,
-      message: "Server doesn't exists",
-      errors: { 
-        server: "doesn't exists"
-      }
-    })
+const updateServerState = async function (req, res) {
+  let errors = valiator.validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).json({ errors: errors.array() });
   }
-
-  //TODO
-  server.system = {
-    kernelVersion: "5.4.0-72-generic",
-    processorName: "Intel Xeon Processor (Skylake, IBRS)",
-    totalCPUCore: 2,
-    totalMemory: 3.750080108642578,
-    freeMemory: 3.2643470764160156,
-    diskTotal: 40.18845696,
-    diskFree: 33.756172288,
-    loadAvg: 0,
-    uptime: "475h 50m 20s"
-  }
-  await server.save()
 
   res.json({
-    success: true,
-    data: server.toSummaryJSON()
+    success: true
   })
-}
-
-const deleteServer = async function (req, res, next) {
-  res.json({ success: true })
 }
 
 module.exports = {
   getServer,
   getServers,
-  createServer,
+  storeServer,
+  deleteServer,
+  getSummary,
   getScript,
   getShellCommands,
   updateInstallState,
-  summary,
-  deleteServer
+  updateServerState,
 }
