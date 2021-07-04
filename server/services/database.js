@@ -53,7 +53,7 @@ const storeDatabase = async function (req, res) {
       })
     }
 
-    errors = await agent.createDatabase(req.body)
+    errors = await agent.createDatabase(server.address, req.body)
     if (errors) {
       return res.status(422).json({
         success: false,
