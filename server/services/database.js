@@ -49,7 +49,7 @@ const storeDatabase = async function (req, res) {
     if (database) {
       return res.status(422).json({
         success: false,
-        errors: { message: "Name is duplicated" }
+        errors: { name: "has already been taken." }
       })
     }
 
@@ -148,9 +148,7 @@ const storeDatabaseUser = async function (req, res) {
     if (user) {
       return res.status(422).json({
         success: false,
-        errors: {
-          message: "Name is duplicated",
-        }
+        errors: { name: "has already been taken." }
       })
     }
 

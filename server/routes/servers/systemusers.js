@@ -13,6 +13,13 @@ router.post("/store",
   body('password').isString(),
   system.storeSystemUser)
 
+  
+router.post("/changepassword", 
+  auth.required,
+  body('id').isString(),
+  body('password').isLength({ min: 8 }).trim().escape(),
+  system.changeSystemUserPassword)
+
 router.delete("/", 
   auth.required, 
   body('id').isString(),

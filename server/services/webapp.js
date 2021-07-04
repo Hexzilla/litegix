@@ -49,7 +49,7 @@ const storeWebApplication = async function (req, res) {
     if (application) {
       return res.status(422).json({
         success: false,
-        errors: { message: "Name is duplicated" }
+        errors: { name: "has already been taken." }
       })
     }
 
@@ -91,7 +91,7 @@ const storeCustomWebApplication = async function (req, res) {
     if (application) {
       return res.status(422).json({
         success: false,
-        errors: { message: "Name is duplicated" }
+        errors: { name: "has already been taken." }
       })
     }
 
@@ -133,7 +133,7 @@ const storeWordpressWebApplication = async function (req, res) {
     if (application) {
       return res.status(422).json({
         success: false,
-        errors: { message: "Name is duplicated" }
+        errors: { name: "has already been taken." }
       })
     }
 

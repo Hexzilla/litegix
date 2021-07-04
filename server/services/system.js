@@ -44,7 +44,7 @@ const storeSystemUser = async function (req, res) {
     if (user) {
       return res.status(422).json({
         success: false,
-        errors: { message: "Name is duplicated" }
+        errors: { name: "has already been taken." }
       })
     }
 
@@ -66,6 +66,44 @@ const storeSystemUser = async function (req, res) {
     res.json({
       success: true,
       message: "It has been successfully created."
+    })
+  }
+  catch (e) {
+    console.error(e)
+    return res.status(501).json({ success: false });
+  }
+}
+
+const changeSystemUserPassword = async function (req, res) {
+  try {
+    let errors = valiator.validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ success: false, errors: errors.array() })
+    }
+
+    let server = req.server
+    let user = await SystemUser.findById(req.body.userId)
+    if (!user) {
+      return res.status(422).json({
+        success: false,
+        errors: { message: "User isn't exists" }
+      })
+    }
+
+    errors = await agent.changeSystemUserPassword(user.name, req.body.password)
+    if (errors) {
+      return res.status(422).json({
+        success: false,
+        errors: errors
+      })
+    }
+
+    const message = `The password for system user ${user.name} is changed`;
+    await activity.createActivityLogInfo(server.id, message)
+
+    res.json({
+      success: true,
+      message: "Password has been successfully changed."
     })
   }
   catch (e) {
@@ -354,9 +392,7 @@ const createSupervisorJob = async function (req, res) {
     if (server.supervisors.find(it => it.name === req.body.name)) {
       return res.status(422).json({
         success: false,
-        errors: {
-          message: "Name is duplicated",
-        }
+        errors: { name: "has already been taken." }
       })
     }
 
@@ -433,6 +469,7 @@ module.exports = {
   getSystemUsers,
   createSystemUser,
   storeSystemUser,
+  changeSystemUserPassword,
   deleteSystemUser,
   getSSHKeys,
   createSSHKey,
