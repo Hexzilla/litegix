@@ -1,4 +1,6 @@
-
+const diskClean = function () {
+  return null
+}
 
 const createDatabase = async function ({ name, userName, encoding }) {
   return null
