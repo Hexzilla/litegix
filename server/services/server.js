@@ -138,9 +138,9 @@ const getScript = async function (req, res, next) {
     })
 }
 
-const updateState = async function (req, res, next) {
+const updateInstallState = async function (req, res, next) {
   const token = getToken(req.params.token)
-  console.log('updateState, Token:', token, req.body)
+  console.log('updateInstallState, Token:', token, req.body)
   res.json({
     success: true
   })
@@ -188,7 +188,7 @@ module.exports = {
   createServer,
   getScript,
   getShellCommands,
-  updateState,
+  updateInstallState,
   summary,
   deleteServer
 }
