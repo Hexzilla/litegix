@@ -5,6 +5,7 @@ const readFile = util.promisify(fs.readFile);
 const valiator = require('express-validator')
 const mongoose = require("mongoose")
 const Server = mongoose.model("Server")
+const Usage = mongoose.model("Usage")
 const crypto = require('./crypto')
 
 const defaultScript = "export DEBIAN_FRONTEND=noninteractive; echo 'Acquire::ForceIPv4 \"true\";' | tee /etc/apt/apt.conf.d/99force-ipv4; apt-get update; apt-get install curl netcat-openbsd -y; curl -4 --silent --location http://localhost:3000/servers/config/script/USER_INFO | bash -; export DEBIAN_FRONTEND=newt"
@@ -175,6 +176,12 @@ const updateServerState = async function (req, res) {
   if (!errors.isEmpty()) {
     return res.status(422).json({ errors: errors.array() });
   }
+
+  console.log("updateServerState", req.body)
+
+  const usage = new Usage(req.body)
+  usage.serverId = req.server.id
+  await usage.save()
 
   res.json({
     success: true

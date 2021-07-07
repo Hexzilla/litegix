@@ -29,7 +29,7 @@ LOADAVG=$(top -bn1 | grep load | awk '{printf "%.2f%%", $(NF-2)}')
 SLEEPTIME=$[ ( $RANDOM % 40 )  + 1 ]s
 sleep $SLEEPTIME
 
-curl --max-time 15 --connect-timeout 60 --silent "http://95.217.190.94/api/agent/SERVER_ID/monitor/state" \
+curl --max-time 15 --connect-timeout 60 --silent "http://95.217.190.94/api/agent/60d6cd3deaea5f2a73871010/monitor/state" \
 -H "Accept: application/json" \
 -H "Content-Type:application/json" \
 --data @<(cat <<EOF

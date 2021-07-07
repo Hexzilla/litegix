@@ -11,4 +11,5 @@ require('./DatabaseUser');
 require('./SystemUser');
 require('./Application');
 require('./Service');
+require('./Usage');
 require('./Activity');
