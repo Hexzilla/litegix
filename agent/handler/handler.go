@@ -179,7 +179,119 @@ func (h *profileHandler) CreateSystemUser(c *gin.Context) {
 
 	username := mapToken["name"]
 	password := mapToken["password"]
-	log.Println(fmt.Sprintf("username: %s, password: %s", username, password))
+	log.Println(fmt.Sprintf("Create system user, username: %s, password: %s", username, password))
+
+	c.JSON(http.StatusCreated, map[string]string{
+		"success": "true",
+	})
+}
+
+func (h *profileHandler) CreateDatabase(c *gin.Context) {
+	mapToken := map[string]string{}
+	if err := c.ShouldBindJSON(&mapToken); err != nil {
+		c.JSON(http.StatusUnprocessableEntity, err.Error())
+		return
+	}
+
+	username := mapToken["name"]
+	password := mapToken["password"]
+	log.Println(fmt.Sprintf("Create database, username: %s, password: %s", username, password))
+
+	c.JSON(http.StatusCreated, map[string]string{
+		"success": "true",
+	})
+}
+
+func (h *profileHandler) CreateDatabaseUser(c *gin.Context) {
+	mapToken := map[string]string{}
+	if err := c.ShouldBindJSON(&mapToken); err != nil {
+		c.JSON(http.StatusUnprocessableEntity, err.Error())
+		return
+	}
+
+	username := mapToken["name"]
+	password := mapToken["password"]
+	log.Println(fmt.Sprintf("Create database user, username: %s, password: %s", username, password))
+
+	c.JSON(http.StatusCreated, map[string]string{
+		"success": "true",
+	})
+}
+
+func (h *profileHandler) ChangePhpVersion(c *gin.Context) {
+	mapToken := map[string]string{}
+	if err := c.ShouldBindJSON(&mapToken); err != nil {
+		c.JSON(http.StatusUnprocessableEntity, err.Error())
+		return
+	}
+
+	username := mapToken["name"]
+	password := mapToken["password"]
+	log.Println(fmt.Sprintf("Change PHP version, username: %s, password: %s", username, password))
+
+	c.JSON(http.StatusCreated, map[string]string{
+		"success": "true",
+	})
+}
+
+func (h *profileHandler) AddSSHKey(c *gin.Context) {
+	mapToken := map[string]string{}
+	if err := c.ShouldBindJSON(&mapToken); err != nil {
+		c.JSON(http.StatusUnprocessableEntity, err.Error())
+		return
+	}
+
+	username := mapToken["name"]
+	password := mapToken["password"]
+	log.Println(fmt.Sprintf("Add SSH key, username: %s, password: %s", username, password))
+
+	c.JSON(http.StatusCreated, map[string]string{
+		"success": "true",
+	})
+}
+
+func (h *profileHandler) AddDeploymentKey(c *gin.Context) {
+	mapToken := map[string]string{}
+	if err := c.ShouldBindJSON(&mapToken); err != nil {
+		c.JSON(http.StatusUnprocessableEntity, err.Error())
+		return
+	}
+
+	username := mapToken["name"]
+	password := mapToken["password"]
+	log.Println(fmt.Sprintf("Add SSH key, username: %s, password: %s", username, password))
+
+	c.JSON(http.StatusCreated, map[string]string{
+		"success": "true",
+	})
+}
+
+func (h *profileHandler) CreateCronJob(c *gin.Context) {
+	mapToken := map[string]string{}
+	if err := c.ShouldBindJSON(&mapToken); err != nil {
+		c.JSON(http.StatusUnprocessableEntity, err.Error())
+		return
+	}
+
+	username := mapToken["name"]
+	password := mapToken["password"]
+	log.Println(fmt.Sprintf("Add SSH key, username: %s, password: %s", username, password))
+
+	c.JSON(http.StatusCreated, map[string]string{
+		"success": "true",
+	})
+}
+
+func (h *profileHandler) AddFirewallRule(c *gin.Context) {
+	mapToken := map[string]string{}
+	if err := c.ShouldBindJSON(&mapToken); err != nil {
+		c.JSON(http.StatusUnprocessableEntity, err.Error())
+		return
+	}
+
+	username := mapToken["name"]
+	password := mapToken["password"]
+	log.Println(fmt.Sprintf("Add SSH key, username: %s, password: %s", username, password))
 
 	c.JSON(http.StatusCreated, map[string]string{
 		"success": "true",

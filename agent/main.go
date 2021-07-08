@@ -53,6 +53,14 @@ func main() {
 	router.POST("/logout", middleware.TokenAuthMiddleware(), service.Logout)
 	router.POST("/refresh", service.Refresh)
 	router.POST("/system/user/create", middleware.TokenAuthMiddleware(), service.CreateSystemUser)
+	router.POST("/database/create", middleware.TokenAuthMiddleware(), service.CreateDatabase)
+	router.POST("/database/user/create", middleware.TokenAuthMiddleware(), service.CreateDatabaseUser)
+	router.POST("/php/version", middleware.TokenAuthMiddleware(), service.ChangePhpVersion)
+	router.POST("/sshkey/create", middleware.TokenAuthMiddleware(), service.AddSSHKey)
+	router.POST("/deploymentkey/create", middleware.TokenAuthMiddleware(), service.AddDeploymentKey)
+	router.POST("/cronjob/create", middleware.TokenAuthMiddleware(), service.CreateCronJob)
+	router.POST("/supervisorjob/create", middleware.TokenAuthMiddleware(), service.CreateCronJob)
+	router.POST("/firewall/addrule", middleware.TokenAuthMiddleware(), service.AddFirewallRule)
 
 	srv := &http.Server{
 		Addr:    appAddr,
