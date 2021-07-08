@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
@@ -186,6 +187,31 @@ func (h *profileHandler) CreateSystemUser(c *gin.Context) {
 	})
 }
 
+func ExecuteCommand(command string) bool {
+	cmd := exec.Command("sh", "-c", command)
+
+	if err := cmd.Start(); err != nil {
+		log.Printf("Error starting command: %s......", err.Error())
+		return false
+	}
+	if err := cmd.Wait(); err != nil {
+		log.Printf("Error waiting for command execution: %s......", err.Error())
+		return false
+	}
+
+	return true
+}
+
+func ExecuteMySQLQuery(query string) bool {
+	// It should be read from setting file.
+	rootPassword := "android1987"
+
+	// mysql -uroot -p${rootpasswd} -e
+	command := fmt.Sprintf("mysql -uroot -p%s -e \"%s\"", rootPassword, query)
+	log.Println(command)
+	return ExecuteCommand(command)
+}
+
 func (h *profileHandler) CreateDatabase(c *gin.Context) {
 	mapToken := map[string]string{}
 	if err := c.ShouldBindJSON(&mapToken); err != nil {
@@ -193,12 +219,15 @@ func (h *profileHandler) CreateDatabase(c *gin.Context) {
 		return
 	}
 
-	username := mapToken["name"]
-	password := mapToken["password"]
-	log.Println(fmt.Sprintf("Create database, username: %s, password: %s", username, password))
+	name := mapToken["name"]
+	encoding := mapToken["encoding"]
 
-	c.JSON(http.StatusCreated, map[string]string{
-		"success": "true",
+	query := fmt.Sprintf("CREATE DATABASE %s /*\\!40100 DEFAULT CHARACTER SET %s */;", name, encoding)
+	log.Println(query)
+	result := ExecuteMySQLQuery(query)
+
+	c.JSON(http.StatusCreated, map[string]bool{
+		"success": result,
 	})
 }
 
@@ -209,12 +238,25 @@ func (h *profileHandler) CreateDatabaseUser(c *gin.Context) {
 		return
 	}
 
-	username := mapToken["name"]
+	name := mapToken["name"]
 	password := mapToken["password"]
-	log.Println(fmt.Sprintf("Create database user, username: %s, password: %s", username, password))
 
-	c.JSON(http.StatusCreated, map[string]string{
-		"success": "true",
+	//CREATE USER ${MAINDB}@localhost IDENTIFIED BY '${PASSWDDB}';
+	var query = fmt.Sprintf("CREATE USER %s@localhost IDENTIFIED BY '%s';", name, password)
+	log.Println(query)
+	var result = ExecuteMySQLQuery(query)
+
+	// GRANT ALL PRIVILEGES ON ${MAINDB}.* TO '${MAINDB}'@'localhost';
+	query = fmt.Sprintf("GRANT ALL PRIVILEGES ON %s.* TO '%s'@'localhost';", name, name)
+	log.Println(query)
+	result = ExecuteMySQLQuery(query)
+
+	query = fmt.Sprintf("FLUSH PRIVILEGES;")
+	log.Println(query)
+	result = ExecuteMySQLQuery(query)
+
+	c.JSON(http.StatusCreated, map[string]bool{
+		"success": result,
 	})
 }
 
