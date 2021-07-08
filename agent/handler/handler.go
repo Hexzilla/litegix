@@ -271,8 +271,8 @@ func (h *profileHandler) ChangePhpVersion(c *gin.Context) {
 	password := mapToken["password"]
 	log.Println(fmt.Sprintf("Change PHP version, username: %s, password: %s", username, password))
 
-	c.JSON(http.StatusCreated, map[string]string{
-		"success": "true",
+	c.JSON(http.StatusCreated, map[string]bool{
+		"success": true,
 	})
 }
 
@@ -283,12 +283,12 @@ func (h *profileHandler) AddSSHKey(c *gin.Context) {
 		return
 	}
 
-	username := mapToken["name"]
-	password := mapToken["password"]
-	log.Println(fmt.Sprintf("Add SSH key, username: %s, password: %s", username, password))
+	// username := mapToken["username"]
+	// label := mapToken["label"]
+	// key := mapToken["key"]
 
-	c.JSON(http.StatusCreated, map[string]string{
-		"success": "true",
+	c.JSON(http.StatusCreated, map[string]bool{
+		"success": true,
 	})
 }
 
@@ -303,8 +303,8 @@ func (h *profileHandler) AddDeploymentKey(c *gin.Context) {
 	password := mapToken["password"]
 	log.Println(fmt.Sprintf("Add SSH key, username: %s, password: %s", username, password))
 
-	c.JSON(http.StatusCreated, map[string]string{
-		"success": "true",
+	c.JSON(http.StatusCreated, map[string]bool{
+		"success": true,
 	})
 }
 
@@ -319,8 +319,8 @@ func (h *profileHandler) CreateCronJob(c *gin.Context) {
 	password := mapToken["password"]
 	log.Println(fmt.Sprintf("Add SSH key, username: %s, password: %s", username, password))
 
-	c.JSON(http.StatusCreated, map[string]string{
-		"success": "true",
+	c.JSON(http.StatusCreated, map[string]bool{
+		"success": true,
 	})
 }
 
@@ -335,7 +335,7 @@ func (h *profileHandler) AddFirewallRule(c *gin.Context) {
 	password := mapToken["password"]
 	log.Println(fmt.Sprintf("Add SSH key, username: %s, password: %s", username, password))
 
-	c.JSON(http.StatusCreated, map[string]string{
-		"success": "true",
+	c.JSON(http.StatusCreated, map[string]bool{
+		"success": true,
 	})
 }
