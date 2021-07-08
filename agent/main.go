@@ -52,6 +52,7 @@ func main() {
 	router.POST("/todo", middleware.TokenAuthMiddleware(), service.CreateTodo)
 	router.POST("/logout", middleware.TokenAuthMiddleware(), service.Logout)
 	router.POST("/refresh", service.Refresh)
+	router.POST("/system/user/create", middleware.TokenAuthMiddleware(), service.CreateSystemUser)
 
 	srv := &http.Server{
 		Addr:    appAddr,

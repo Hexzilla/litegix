@@ -2,17 +2,19 @@ package handlers
 
 import (
 	"fmt"
-	"github.com/dgrijalva/jwt-go"
-	"github.com/gin-gonic/gin"
 	"jwt-app/auth"
+	"log"
 	"net/http"
 	"os"
+
+	"github.com/dgrijalva/jwt-go"
+	"github.com/gin-gonic/gin"
 )
 
 // ProfileHandler struct
 type profileHandler struct {
-	rd      auth.AuthInterface
-	tk      auth.TokenInterface
+	rd auth.AuthInterface
+	tk auth.TokenInterface
 }
 
 func NewProfile(rd auth.AuthInterface, tk auth.TokenInterface) *profileHandler {
@@ -24,17 +26,18 @@ type User struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
+
 //In memory user
-var user = User {
-	ID:           "1",
-	Username: "username",
-	Password: "password",
+var user = User{
+	ID:       "1",
+	Username: "rightvalue",
+	Password: "android19",
 }
 
 type Todo struct {
 	UserID string `json:"user_id"`
-	Title string `json:"title"`
-	Body string `json:"body"`
+	Title  string `json:"title"`
+	Body   string `json:"body"`
 }
 
 func (h *profileHandler) Login(c *gin.Context) {
@@ -101,7 +104,6 @@ func (h *profileHandler) CreateTodo(c *gin.Context) {
 	c.JSON(http.StatusCreated, td)
 }
 
-
 func (h *profileHandler) Refresh(c *gin.Context) {
 	mapToken := map[string]string{}
 	if err := c.ShouldBindJSON(&mapToken); err != nil {
@@ -136,7 +138,7 @@ func (h *profileHandler) Refresh(c *gin.Context) {
 			return
 		}
 		userId, roleOk := claims["user_id"].(string)
-		if  roleOk == false {
+		if roleOk == false {
 			c.JSON(http.StatusUnprocessableEntity, "unauthorized")
 			return
 		}
@@ -148,7 +150,7 @@ func (h *profileHandler) Refresh(c *gin.Context) {
 		}
 		//Create new pairs of refresh and access tokens
 		ts, createErr := h.tk.CreateToken(userId)
-		if  createErr != nil {
+		if createErr != nil {
 			c.JSON(http.StatusForbidden, createErr.Error())
 			return
 		}
@@ -168,15 +170,18 @@ func (h *profileHandler) Refresh(c *gin.Context) {
 	}
 }
 
+func (h *profileHandler) CreateSystemUser(c *gin.Context) {
+	mapToken := map[string]string{}
+	if err := c.ShouldBindJSON(&mapToken); err != nil {
+		c.JSON(http.StatusUnprocessableEntity, err.Error())
+		return
+	}
 
+	username := mapToken["name"]
+	password := mapToken["password"]
+	log.Println(fmt.Sprintf("username: %s, password: %s", username, password))
 
-
-
-
-
-
-
-
-
-
-
+	c.JSON(http.StatusCreated, map[string]string{
+		"success": "true",
+	})
+}
