@@ -292,7 +292,7 @@ func (h *profileHandler) AddSSHKey(c *gin.Context) {
 	})
 }
 
-func (h *profileHandler) AddDeploymentKey(c *gin.Context) {
+func (h *profileHandler) AddFirewallRule(c *gin.Context) {
 	mapToken := map[string]string{}
 	if err := c.ShouldBindJSON(&mapToken); err != nil {
 		c.JSON(http.StatusUnprocessableEntity, err.Error())
@@ -324,7 +324,7 @@ func (h *profileHandler) CreateCronJob(c *gin.Context) {
 	})
 }
 
-func (h *profileHandler) AddFirewallRule(c *gin.Context) {
+func (h *profileHandler) AddDeploymentKey(c *gin.Context) {
 	mapToken := map[string]string{}
 	if err := c.ShouldBindJSON(&mapToken); err != nil {
 		c.JSON(http.StatusUnprocessableEntity, err.Error())
