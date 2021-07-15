@@ -1,0 +1,15 @@
+require('./User');
+require('./Article');
+require('./Comment');
+require('./Country');
+require('./Timezone');
+require('./Company');
+require('./Notification');
+require('./Server');
+require('./Database');
+require('./DatabaseUser');
+require('./SystemUser');
+require('./Application');
+require('./Service');
+require('./Usage');
+require('./Activity');
