@@ -48,6 +48,9 @@ const subscribe = async function (req, res) {
     }
     await user.save()
 
+    const message = `Subscribe to newsletter`;
+    await activity.createUserActivityLogInfo(server.id, message)
+
     res.json({
       success: true,
       message: "It has been successfully updated."
@@ -73,6 +76,9 @@ const unsubscribe = async function (req, res) {
       user.newsletters.subscription = false
     }
     await user.save()
+
+    const message = `Unsubscribe from newsletter`;
+    await activity.createUserActivityLogInfo(server.id, message, 'high')
 
     res.json({
       success: true,
@@ -117,6 +123,9 @@ const storeChannel = async function (req, res) {
     channel.userId = req.payload.id
     await channel.save()
 
+    const message = `Added Notification Channel ${req.body.name} (${req.body.service})`;
+    await activity.createUserActivityLogInfo(server.id, message, 'high')
+
     res.json({
       success: true,
       message: "It has been successfully created."
@@ -149,6 +158,9 @@ const updateChannel = async function (req, res) {
     item.name = req.body.name
     item.content = req.body.content
     await item.save()
+
+    const message = `Update Notification Channel ${req.body.name} (${req.body.service})`;
+    await activity.createUserActivityLogInfo(server.id, message, 'high')
 
     res.json({
       success: true,

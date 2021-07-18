@@ -1,17 +1,18 @@
 const mongoose = require("mongoose")
-const Activity = mongoose.model("Activity")
+const ServerActivity = mongoose.model("ServerActivity")
+const ServerActivity = mongoose.model("UserActivity")
 const {getServer} = require("./server")
 const agent = require("./agent")
 const moment = require('moment');
 
-const getActivityLogs = async function (req, res) {
+const getServerActivityLogs = async function (req, res) {
   try {
     let {server, errors} = await getServer(req)
     if (errors) {
       return res.status(422).json({ success: false, errors: errors })
     }
 
-    const logs = await Activity.find({server: req.body.serverId})
+    const logs = await ServerActivity.find({server: req.body.serverId})
     res.json({ 
       success: true,
       data: {
@@ -27,7 +28,7 @@ const getActivityLogs = async function (req, res) {
   }
 }
 
-const createActivityLogInfo = async function (serverId, message) {
+const createServerActivityLogInfo = async function (serverId, message, level) {
   try {
     const activity = new Activity({
       serverId: serverId,
@@ -43,7 +44,24 @@ const createActivityLogInfo = async function (serverId, message) {
   }
 }
 
+const createUserActivityLogInfo = async function (userId, message, level) {
+  try {
+    const activity = new Activity({
+      userId: userId,
+      category: 1,
+      level: 1,
+      message: message,
+      date: moment()
+    });
+    await activity.save();
+  }
+  catch (error) {
+    return {errors: errors}
+  }
+}
+
 module.exports = {
   getActivityLogs,
-  createActivityLogInfo,
+  createServerActivityLogInfo,
+  createUserActivityLogInfo
 }

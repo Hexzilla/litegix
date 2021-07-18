@@ -66,7 +66,7 @@ const storeWebApplication = async function (req, res) {
     await application.save()
 
     const message = `Added new web application ${req.body.name}`;
-    await activity.createActivityLogInfo(server.id, message)
+    await activity.createServerActivityLogInfo(server.id, message)
 
     res.json({
       success: true,
@@ -108,7 +108,7 @@ const storeCustomWebApplication = async function (req, res) {
     await application.save()
 
     const message = `Added new web application ${req.body.name}`;
-    await activity.createActivityLogInfo(server.id, message)
+    await activity.createServerActivityLogInfo(server.id, message)
 
     res.json({
       success: true,
@@ -150,7 +150,7 @@ const storeWordpressWebApplication = async function (req, res) {
     await application.save()
 
     const message = `Added new web application ${req.body.name}`;
-    await activity.createActivityLogInfo(server.id, message)
+    await activity.createServerActivityLogInfo(server.id, message)
 
     res.json({
       success: true,

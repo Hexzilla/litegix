@@ -66,7 +66,7 @@ const storeDatabase = async function (req, res) {
     await database.save()
 
     const message = `Added new database ${req.body.name} with collation ${req.body.encoding}`;
-    await activity.createActivityLogInfo(server.id, message)
+    await activity.createServerActivityLogInfo(server.id, message)
 
     res.json({
       success: true,
@@ -102,7 +102,7 @@ const deleteDatabase = async function (req, res) {
     await database.remove()
 
     const message = `Deleted database ${req.body.name}`;
-    await activity.createActivityLogInfo(req.body.serverId, message)
+    await activity.createServerActivityLogInfo(req.body.serverId, message)
 
     res.json({
       success: true,
@@ -165,7 +165,7 @@ const storeDatabaseUser = async function (req, res) {
     await user.save()
 
     const message = `Added new database user ${req.body.name} with password`;
-    await activity.createActivityLogInfo(server.id, message)
+    await activity.createServerActivityLogInfo(server.id, message)
 
     res.json({
       success: true,
@@ -201,7 +201,7 @@ const deleteDatabaseUser = async function (req, res) {
     await user.remove()
 
     const message = `Deleted database user ${req.body.name}`;
-    await activity.createActivityLogInfo(req.body.serverId, message)
+    await activity.createServerActivityLogInfo(req.body.serverId, message)
 
     res.json({
       success: true,

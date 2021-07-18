@@ -61,7 +61,7 @@ const storeSystemUser = async function (req, res) {
     await user.save()
 
     const message = `Added new system user ${req.body.name} with password`;
-    await activity.createActivityLogInfo(server.id, message)
+    await activity.createServerActivityLogInfo(server.id, message)
 
     res.json({
       success: true,
@@ -99,7 +99,7 @@ const changeSystemUserPassword = async function (req, res) {
     }
 
     const message = `The password for system user ${user.name} is changed`;
-    await activity.createActivityLogInfo(server.id, message)
+    await activity.createServerActivityLogInfo(server.id, message)
 
     res.json({
       success: true,
@@ -135,7 +135,7 @@ const deleteSystemUser = async function (req, res) {
     await user.remove()
 
     const message = `Deleted system user ${req.body.name}`;
-    await activity.createActivityLogInfo(req.body.serverId, message)
+    await activity.createServerActivityLogInfo(req.body.serverId, message)
 
     res.json({
       success: true,
@@ -198,7 +198,7 @@ const createSSHKey = async function (req, res) {
     await server.save()
 
     const message = `Added new SSH key ${req.body.name} with user ${req.body.userName}`;
-    await activity.createActivityLogInfo(req.body.serverId, message)
+    await activity.createServerActivityLogInfo(req.body.serverId, message)
 
     res.json({
       success: true,
@@ -304,7 +304,7 @@ const createDeploymentKey = async function (req, res) {
     await server.save()
 
     const message = `Added new deployment key ${req.body.name} with user ${req.body.userName}`;
-    await activity.createActivityLogInfo(req.body.serverId, message)
+    await activity.createServerActivityLogInfo(req.body.serverId, message)
 
     res.json({
       success: true,
@@ -408,7 +408,7 @@ const createSupervisorJob = async function (req, res) {
     await server.save()
 
     const message = `Added new supervisor job ${req.body.name}`;
-    await activity.createActivityLogInfo(req.body.serverId, message)
+    await activity.createServerActivityLogInfo(req.body.serverId, message)
 
     res.json({
       success: true,
