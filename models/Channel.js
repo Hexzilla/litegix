@@ -1,6 +1,6 @@
 var mongoose = require("mongoose")
 
-var NotificationSchema = new mongoose.Schema(
+var ChannelSchema = new mongoose.Schema(
   {
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: [true, "can't be blank"] },
     service: {type: String, required: [true, "can't be blank"]},
@@ -12,7 +12,7 @@ var NotificationSchema = new mongoose.Schema(
   }
 )
 
-NotificationSchema.methods.toJSON = function(){
+ChannelSchema.methods.toJSON = function(){
   return {
     id: this._id,
     service: this.service,
@@ -21,4 +21,4 @@ NotificationSchema.methods.toJSON = function(){
   };
 };
 
-mongoose.model("Notification", NotificationSchema)
+mongoose.model("Channel", ChannelSchema)

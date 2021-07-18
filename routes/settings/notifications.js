@@ -1,13 +1,13 @@
 const { body } = require('express-validator')
 const mongoose = require("mongoose")
-const Notification = mongoose.model("Notification")
+const Channel = mongoose.model("Channel")
 const router = require("express").Router()
 const auth = require("../auth")
 const notification = require("../../services/notification")
 
-// Preload server on routes with ':notificationId'
-router.param("notificationId", function (req, res, next, notificationId) {
-  Notification.findById(notificationId)
+// Preload server on routes with ':channelId'
+router.param("channelId", function (req, res, next, channelId) {
+  Channel.findById(channelId)
     .then(function (item) {
       if (!item) {
         return res.sendStatus(404)
@@ -24,6 +24,14 @@ router.get("/",
   auth.required,
   notification.getNotifications)
 
+router.post("/newsletters/subscribe",
+  auth.required,
+  notification.subscribe)
+
+router.post("/newsletters/unsubscribe",
+  auth.required,
+  notification.unsubscribe)
+
 router.get("/channels/store", 
   auth.required,
   body('service').isString(),
@@ -31,7 +39,7 @@ router.get("/channels/store",
   body('content').isString(),
   notification.storeChannel)
 
-router.post("/channels/:notificationId/update",
+router.post("/channels/:channelId/update",
   auth.required,
   body('service').isString(),
   body('name').isString(),

@@ -4,7 +4,7 @@ require('./Comment');
 require('./Country');
 require('./Timezone');
 require('./Company');
-require('./Notification');
+require('./Channel');
 require('./Server');
 require('./Database');
 require('./DatabaseUser');

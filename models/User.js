@@ -15,6 +15,12 @@ var UserSchema = new mongoose.Schema({
   salt: String,
   timezone: String,
   loginNotification: Boolean,
+  newsletters: {
+    subscription: Boolean,
+    announchment: Boolean,
+    blog: Boolean,
+    events: Boolean,
+  },
   apiKeys: {
     key: {type: String, required: [true, "can't be blank"]},
     secret: {type: String, required: [true, "can't be blank"]},
