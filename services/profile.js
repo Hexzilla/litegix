@@ -27,6 +27,7 @@ const updateProfile = function(req, res, next) {
       user.email = req.body.email
       user.username = req.body.name
       user.timezone = req.body.timezone
+      user.loginNotification = req.body.loginNotification
       user.save()
       res.json({ success: true, message: 'Profile is updated' })
     })

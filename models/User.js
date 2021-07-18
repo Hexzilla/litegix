@@ -14,6 +14,7 @@ var UserSchema = new mongoose.Schema({
   hash: String,
   salt: String,
   timezone: String,
+  loginNotification: Boolean,
   apiKeys: {
     key: {type: String, required: [true, "can't be blank"]},
     secret: {type: String, required: [true, "can't be blank"]},
@@ -60,6 +61,7 @@ UserSchema.methods.toJSON = function() {
     username: this.username,
     email: this.email,
     timezone: this.timezone,
+    loginNotification: this.loginNotification
   };
 };
 

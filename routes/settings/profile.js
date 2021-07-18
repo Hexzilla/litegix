@@ -11,6 +11,7 @@ router.post("/update",
   body('email').isEmail(),
   body('name').isLength({ min: 3, max: 20 }).trim().escape(),
   body('timezone').isString(),
+  body('loginNotification').isBoolean(),
   profile.updateProfile)
 
 // Update company info
