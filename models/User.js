@@ -13,6 +13,7 @@ var UserSchema = new mongoose.Schema({
   following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   hash: String,
   salt: String,
+  timezone: String,
   apiKeys: {
     key: {type: String, required: [true, "can't be blank"]},
     secret: {type: String, required: [true, "can't be blank"]},
@@ -58,7 +59,7 @@ UserSchema.methods.toJSON = function() {
   return  {
     username: this.username,
     email: this.email,
-    timezone: 10,
+    timezone: this.timezone,
   };
 };
 
