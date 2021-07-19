@@ -19,11 +19,6 @@ var ServerSchema = new mongoose.Schema({
     loadAvg: Number,
     uptime: String,
   },
-  sshKeys: [{
-    name: {type: String, required: [true, "can't be blank"]},
-    userName: {type: String, required: [true, "can't be blank"]},
-    publicKey: {type: String, required: [true, "can't be blank"]},
-  }],
   deploymentKeys: [{
     name: {type: String, required: [true, "can't be blank"]},
     userName: {type: String, required: [true, "can't be blank"]},

@@ -3,7 +3,7 @@ const router = require("express").Router()
 const auth = require("../auth")
 const system = require("../../services/system")
 
-router.get("/", auth.required, system.getSSHKeys)
+router.get("/", auth.required, system.getVaultedSSHKeys)
 
 router.post("/create", 
   auth.required, 

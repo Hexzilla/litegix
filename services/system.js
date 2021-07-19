@@ -1,7 +1,9 @@
 const valiator = require('express-validator')
 const {getServer} = require("./server")
+const {getUser} = require("./auth")
 const mongoose = require("mongoose")
 const SystemUser = mongoose.model("SystemUser")
+const SSHKey = mongoose.model("SSHKey")
 const agent = require("./agent")
 const activity = require("./activity")
 
@@ -148,17 +150,14 @@ const deleteSystemUser = async function (req, res) {
   }
 }
 
-const getSSHKeys = async function (req, res) {
+const getVaultedSSHKeys = async function (req, res) {
   try {
-    let {server, errors} = await getServer(req)
-    if (errors) {
-      return res.status(422).json({ success: false, errors: errors })
-    }
+    const sshKeys = SSHKey.find({ userId: req.payload.id })
 
-    res.json({ 
+    res.json({
       success: true,
       data: {
-        sshKeys: server.sshKeys
+        sshKeys: sshKeys.map(it => it.name)
       }
     })
   }
@@ -471,7 +470,7 @@ module.exports = {
   storeSystemUser,
   changeSystemUserPassword,
   deleteSystemUser,
-  getSSHKeys,
+  getVaultedSSHKeys,
   createSSHKey,
   deleteSSHKey,
   getDeploymentKeys,

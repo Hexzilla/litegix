@@ -99,6 +99,7 @@ const generateApiSecret = function() {
 }
 
 module.exports = {
+  getUser,
   login,
   signup,
   changePassword,

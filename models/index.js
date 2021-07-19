@@ -12,5 +12,6 @@ require('./SystemUser');
 require('./Application');
 require('./Service');
 require('./Usage');
+require('./SSHKey');
 require('./ServerActivity');
 require('./UserActivity');
