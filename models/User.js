@@ -22,6 +22,7 @@ var UserSchema = new mongoose.Schema({
     events: Boolean,
   },
   apiKeys: {
+    enableAccess: {type: Boolean, default: false},
     key: {type: String, required: [true, "can't be blank"]},
     secret: {type: String, required: [true, "can't be blank"]},
   },

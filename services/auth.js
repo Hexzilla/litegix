@@ -98,68 +98,9 @@ const generateApiSecret = function() {
   return randomstring.generate(64)
 }
 
-const getApiKeys = async function (req, res) {
-  try {
-    let {user, errors} = await getUser(req)
-    if (errors) {
-      return res.status(422).json({ success: false, errors: errors })
-    }
-
-    user.apiKeys = user.apiKeys | {}
-    if (!user.apiKeys.key || !user.apiKeys.secret) {
-      user.apiKeys.key = generateApiKey()
-      user.apiKeys.secret = generateApiSecret()
-      await user.save()
-    }
-
-    return res.json({
-      success: true,
-      data: {
-        apiKeys: user.apiKeys
-      }
-    })
-  }
-  catch (error) {
-    return res.status(501).json({
-      success: false,
-      errors: error
-    });
-  }
-}
-
-const createApiKeys = async function (req, res) {
-  try {
-    let {user, errors} = await getUser(req)
-    if (errors) {
-      return res.status(422).json({ success: false, errors: errors })
-    }
-
-    user.apiKeys = {
-      key: generateApiKey(),
-      secret: generateApiSecret()
-    }
-    await user.save()
-
-    return res.json({
-      success: true,
-      data: {
-        key: user.apiKeys.key
-      }
-    })
-  }
-  catch (error) {
-    return res.status(501).json({
-      success: false,
-      errors: error
-    });
-  }
-}
-
 module.exports = {
   login,
   signup,
   changePassword,
   deleteAccount,
-  getApiKeys,
-  createApiKeys,
 }

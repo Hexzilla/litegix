@@ -1,6 +1,6 @@
 const mongoose = require("mongoose")
 const ServerActivity = mongoose.model("ServerActivity")
-const ServerActivity = mongoose.model("UserActivity")
+const UserActivity = mongoose.model("UserActivity")
 const {getServer} = require("./server")
 const agent = require("./agent")
 const moment = require('moment');
@@ -30,7 +30,7 @@ const getServerActivityLogs = async function (req, res) {
 
 const createServerActivityLogInfo = async function (serverId, message, level) {
   try {
-    const activity = new Activity({
+    const activity = new ServerActivity({
       serverId: serverId,
       category: 1,
       level: 1,
@@ -46,7 +46,7 @@ const createServerActivityLogInfo = async function (serverId, message, level) {
 
 const createUserActivityLogInfo = async function (userId, message, level) {
   try {
-    const activity = new Activity({
+    const activity = new UserActivity({
       userId: userId,
       category: 1,
       level: 1,
@@ -61,7 +61,7 @@ const createUserActivityLogInfo = async function (userId, message, level) {
 }
 
 module.exports = {
-  getActivityLogs,
+  getServerActivityLogs,
   createServerActivityLogInfo,
   createUserActivityLogInfo
 }

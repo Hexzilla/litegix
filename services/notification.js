@@ -49,7 +49,7 @@ const subscribe = async function (req, res) {
     await user.save()
 
     const message = `Subscribe to newsletter`;
-    await activity.createUserActivityLogInfo(server.id, message)
+    await activity.createUserActivityLogInfo(user.id, message)
 
     res.json({
       success: true,
@@ -78,7 +78,7 @@ const unsubscribe = async function (req, res) {
     await user.save()
 
     const message = `Unsubscribe from newsletter`;
-    await activity.createUserActivityLogInfo(server.id, message, 'high')
+    await activity.createUserActivityLogInfo(user.id, message, 'high')
 
     res.json({
       success: true,
@@ -96,6 +96,14 @@ const storeChannel = async function (req, res) {
     let errors = valiator.validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(422).json({ success: false, errors: errors.array() })
+    }
+    
+    const user = await User.findById(req.payload.id)
+    if (!user) {
+      return res.status(501).json({ 
+        success: false,
+        message: "Invalid User"
+      });
     }
 
     const service = req.body.service
@@ -124,7 +132,7 @@ const storeChannel = async function (req, res) {
     await channel.save()
 
     const message = `Added Notification Channel ${req.body.name} (${req.body.service})`;
-    await activity.createUserActivityLogInfo(server.id, message, 'high')
+    await activity.createUserActivityLogInfo(user.id, message, 'high')
 
     res.json({
       success: true,
@@ -144,6 +152,14 @@ const updateChannel = async function (req, res) {
       return res.status(422).json({ success: false, errors: errors.array() })
     }
 
+    const user = await User.findById(req.payload.id)
+    if (!user) {
+      return res.status(501).json({ 
+        success: false,
+        message: "Invalid User"
+      });
+    }
+
     let item = req.notification
     if (item.service != req.body.service) {
       return res.status(422).json({
@@ -160,7 +176,7 @@ const updateChannel = async function (req, res) {
     await item.save()
 
     const message = `Update Notification Channel ${req.body.name} (${req.body.service})`;
-    await activity.createUserActivityLogInfo(server.id, message, 'high')
+    await activity.createUserActivityLogInfo(user.id, message, 'high')
 
     res.json({
       success: true,
