@@ -15,9 +15,8 @@ router.post("/create",
 
 router.delete("/", 
   auth.required, 
-  body('serverId').isString(),
-  body('name').isString(),
-  system.deleteSSHKey)
+  body('keyId').isString(),
+  system.deleteVaultedSSHKey)
 
 
 module.exports = router

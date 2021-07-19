@@ -212,33 +212,17 @@ const createSSHKey = async function (req, res) {
   }
 }
 
-const deleteSSHKey = async function (req, res) {
+const deleteVaultedSSHKey = async function (req, res) {
   try {
-    let {server, errors} = await getServer(req)
-    if (errors) {
-      return res.status(422).json({ success: false, errors: errors })
+    let errors = valiator.validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ success: false, errors: errors.array() })
     }
 
-    const index = server.sshKeys.findIndex(it => it.name === req.body.name);
-    if (index < 0) {
-      return res.status(422).json({
-        success: false,
-        errors: { 
-          message: "It doesn't exists",
-        }
-      })
-    }
-
-    errors = await agent.deleteSystemUser(req.body.name)
-    if (errors) {
-      return res.status(422).json({
-        success: false,
-        errors: errors
-      })
-    }
-
-    server.sshKeys.splice(index, 1)
-    await server.save()
+    await SSHKey.deleteOne({
+      userId: req.payload.id,
+      id: req.body.keyId
+    })
 
     res.json({
       success: true,
@@ -472,7 +456,7 @@ module.exports = {
   deleteSystemUser,
   getVaultedSSHKeys,
   createSSHKey,
-  deleteSSHKey,
+  deleteVaultedSSHKey,
   getDeploymentKeys,
   createDeploymentKey,
   deleteDeploymentKey,
