@@ -13,5 +13,6 @@ require('./Application');
 require('./Service');
 require('./Usage');
 require('./SSHKey');
+require('./IPAddress');
 require('./ServerActivity');
 require('./UserActivity');
