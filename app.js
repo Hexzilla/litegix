@@ -7,7 +7,8 @@ var http = require('http'),
     cors = require('cors'),
     passport = require('passport'),
     errorhandler = require('errorhandler'),
-    mongoose = require('mongoose');
+    mongoose = require('mongoose'),
+    useragent = require('express-useragent');
 
 require('dotenv').config();
 var isProduction = process.env.NODE_ENV === 'production';
@@ -24,6 +25,7 @@ app.use(express.urlencoded({
   extended: true
 }));
 
+app.use(useragent.express());
 app.use(require('method-override')());
 app.use(express.static(__dirname + '/public'));
 

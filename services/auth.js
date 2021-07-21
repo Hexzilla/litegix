@@ -1,6 +1,7 @@
 const valiator = require("express-validator")
 const mongoose = require("mongoose")
 const User = mongoose.model("User")
+const IPAddress = mongoose.model("IPAddress")
 const passport = require("passport")
 const randomstring = require("randomstring");
 
@@ -35,12 +36,20 @@ const login = function (req, res, next) {
         return next(err)
       }
 
-      if (user) {
-        user.token = user.generateJWT()
-        return res.json(user.toAuthJSON())
-      } else {
+      if (!user) {
         return res.status(422).json(info)
       }
+
+      const browser = req.useragent.browser || 'unknown'
+      const addr = new IPAddress({
+        address: req.connection.remoteAddress,
+        browser: browser,
+        userId: user.id
+      })
+      addr.save()
+
+      user.token = user.generateJWT()
+      return res.json(user.toAuthJSON())
     }
   )(req, res, next)
 }
