@@ -1,14 +1,14 @@
 const valiator = require('express-validator')
 const mongoose = require("mongoose")
-const Application = mongoose.model("Application")
+const IPAddress = mongoose.model("IPAddress")
 
 
 const getWhiteList = async function (req, res) {
   try {
-    const applications = await Application.find({ serverId: req.server.id })
+    const whitelist = await IPAddress.find({ userId: req.payload.id })
     return res.json({ 
       success: true,
-      data: { applications }
+      data: { whitelist }
     })
   }
   catch (e) {
