@@ -23,8 +23,8 @@ var UserSchema = new mongoose.Schema({
   },
   apiKeys: {
     enableAccess: {type: Boolean, default: false},
-    key: {type: String, required: [true, "can't be blank"]},
-    secret: {type: String, required: [true, "can't be blank"]},
+    key: String,
+    secret: String
   },
   company: { type: mongoose.Schema.Types.ObjectId, ref: 'Company' }
 }, {timestamps: true});
