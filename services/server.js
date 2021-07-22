@@ -13,7 +13,9 @@ const defaultScript = "export DEBIAN_FRONTEND=noninteractive; echo 'Acquire::For
 const getServer = async function (req) {
   try {
     const reject = (errors) => {
-      return { errors: errors }
+      return {
+        errors: errors
+      }
     }
 
     const errors = valiator.validationResult(req);
@@ -24,22 +26,27 @@ const getServer = async function (req) {
     const server = await Server.findById(req.body.serverId)
     if (!server) {
       return reject({
-        message: "Server doesn't exists" 
+        message: "Server doesn't exists"
       })
     }
-    return { server }
-  }
-  catch (errors) {
-    return { errors: errors }
+    return {
+      server
+    }
+  } catch (errors) {
+    return {
+      errors: errors
+    }
   }
 }
 
 const getServers = function (req, res, next) {
-  Server.find({user: req.payload.id})
+  Server.find({
+      user: req.payload.id
+    })
     .then(servers => {
-      console.log(servers)
+      //console.log(servers)
       res.json({
-        success: true, 
+        success: true,
         data: {
           servers: servers
         }
@@ -52,24 +59,31 @@ const storeServer = async function (req, res, next) {
   try {
     const errors = valiator.validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({ errors: errors.array() });
+      return res.status(422).json({
+        errors: errors.array()
+      });
     }
 
-    let result = await Server.findOne({ address: req.body.address })
+    let result = await Server.findOne({
+      address: req.body.address
+    })
     if (result) {
       return res.status(422).json({
         success: false,
-        errors: { 
+        errors: {
           address: 'has already been taken.'
         }
       })
     }
 
-    result = await Server.findOne({ name: req.body.name, user: req.payload.id })
+    result = await Server.findOne({
+      name: req.body.name,
+      user: req.payload.id
+    })
     if (result) {
       return res.status(422).json({
         success: false,
-        errors: { 
+        errors: {
           name: 'has already been taken.'
         }
       })
@@ -84,15 +98,18 @@ const storeServer = async function (req, res, next) {
       success: true,
       message: "Your server has been successfully created."
     })
-  }
-  catch (e) {
+  } catch (e) {
     console.error(e)
-    return res.status(501).json({ success: false });
+    return res.status(501).json({
+      success: false
+    });
   }
 }
 
 const deleteServer = async function (req, res, next) {
-  res.json({ success: true })
+  res.json({
+    success: true
+  })
 }
 
 const getSummary = async function (req, res, next) {
@@ -117,12 +134,14 @@ const getSummary = async function (req, res, next) {
   })
 }
 
-const getShellCommands = function(req, res) {
+const getShellCommands = function (req, res) {
   const errors = valiator.validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(422).json({ errors: errors.array() });
+    return res.status(422).json({
+      errors: errors.array()
+    });
   }
-  
+
   const token = {
     userId: req.payload.id,
     address: req.body.address,
@@ -142,7 +161,7 @@ const getShellCommands = function(req, res) {
   })
 }
 
-const getToken = function(token) {
+const getToken = function (token) {
   const encrypted = token.split('.').join('/')
   const decrypted = crypto.decrypt(encrypted)
   return JSON.parse(decrypted)
@@ -159,7 +178,9 @@ const getScript = async function (req, res, next) {
       res.send(text)
     })
     .catch(err => {
-      return res.status(422).json({ errors: "Can't read file" })
+      return res.status(422).json({
+        errors: "Can't read file"
+      })
     })
 }
 
@@ -174,7 +195,9 @@ const updateInstallState = async function (req, res, next) {
 const updateServerState = async function (req, res) {
   let errors = valiator.validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(422).json({ errors: errors.array() });
+    return res.status(422).json({
+      errors: errors.array()
+    });
   }
 
   console.log("updateServerState", req.body)
@@ -187,6 +210,71 @@ const updateServerState = async function (req, res) {
     success: true
   })
 }
+const getServerInfo = async function (req, res, next) {
+
+  try {
+    const errors = valiator.validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({
+        errors: errors.array()
+      });
+    }
+
+    var server = req.server;
+    res.json({
+      success: true,
+      data : server
+    })
+  } catch (e) {
+    console.error(e)
+    return res.status(501).json({
+      success: false
+    });
+  }
+}
+
+
+const updateSetting = async function (req, res, next) {
+  try {
+    const errors = valiator.validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({
+        errors: errors.array()
+      });
+    }
+
+    //console.log(req.body); return;
+    var myServer = req.server;
+    let otherCount = await Server.count({
+      $and : [
+          {"_id": { $ne : req.payload.id }},
+          {"name": req.body.name}
+        ]
+    })
+    if(otherCount>0)
+    {
+      return res.status(423).json({
+        success: false,
+        errors: {
+          name : ' has already been taken.'
+        }
+      })      
+    }
+
+    myServer.name = req.body.name;
+    myServer.provider = req.body.provider;
+    await myServer.save()
+    res.json({
+      success: true,
+      message: "Server setting has been successfully updated."
+    })
+  } catch (e) {
+    console.error(e)
+    return res.status(501).json({
+      success: false
+    });
+  }
+}
 
 module.exports = {
   getServer,
@@ -198,4 +286,6 @@ module.exports = {
   getShellCommands,
   updateInstallState,
   updateServerState,
+  getServerInfo,
+  updateSetting
 }

@@ -34,16 +34,24 @@ router.post("/newsletters/unsubscribe",
 
 router.get("/channels/store", 
   auth.required,
-  body('service').isString(),
+  body('channel').isString(),
   body('name').isString(),
-  body('content').isString(),
   notification.storeChannel)
 
 router.post("/channels/:channelId/update",
   auth.required,
-  body('service').isString(),
+  body('channel').isString(),
   body('name').isString(),
-  body('content').isString(),
   notification.updateChannel)
 
+router.get("/channels/:channelId",
+  auth.required,
+  notification.getChannel)
+
+router.post("/channels/:channelId/healthsetting",
+  auth.required,
+  body('load').isNumeric().isInt({min:1,max:255}),
+  body('memory').isNumeric().isInt({min:1,max:99}),
+  notification.channelHealthsetting)
+  
 module.exports = router

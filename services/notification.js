@@ -16,6 +16,7 @@ const getNotifications = async function (req, res) {
       });
     }
     const channels = await Channel.find({ userId: req.payload.id })
+    
     return res.json({ 
       success: true,
       data: { 
@@ -106,17 +107,17 @@ const storeChannel = async function (req, res) {
       });
     }
 
-    const service = req.body.service
-    if (service !== "email" && service !== "slack") {
-      return res.status(422).json({
-        success: false,
-        errors: { service: "unsupported service type." }
-      })
-    }
+    const channelpost= req.body.channel
+    // if (channelpost !== "email" && channelpost !== "slack") {
+    //   return res.status(422).json({
+    //     success: false,
+    //     errors: { service: "unsupported service type." }
+    //   })
+    // }
 
     let query = {
       userId: req.payload.id,
-      service: req.body.service,
+      channel: req.body.channel,
       name: req.body.name
     }
     let channel = await Channel.findOne(query)
@@ -161,6 +162,7 @@ const updateChannel = async function (req, res) {
     }
 
     let item = req.notification
+    
     if (item.service != req.body.service) {
       return res.status(422).json({
         success: false,
@@ -189,11 +191,68 @@ const updateChannel = async function (req, res) {
   }
 }
 
+const channelHealthsetting = async function (req, res) {
+try {
+    let errors = valiator.validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ success: false, errors: errors.array() })
+    }
+    let channelItem = req.notification;
 
+    if(req.body.load !== undefined)
+    {
+      channelItem.load = req.body.load
+    }
+    if(req.body.memory !== undefined)
+    {
+      channelItem.memory = req.body.memory
+    }
+    if(req.body.load !== undefined || req.body.memory !== undefined)
+    {
+      const user = await User.findById(req.payload.id)
+      channelItem.save()
+      const message = `Update Server Health Notification Setting for Channel ${channelItem.name} (${channelItem.service}) : ` + ` Load=${channelItem.load},  Memory=${channelItem.memory}.`;
+      await activity.createUserActivityLogInfo(user.id, message, 'high')      
+    }
+
+    
+    res.json({
+      success: true,
+      data: {
+        load : channelItem.load,
+        memory : channelItem.memory
+      }
+    })
+}
+  catch (e) {
+    console.error(e)
+    return res.status(501).json({ success: false });
+  }  
+}
+
+
+const getChannel = async function (req, res) {
+  try {
+
+    const channel = await Channel.findById(req.params.channelId)
+    // console.log( req.params.channelId)
+    // console.log( channel.load)
+    return res.json({ 
+      success: true,
+      data: channel.toJSON()
+    })
+  }
+  catch (e) {
+    console.error(e)
+    return res.status(501).json({ success: false });
+  }
+}
 module.exports = {
   getNotifications,
   subscribe,
   unsubscribe,
   storeChannel,
   updateChannel,
+  channelHealthsetting,
+  getChannel
 }

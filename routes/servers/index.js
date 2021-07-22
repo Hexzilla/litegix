@@ -9,7 +9,6 @@ router.param("serverId", function (req, res, next, serverId) {
       if (!server) {
         return res.sendStatus(404)
       }
-
       req.server = server
       return next()
     })

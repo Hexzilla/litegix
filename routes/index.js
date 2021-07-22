@@ -5,6 +5,8 @@ const authService = require('../services/auth')
 router.use('/api', require('./api'));
 router.use('/settings', require('./settings'));
 router.use('/servers', require('./servers'));
+router.use('/subscriptions', require('./subscriptions')); 
+router.use('/payment', require('./payment')); 
 
 router.post('/login', 
   body('email').notEmpty(),

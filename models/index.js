@@ -16,3 +16,8 @@ require('./SSHKey');
 require('./IPAddress');
 require('./ServerActivity');
 require('./UserActivity');
+require('./Credittopup');
+require('./Serverplan');
+require('./Backupplan');
+require('./Subscription');
+require('./Paymenthistory');
