@@ -1,10 +1,164 @@
 {
 	"info": {
-		"_postman_id": "45115cda-6f69-486a-b78c-615a4e2a9ba1",
-		"name": "Litegix",
+		"_postman_id": "31746c52-5b38-4c96-bfcb-0f7094d15acb",
+		"name": "Litegix-Collection",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
+		{
+			"name": "Securities",
+			"item": [
+				{
+					"name": "server/security/firewalls",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYwZjkyNWIyMjZjZWQ2MzU4MGIwNTliNCIsInVzZXJuYW1lIjoidGVzdDEiLCJleHAiOjE2MzIxMjg2MzksImlhdCI6MTYyNjk0NDYzOX0.oi46B6oHlHVgorIO6OXUqmfhQKuvsId9fMqb-y4KQ_4",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "localhost:3000/servers/60f90fcf6cc845204030217e/securities/firewalls",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"servers",
+								"60f90fcf6cc845204030217e",
+								"securities",
+								"firewalls"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "server/security/firewalls",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYwZjkyNWIyMjZjZWQ2MzU4MGIwNTliNCIsInVzZXJuYW1lIjoidGVzdDEiLCJleHAiOjE2MzIxMjg2MzksImlhdCI6MTYyNjk0NDYzOX0.oi46B6oHlHVgorIO6OXUqmfhQKuvsId9fMqb-y4KQ_4",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:3000/servers/60f90fcf6cc845204030217e/securities/firewalls",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"servers",
+								"60f90fcf6cc845204030217e",
+								"securities",
+								"firewalls"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "server/security/firewalls/object",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYwZjkyNWIyMjZjZWQ2MzU4MGIwNTliNCIsInVzZXJuYW1lIjoidGVzdDEiLCJleHAiOjE2MzIxMjg2MzksImlhdCI6MTYyNjk0NDYzOX0.oi46B6oHlHVgorIO6OXUqmfhQKuvsId9fMqb-y4KQ_4",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "localhost:3000/servers/60f90fcf6cc845204030217e/securities/firewalls/60f9c74a1593d6219415ef5d",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"servers",
+								"60f90fcf6cc845204030217e",
+								"securities",
+								"firewalls",
+								"60f9c74a1593d6219415ef5d"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "server/security/firewalls/object",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYwZjkyNWIyMjZjZWQ2MzU4MGIwNTliNCIsInVzZXJuYW1lIjoidGVzdDEiLCJleHAiOjE2MzIxMjg2MzksImlhdCI6MTYyNjk0NDYzOX0.oi46B6oHlHVgorIO6OXUqmfhQKuvsId9fMqb-y4KQ_4",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "localhost:3000/servers/60f90fcf6cc845204030217e/securities/firewalls/60f9c74a1593d6219415ef5d",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"servers",
+								"60f90fcf6cc845204030217e",
+								"securities",
+								"firewalls",
+								"60f9c74a1593d6219415ef5d"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "noauth"
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
 		{
 			"name": "login",
 			"request": {
@@ -1932,6 +2086,127 @@
 					"path": [
 						"payment",
 						"history"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "userVerify",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3000/verify/60f925b226ced63580b059b4/zK6r5M07BtdLU8B3",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"verify",
+						"60f925b226ced63580b059b4",
+						"zK6r5M07BtdLU8B3"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "settings/ipwhitelist",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYwZjkyNWIyMjZjZWQ2MzU4MGIwNTliNCIsInVzZXJuYW1lIjoidGVzdDEiLCJleHAiOjE2MzIxMjg2MzksImlhdCI6MTYyNjk0NDYzOX0.oi46B6oHlHVgorIO6OXUqmfhQKuvsId9fMqb-y4KQ_4",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:3000/settings/ipwhitelist",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"settings",
+						"ipwhitelist"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "settings/ipwhitelist",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYwZjkyNWIyMjZjZWQ2MzU4MGIwNTliNCIsInVzZXJuYW1lIjoidGVzdDEiLCJleHAiOjE2MzIxMjg2MzksImlhdCI6MTYyNjk0NDYzOX0.oi46B6oHlHVgorIO6OXUqmfhQKuvsId9fMqb-y4KQ_4",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "localhost:3000/settings/ipwhitelist/1",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"settings",
+						"ipwhitelist",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "settings/ipwhitelist",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYwZjkyNWIyMjZjZWQ2MzU4MGIwNTliNCIsInVzZXJuYW1lIjoidGVzdDEiLCJleHAiOjE2MzIxMjg2MzksImlhdCI6MTYyNjk0NDYzOX0.oi46B6oHlHVgorIO6OXUqmfhQKuvsId9fMqb-y4KQ_4",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "localhost:3000/settings/ipwhitelist/60f9347f26e2641868db3495",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"settings",
+						"ipwhitelist",
+						"60f9347f26e2641868db3495"
 					]
 				}
 			},
