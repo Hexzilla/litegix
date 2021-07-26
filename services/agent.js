@@ -59,6 +59,18 @@ const createWebApplication = async function() {
   return null
 }
 
+const updateWebApplication = async function() {
+  return null
+}
+
+const setDefaultApp = async function() {
+  return null
+}
+
+const removeDefaultApp = async function() {
+  return null
+}
+
 const deleteWebApplication = async function (name) {
   return null
 }
@@ -107,13 +119,31 @@ const deleteDeploymentKey = async function (name) {
   }
 }
 
+const createCronJob = async function() {
+  return null
+}
+
+const removeCronJob = async function() {
+  return null
+}
+
+const rebuildCronJob = async function() {
+  return null
+}
+
 module.exports = {
   createDatabase,
   deleteDatabase,
   createDatabaseUser,
   deleteDatabaseUser,
   createWebApplication,
+  updateWebApplication,
+  setDefaultApp,
+  removeDefaultApp,
   deleteWebApplication,
+  createCronJob,
+  removeCronJob,
+  rebuildCronJob,
   createSystemUser,
   deleteSystemUser,
   createDeploymentKey,

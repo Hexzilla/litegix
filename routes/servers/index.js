@@ -9,6 +9,7 @@ router.param("serverId", function (req, res, next, serverId) {
       if (!server) {
         return res.sendStatus(404)
       }
+
       req.server = server
       return next()
     })
@@ -18,7 +19,7 @@ router.param("serverId", function (req, res, next, serverId) {
 router.use("/", require("./servers"))
 router.use("/:serverId", require("./server"))
 router.use("/:serverId/config", require("./config"))
-router.use("/:serverId/webapp", require("./webapp"))
+router.use("/:serverId/webapps", require("./webapps"))
 router.use("/:serverId/databases", require("./databases"))
 router.use("/:serverId/systemusers", require("./systemusers"))
 router.use("/:serverId/sshcredentials", require("./sshcredentials"))
