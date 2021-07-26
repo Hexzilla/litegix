@@ -21,3 +21,4 @@ require('./Serverplan');
 require('./Backupplan');
 require('./Subscription');
 require('./Paymenthistory');
+require('./Securities');

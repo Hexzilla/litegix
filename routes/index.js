@@ -19,6 +19,10 @@ router.post('/signup',
   body('password').notEmpty(),
   authService.signup);
 
+
+// request user verify  
+router.post('/verify/:userId/:verifyCode', authService.userVerify);
+
 router.use(function (err, req, res, next) {
   if (err.name === "ValidationError") {
     return res.status(422).json({

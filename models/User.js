@@ -7,6 +7,12 @@ var secret = require('../config').secret;
 var UserSchema = new mongoose.Schema({
   username: {type: String, lowercase: true, unique: true, required: [true, "can't be blank"], match: [/^[a-zA-Z0-9]+$/, 'is invalid'], index: true},
   email: {type: String, lowercase: true, unique: true, required: [true, "can't be blank"], match: [/\S+@\S+\.\S+/, 'is invalid'], index: true},
+  ip_enable: {type: Boolean},
+  verify: {
+    code: String,
+    validat_time: String,
+    url: String
+  },
   bio: String,
   image: String,
   favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Article' }],
@@ -15,6 +21,7 @@ var UserSchema = new mongoose.Schema({
   salt: String,
   timezone: String,
   loginNotification: Boolean,
+  
   newsletters: {
     subscription: Boolean,
     announchment: Boolean,
@@ -24,7 +31,9 @@ var UserSchema = new mongoose.Schema({
   apiKeys: {
     enableAccess: {type: Boolean, default: false},
     key: String,
-    secret: String
+    secret: String,
+    // key: {type: String, required: [true, "can't be blank"]},
+    // secret: {type: String, required: [true, "can't be blank"]},
   },
   company: { type: mongoose.Schema.Types.ObjectId, ref: 'Company' }
 }, {timestamps: true});
