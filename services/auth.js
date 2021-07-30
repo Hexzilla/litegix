@@ -4,8 +4,6 @@ const User = mongoose.model("User")
 const IPAddress = mongoose.model("IPAddress")
 const passport = require("passport")
 const randomstring = require("randomstring");
-const nodemailer = require('nodemailer');
-const DateDiff = require('date-diff');
 const { required } = require("../routes/auth")
 
 const getUser = async function (req) {

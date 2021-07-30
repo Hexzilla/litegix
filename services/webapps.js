@@ -11,7 +11,7 @@ const SystemUser = mongoose.model("SystemUser")
 const User = mongoose.model("User")
 const agent = require("./agent")
 const activity = require("./activity")
-const timezones = require('timezones-list');
+// const timezones = require('timezones-list');
 
 const getWebApplications = async function (req, res) {
   try {
@@ -82,7 +82,7 @@ const webApplication = async function (req, res) {
         {text:"basic",value:"basic"},
         {text:"advanced",value:"advanced"},
       ],
-      timezones:timezones,
+    //   timezones:timezones,
       processManager:[
         {text:"Ondemand",value:"ondemand"},
         {text:"Dynamic",value:"dynamic"},
@@ -1040,6 +1040,10 @@ const storeWebApplication = async function (req, res) {
     console.error(e)
     return res.status(501).json({ success: false });
   }
+}
+
+const storeCustomWebApplication = async function (req, res) {
+    
 }
 
 const storeWordpressWebApplication = async function (req, res) {
