@@ -1,18 +1,19 @@
 const { body } = require('express-validator')
 const router = require("express").Router()
 const auth = require("../auth")
-const whitelist = require("../../services/ipwhitelist")
+const apiKey = require("../../services/apikey")
 
 router.get("/", 
   auth.required,
-  whitelist.getWhiteList)
+  apiKey.getApiKeys)
 
-router.delete("/:ipAddress",
+router.get("/regenerate",
   auth.required,
-  whitelist.deleteIp) 
+  apiKey.createApiKeys)
 
-router.post("/:isEnable",
+router.post("/enableaccess",
   auth.required,
-  whitelist.setEnableOrDisable) 
+  body('state').isBoolean(),
+  apiKey.enableAccess)
 
 module.exports = router

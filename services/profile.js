@@ -23,8 +23,16 @@ const updateProfile = function(req, res, next) {
   User.findById(req.payload.id)
     .then(user => {
       if (!user) { return res.sendStatus(404); }
+
+      if (user.email != req.body.email) {
+        return res.status(422).json({
+          success: false,
+          errors: {
+            email: 'can not be changed.'
+          }
+        })
+      }
       
-      user.email = req.body.email
       user.username = req.body.name
       user.timezone = req.body.timezone
       user.loginNotification = req.body.loginNotification
