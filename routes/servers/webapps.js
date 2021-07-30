@@ -136,135 +136,132 @@ router.post("/:id/git",
   }),
   application.cloningGITrepository)
 
-  router.get("/:id/git", 
-      auth.required, 
-      application.getGITrepository)
-
-  router.patch("/:webAppId/git/:gitId/branch", 
+router.get("/:id/git", 
     auth.required, 
-    body('branch').isString(),
-    application.changeGITbranch)
+    application.getGITrepository)
 
-  router.patch("/:webAppId/git/:gitId/script", 
-    auth.required, 
-    body('autoDeploy').isBoolean(),
-    application.customizeGITscript)
-  
-  router.put("/:webAppId/git/:gitId/script", 
-    auth.required, 
-    body('autoDeploy').isBoolean(),
-    application.forceDeploymentbyscript)
+router.patch("/:webAppId/git/:gitId/branch", 
+  auth.required, 
+  body('branch').isString(),
+  application.changeGITbranch)
 
-  router.delete("/:webAppId/git/:gitId", 
-    auth.required, 
-    application.removeGITreository)
+router.patch("/:webAppId/git/:gitId/script", 
+  auth.required, 
+  body('autoDeploy').isBoolean(),
+  application.customizeGITscript)
 
+router.put("/:webAppId/git/:gitId/script", 
+  auth.required, 
+  body('autoDeploy').isBoolean(),
+  application.forceDeploymentbyscript)
 
-
-  router.post("/:webAppId/installer", 
-    auth.required, 
-    body('name').isString(),
-    application.installPHPscript)
-  
-  router.get("/:webAppId/installer", 
-    auth.required, 
-    application.getPHPscript)
-
-  router.delete("/:webAppId/installer/:installerId", 
-    auth.required, 
-    application.removePHPscript)
+router.delete("/:webAppId/git/:gitId", 
+  auth.required, 
+  application.removeGITreository)
 
 
 
-  router.post("/:webAppId/domains", 
-    auth.required, 
-    body('name').isString(),
-    application.addDomainname)
-  
-  router.get("/:webAppId/domains", 
-    auth.required, 
-    application.getDomainlist)
-  
-  router.get("/:webAppId/domains/:domainId", 
-    auth.required, 
-    application.getDomain)
+router.post("/:webAppId/installer", 
+  auth.required, 
+  body('name').isString(),
+  application.installPHPscript)
 
-  router.delete("/:webAppId/domains/:domainId", 
-    auth.required, 
-    application.removeDomain)
+router.get("/:webAppId/installer", 
+  auth.required, 
+  application.getPHPscript)
+
+router.delete("/:webAppId/installer/:installerId", 
+  auth.required, 
+  application.removePHPscript)
 
 
 
-  router.post("/:webAppId/ssl", 
-    auth.required, 
-    body('provider').isString(),
-    body('enableHsts').isBoolean(),
-    body('enableHttp').isBoolean(),
-    body('ssl_protocol_id').isNumeric(),
-    application.installSSL)
-  
-  router.get("/:webAppId/ssl", 
-    auth.required, 
-    application.getSSL)
+router.post("/:webAppId/domains", 
+  auth.required, 
+  body('name').isString(),
+  application.addDomainname)
 
-  router.patch("/:webAppId/ssl/:sslId", 
-    auth.required, 
-    body('enableHsts').isBoolean(),
-    body('enableHttp').isBoolean(),
-    body('ssl_protocol_id').isNumeric(),
-    application.updateSSL)
+router.get("/:webAppId/domains", 
+  auth.required, 
+  application.getDomainlist)
 
-  router.put("/:webAppId/ssl/:sslId", 
-    auth.required, 
-    application.redeploySSL)
+router.get("/:webAppId/domains/:domainId", 
+  auth.required, 
+  application.getDomain)
 
-  router.delete("/:webAppId/ssl/:sslId", 
-    auth.required, 
-    application.removeSSL)
+router.delete("/:webAppId/domains/:domainId", 
+  auth.required, 
+  application.removeDomain)
 
 
 
-  router.get("/:webAppId/ssl/advanced", 
-    auth.required, 
-    application.getadvancedSSLsetting)
+router.post("/:webAppId/ssl", 
+  auth.required, 
+  body('provider').isString(),
+  body('enableHsts').isBoolean(),
+  body('enableHttp').isBoolean(),
+  body('ssl_protocol_id').isNumeric(),
+  application.installSSL)
 
-  router.post("/:webAppId/ssl/advanced", 
-    auth.required, 
-    body('advancedSSL').isBoolean(),
-    application.switchingadvancedSSLsetting)
+router.get("/:webAppId/ssl", 
+  auth.required, 
+  application.getSSL)
+
+router.patch("/:webAppId/ssl/:sslId", 
+  auth.required, 
+  body('enableHsts').isBoolean(),
+  body('enableHttp').isBoolean(),
+  body('ssl_protocol_id').isNumeric(),
+  application.updateSSL)
+
+router.put("/:webAppId/ssl/:sslId", 
+  auth.required, 
+  application.redeploySSL)
+
+router.delete("/:webAppId/ssl/:sslId", 
+  auth.required, 
+  application.removeSSL)
 
 
 
+router.get("/:webAppId/ssl/advanced", 
+  auth.required, 
+  application.getadvancedSSLsetting)
+
+router.post("/:webAppId/ssl/advanced", 
+  auth.required, 
+  body('advancedSSL').isBoolean(),
+  application.switchingadvancedSSLsetting)
 
 
-  router.post("/:webAppId/domains/:domainId/ssl", 
-    auth.required, 
-    body('provider').isString(),
-    body('enableHsts').isBoolean(),
-    body('enableHttp').isBoolean(),
-    application.installadvancedSSL)
-  
-  router.get("/:webAppId/domains/:domainId/ssl", 
-    auth.required, 
-    application.getadvancedSSL)
+router.post("/:webAppId/domains/:domainId/ssl", 
+  auth.required, 
+  body('provider').isString(),
+  body('enableHsts').isBoolean(),
+  body('enableHttp').isBoolean(),
+  application.installadvancedSSL)
 
-  router.patch("/:webAppId/domains/:domainId/ssl/:sslId", 
-    auth.required, 
-    body('enableHsts').isBoolean(),
-    body('enableHttp').isBoolean(),
-    application.updateadvancedSSL)
+router.get("/:webAppId/domains/:domainId/ssl", 
+  auth.required, 
+  application.getadvancedSSL)
 
-  router.put("/:webAppId/domains/:domainId/ssl/:sslId", 
-    auth.required, 
-    application.redeployadvancedSSL)
+router.patch("/:webAppId/domains/:domainId/ssl/:sslId", 
+  auth.required, 
+  body('enableHsts').isBoolean(),
+  body('enableHttp').isBoolean(),
+  application.updateadvancedSSL)
 
-  router.delete("/:webAppId/domains/:domainId/ssl/:sslId", 
-    auth.required, 
-    application.removeadvancedSSL)
+router.put("/:webAppId/domains/:domainId/ssl/:sslId", 
+  auth.required, 
+  application.redeployadvancedSSL)
 
-  router.get("/:webAppId/settings", 
-    auth.required, 
-    application.getapplicationsettings)
+router.delete("/:webAppId/domains/:domainId/ssl/:sslId", 
+  auth.required, 
+  application.removeadvancedSSL)
+
+router.get("/:webAppId/settings", 
+  auth.required, 
+  application.getapplicationsettings)
 
 
 
