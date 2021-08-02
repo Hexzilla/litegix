@@ -132,6 +132,7 @@ const rebuildCronJob = async function() {
 }
 
 module.exports = {
+  diskClean,
   createDatabase,
   deleteDatabase,
   createDatabaseUser,

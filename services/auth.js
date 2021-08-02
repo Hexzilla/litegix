@@ -49,7 +49,7 @@ const login = function (req, res, next) {
         if(!isCheck){
           return res.status(422).json(info);
         }
-        console.log("ischeck true= " + isCheck);
+        console.log("ischeck = " + isCheck);
         user.token = user.generateJWT()
         return res.json(user.toAuthJSON())
       })();
@@ -58,15 +58,17 @@ const login = function (req, res, next) {
 }
 
 const signup = function (req, res, next) {
-  passport.authenticate(
+  console.log('this is sign up');
+  passport.authenticate(  //passport.js : passport.use("signup",
     "signup",
     { session: false },
-    function (err, user) {
-      if (err) {
-        return next(err)
-      }
-
-      return res.json({ success: true })
+    function (err, user) 
+    {
+        if (err) {
+          return next(err)
+        }
+        if(!user) return res.json({ success: false })
+        return res.json({ success: true })
     }
   )(req, res, next)
 }
@@ -115,8 +117,8 @@ const checkIpAdress = async function(req, user, res){
   const whitelist = await IPAddress.find({ userId: user._id })
   whitelist.forEach(val => {
     if(req.connection.remoteAddress.toString() === val.address.toString()){    // main code
-    // if("192.168.10.5" === val.address.toString()){                                // exam code
-      ipEqual = true
+    // if("192.168.10.5" === val.address.toString()){                          // exam code
+      ipEqual = true;
     }
   });
   if(!ipEqual){
@@ -145,13 +147,23 @@ const checkIpAdress = async function(req, user, res){
   return true;
 }
 const addIpAddress = function(req,userId){
-  const browser = req.useragent.browser || 'unknown'
-  const addr = new IPAddress({
-    address: req.connection.remoteAddress, //'192.168.10.2',
-    browser: browser,
-    userId: userId
-  })
-  addr.save()
+  try{
+    existIp = IPAddress.find({Address : req.connection.remoteAddress})
+    if(!existIp)
+    {
+      const browser = req.useragent.browser || 'unknown'
+      const addr = new IPAddress({
+        address: req.connection.remoteAddress, //'192.168.10.2',
+        browser: browser,
+        userId: userId
+      })
+      addr.save()
+    }
+  }
+  catch(e)
+  {
+    console.log(e)
+  }
 }
 
 var verifyCodeUpdate = async function(userId, verify){
