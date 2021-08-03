@@ -4,12 +4,27 @@ const {getUser} = require("./auth")
 const mongoose = require("mongoose")
 const SystemUser = mongoose.model("SystemUser")
 const SSHKey = mongoose.model("SSHKey")
+const ServerSSHKey = mongoose.model("ServerSSHKey")
 const agent = require("./agent")
 const activity = require("./activity")
 
 const getSystemUsers = async function (req, res) {
   try {
     const users = await SystemUser.find({ serverId: req.server.id })
+    return res.json({ 
+      success: true,
+      data: { users: users }
+    })
+  }
+  catch (e) {
+    console.error(e)
+    return res.status(501).json({ success: false });
+  }
+}
+
+const getSystemUserFromId = async function (req, res) {
+  try {
+    const users = await SystemUser.find({ serverId: req.server.id, _id: req.params.userId })
     return res.json({ 
       success: true,
       data: { users: users }
@@ -50,13 +65,13 @@ const storeSystemUser = async function (req, res) {
       })
     }
 
-    errors = await agent.createSystemUser(req.body)
-    if (errors) {
-      return res.status(422).json({
-        success: false,
-        errors: errors
-      })
-    }
+    // errors = await agent.createSystemUser(req.body)
+    // if (errors) {
+    //   return res.status(422).json({
+    //     success: false,
+    //     errors: errors
+    //   })
+    // }
 
     user = new SystemUser(req.body)
     user.serverId = server.id
@@ -83,8 +98,23 @@ const changeSystemUserPassword = async function (req, res) {
       return res.status(422).json({ success: false, errors: errors.array() })
     }
 
+     await SystemUser.findByIdAndUpdate(req.body.id, { $set: { password: req.body.password }},{upsert:true}, function(err, result){
+      if(err){
+        return res.status(422).json({
+              success: false,
+              errors: err
+            })
+      }
+      else{
+        res.json({
+          success: true,
+          data: result
+        })
+      }
+    });
+
     let server = req.server
-    let user = await SystemUser.findById(req.body.userId)
+    let user = await SystemUser.findById(req.body.id)
     if (!user) {
       return res.status(422).json({
         success: false,
@@ -92,13 +122,13 @@ const changeSystemUserPassword = async function (req, res) {
       })
     }
 
-    errors = await agent.changeSystemUserPassword(user.name, req.body.password)
-    if (errors) {
-      return res.status(422).json({
-        success: false,
-        errors: errors
-      })
-    }
+    // errors = await agent.changeSystemUserPassword(user.name, req.body.password)
+    // if (errors) {
+    //   return res.status(422).json({
+    //     success: false,
+    //     errors: errors
+    //   })
+    // }
 
     const message = `The password for system user ${user.name} is changed`;
     await activity.createServerActivityLogInfo(server.id, message)
@@ -116,12 +146,7 @@ const changeSystemUserPassword = async function (req, res) {
 
 const deleteSystemUser = async function (req, res) {
   try {
-    let errors = valiator.validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ success: false, errors: errors.array() })
-    }
-
-    let user = await SystemUser.findById(req.body.id)
+    let user = await SystemUser.findById(req.params.userId)
     if (!user) {
       return res.status(422).json({
         success: false,
@@ -129,10 +154,10 @@ const deleteSystemUser = async function (req, res) {
       })
     }
 
-    errors = await agent.deleteSystemUser(user.name)
-    if (errors) {
-      return res.status(422).json({ success: false, errors: errors })
-    }
+    // errors = await agent.deleteSystemUser(user.name)
+    // if (errors) {
+    //   return res.status(422).json({ success: false, errors: errors })
+    // }
 
     await user.remove()
 
@@ -150,14 +175,16 @@ const deleteSystemUser = async function (req, res) {
   }
 }
 
-const getVaultedSSHKeys = async function (req, res) {
+const getServerSSHKeys = async function (req, res) {
   try {
-    const sshKeys = SSHKey.find({ userId: req.payload.id })
+    let server = req.server
+    const sshKeys = ServerSSHKey.find({ serverId: server.id })
 
     res.json({
       success: true,
       data: {
-        sshKeys: sshKeys.map(it => it.name)
+        sshKeys: sshKeys,
+        // sshKeys: sshKeys.map(it => it.name)
       }
     })
   }
@@ -169,14 +196,37 @@ const getVaultedSSHKeys = async function (req, res) {
   }
 }
 
-const createSSHKey = async function (req, res) {
+const getVaultedSSHKeys = async function (req, res) {
   try {
-    let {server, errors} = await getServer(req)
-    if (errors) {
-      return res.status(422).json({ success: false, errors: errors })
+    const sshKeys = SSHKey.find({ userId: req.payload.id })
+
+    res.json({
+      success: true,
+      data: {
+        sshKeys: sshKeys,
+        // sshKeys: sshKeys.map(it => it.name)
+      }
+    })
+  }
+  catch (error) {
+    return res.status(501).json({ 
+      success: false,
+      errors: error
+    });
+  }
+}
+
+const createServerSSHKey = async function (req, res) {
+  try {
+    let errors = valiator.validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ success: false, errors: errors.array() })
     }
 
-    if (server.sshKeys.find(it => it.name === req.body.name)) {
+    let server = req.server
+    
+    let serverSSHKey = ServerSSHKey.find({serverId:server.id, label:req.body.label})
+    if (serverSSHKey) {
       return res.status(422).json({
         success: false,
         errors: {
@@ -185,18 +235,19 @@ const createSSHKey = async function (req, res) {
       })
     }
 
-    errors = await agent.createSSHKey(req.body)
-    if (errors) {
-      return res.status(422).json({
-        success: false,
-        errors: errors
-      })
-    }
+    // errors = await agent.createSSHKey(req.body)
+    // if (errors) {
+    //   return res.status(422).json({
+    //     success: false,
+    //     errors: errors
+    //   })
+    // }
 
-    server.sshKeys.push(req.body)
-    await server.save()
+    serverSSHKey = new ServerSSHKey(req.body)
+    serverSSHKey.serverId = server.id
+    await serverSSHKey.save()
 
-    const message = `Added new SSH key ${req.body.name} with user ${req.body.userName}`;
+    const message = `Added new SSH key ${req.body.label} with user ${req.body.userId}`;
     await activity.createServerActivityLogInfo(req.body.serverId, message)
 
     res.json({
@@ -212,16 +263,32 @@ const createSSHKey = async function (req, res) {
   }
 }
 
+const deleteServerSSHKey = async function (req, res) {
+  try {
+    let server = req.server
+    await SSHKey.deleteOne({
+      serverId: server.id,
+      id: req.params.keyId
+    })
+
+    res.json({
+      success: true,
+      message: "Server SSH Key has been successfully deleted."
+    })
+  }
+  catch (error) {
+    return res.status(501).json({ 
+      success: false,
+      errors: error
+    });
+  }
+}
+
 const deleteVaultedSSHKey = async function (req, res) {
   try {
-    let errors = valiator.validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ success: false, errors: errors.array() })
-    }
-
     await SSHKey.deleteOne({
       userId: req.payload.id,
-      id: req.body.keyId
+      id: req.params.keyId
     })
 
     res.json({
@@ -450,12 +517,15 @@ const deleteSupervisorJob = async function (req, res) {
 
 module.exports = {
   getSystemUsers,
+  getSystemUserFromId,
   createSystemUser,
   storeSystemUser,
   changeSystemUserPassword,
   deleteSystemUser,
+  getServerSSHKeys,
   getVaultedSSHKeys,
-  createSSHKey,
+  createServerSSHKey,
+  deleteServerSSHKey,
   deleteVaultedSSHKey,
   getDeploymentKeys,
   createDeploymentKey,

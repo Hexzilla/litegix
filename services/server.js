@@ -6,43 +6,19 @@ const valiator = require('express-validator')
 const mongoose = require("mongoose")
 const Server = mongoose.model("Server")
 const Usage = mongoose.model("Usage")
-const crypto = require('./crypto')
+const User = mongoose.model("User")
+const ActivityLog = mongoose.model("ActivityLog")
+
+const crypto = require('./crypto');
+const { exception } = require('console');
 
 const defaultScript = "export DEBIAN_FRONTEND=noninteractive; echo 'Acquire::ForceIPv4 \"true\";' | tee /etc/apt/apt.conf.d/99force-ipv4; apt-get update; apt-get install curl netcat-openbsd -y; curl -4 --silent --location http://localhost:3000/servers/config/script/USER_INFO | bash -; export DEBIAN_FRONTEND=newt"
 
-const getServer = async function (req) {
-  try {
-    const reject = (errors) => {
-      return {
-        errors: errors
-      }
-    }
-
-    const errors = valiator.validationResult(req);
-    if (!errors.isEmpty()) {
-      return reject(errors.array())
-    }
-
-    const server = await Server.findById(req.body.serverId)
-    if (!server) {
-      return reject({
-        message: "Server doesn't exists"
-      })
-    }
-    return {
-      server
-    }
-  } catch (errors) {
-    return {
-      errors: errors
-    }
-  }
-}
 
 const getServers = function (req, res, next) {
   Server.find({
-      user: req.payload.id
-    })
+    user: req.payload.id
+  })
     .then(servers => {
       //console.log(servers)
       res.json({
@@ -97,7 +73,7 @@ const storeServer = async function (req, res, next) {
     res.json({
       success: true,
       message: "Your server has been successfully created.",
-      id:server._id
+      id: server._id
     })
   } catch (e) {
     console.error(e)
@@ -107,10 +83,46 @@ const storeServer = async function (req, res, next) {
   }
 }
 
+const activityLogs = async function (req, res, next) {
+  try{
+    //console.log('server.activityLogs');
+    const server = await Server.findById(req.server.id)
+    //console.log(server);
+
+    if(!server) throw exception({status:409, msg:'failed'});
+
+    activityLogList = await ActivityLog.find({serverId : req.server.id})
+    //console.log(activityLogList)
+    res.json({
+      success: true,
+      data : activityLogList.length>0 ?  activityLogList : {}
+    })
+  }
+  catch(error)
+  {
+    console.log(error);
+    res.json({
+      success: "failed", data: error
+    })
+  }
+}
+
 const deleteServer = async function (req, res, next) {
-  res.json({
-    success: true
-  })
+  try{
+    console.log('server.deleteServer');
+    const server = await Server.findById(req.server.id)
+    if(!server) throw exception({status:409, msg:'failed'});
+    server.delete();
+    res.json({
+      success: true
+    })
+  }
+  catch(error)
+  {
+    res.json({
+      success: failed
+    })
+  }
 }
 
 const getSummary = async function (req, res, next) {
@@ -132,6 +144,31 @@ const getSummary = async function (req, res, next) {
   res.json({
     success: true,
     data: server.toSummaryJSON()
+  })
+}
+
+const getPHPVersion = async function (req, res) {
+  let server = req.server
+  res.json({
+    success: true,
+    data: server.phpVersion
+  })
+}
+
+const updatePHPVersion = async function (req, res) {
+  const errors = valiator.validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).json({
+      errors: errors.array()
+    });
+  }
+
+  let server = req.server
+  server.phpVersion = req.body.phpVersion
+  await server.save()
+  res.json({
+    success: true,
+    data: server.phpVersion
   })
 }
 
@@ -192,8 +229,8 @@ const getInstallScript = async function (req, res, next) {
     success: true,
     data: {
       name: server.name,
-      loginScrit: "ssh root@"+server.address,
-      installScript:"export DEBIAN_FRONTEND=noninteractive; echo 'Acquire::ForceIPv4 \"true\";' | tee /etc/apt/apt.conf.d/99force-ipv4; apt-get update; apt-get install curl netcat-openbsd -y; curl -4 --silent --location https://manage.runcloud.io/scripts/installer/CPrbSW1mAlOtJYmpqIbFjDow4A1625194843IO3wfDGx52pa2CX4zgcFdYvT7iavSFAtjl6KaOP68uTbdmJ5KbBveOCjbT8pVnon/ZSuNix0TNOedZ6ozpK2g0aq9TIumfvjHyMx6kNwzcZQDsmOKujkqjVSgoi8cswxRhwwov4UsQxP7OhvJDxLhSXwYZUtB8jxrnTESsGtu9Zkrgcl7r8InSJxnT6Fy8BlW | bash -; export DEBIAN_FRONTEND=newt",
+      loginScrit: "ssh root@" + server.address,
+      installScript: "export DEBIAN_FRONTEND=noninteractive; echo 'Acquire::ForceIPv4 \"true\";' | tee /etc/apt/apt.conf.d/99force-ipv4; apt-get update; apt-get install curl netcat-openbsd -y; curl -4 --silent --location https://manage.runcloud.io/scripts/installer/CPrbSW1mAlOtJYmpqIbFjDow4A1625194843IO3wfDGx52pa2CX4zgcFdYvT7iavSFAtjl6KaOP68uTbdmJ5KbBveOCjbT8pVnon/ZSuNix0TNOedZ6ozpK2g0aq9TIumfvjHyMx6kNwzcZQDsmOKujkqjVSgoi8cswxRhwwov4UsQxP7OhvJDxLhSXwYZUtB8jxrnTESsGtu9Zkrgcl7r8InSJxnT6Fy8BlW | bash -; export DEBIAN_FRONTEND=newt",
     }
   })
 }
@@ -204,7 +241,7 @@ const getInstallState = async function (req, res, next) {
   res.json({
     success: true,
     data: {
-      state: (sta/1)+5,
+      state: (sta / 1) + 5,
     }
   })
 }
@@ -235,6 +272,9 @@ const updateServerState = async function (req, res) {
     success: true
   })
 }
+
+// get method
+// getting Server by url param serverId
 const getServerInfo = async function (req, res, next) {
 
   try {
@@ -246,6 +286,19 @@ const getServerInfo = async function (req, res, next) {
     }
 
     var server = req.server;
+    // console.log(server.useremail);
+    // console.log(server.user);
+    if( (server.useremail==undefined || !server.useremail || server.useremail=='') && server.user )
+    {
+      var userId = server.user;
+      ServerUser = await User.findById(userId);
+      //console.log(ServerUser);
+      if(ServerUser)
+      {
+        server.useremail = ServerUser.email;
+      }
+    }
+
     res.json({
       success: true,
       data : server
@@ -258,6 +311,47 @@ const getServerInfo = async function (req, res, next) {
   }
 }
 
+// post method
+// getting Server by postted serverId
+const getServer = async function (req) {
+  try {
+    const reject = (errors) => {
+      return {
+        errors: errors
+      }
+    }
+
+    const errors = valiator.validationResult(req);
+    if (!errors.isEmpty()) {
+      return reject(errors.array())
+    }
+
+    const server = await Server.findById(req.body.serverId)
+    if (!server) {
+      return reject({
+        message: "Server doesn't exists"
+      })
+    }
+
+    if( (server.useremail==undefined || !server.useremail || server.useremail=='') && server.user )
+    {
+      var userId = server.user;
+      ServerUser = await User.findById(userId);
+      //console.log(ServerUser);
+      if(ServerUser)
+      {
+        server.useremail = ServerUser.email;
+      }
+    }
+    return {
+      server
+    }
+  } catch (errors) {
+    return {
+      errors: errors
+    }
+  }
+}
 
 const updateSetting = async function (req, res, next) {
   try {
@@ -271,19 +365,19 @@ const updateSetting = async function (req, res, next) {
     //console.log(req.body); return;
     var myServer = req.server;
     let otherCount = await Server.count({
-      $and : [
-          {"_id": { $ne : req.payload.id }},
-          {"name": req.body.name}
-        ]
+      $and: [
+        { "_id": { $ne: req.payload.id } },
+        { "name": req.body.name }
+      ]
     })
     if(otherCount>0)
     {
       return res.status(423).json({
         success: false,
         errors: {
-          name : ' has already been taken.'
+          name: ' has already been taken.'
         }
-      })      
+      })
     }
 
     myServer.name = req.body.name;
@@ -306,6 +400,7 @@ module.exports = {
   getServers,
   storeServer,
   deleteServer,
+  activityLogs,
   getSummary,
   getScript,
   getInstallScript,
@@ -314,5 +409,7 @@ module.exports = {
   updateInstallState,
   updateServerState,
   getServerInfo,
-  updateSetting
+  updateSetting,
+  getPHPVersion,
+  updatePHPVersion,
 }

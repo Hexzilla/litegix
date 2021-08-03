@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+const Mail = require('nodemailer/lib/mailer');
 
 var ServerSchema = new mongoose.Schema({
   name: {type: String, required: [true, "can't be blank"]},
@@ -34,7 +35,18 @@ var ServerSchema = new mongoose.Schema({
     autoRestart: Boolean,
     directory: String,
   }],
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  useremail: { type: String, required: [false, "must email formating"] },
+  SSHConfig : {
+    Passwordless_Login_Only : {type: Boolean},
+    Prevent_root_login : {type: Boolean},
+    UseDNS : {type: Boolean},
+  },
+  AutoUpdate : {
+    Third_Party_Software_Update : {type: Boolean},
+    Security_Update : {type: Boolean},
+  }
+
 }, {
   timestamps: true,
   autoIndex: false

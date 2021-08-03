@@ -7,6 +7,10 @@ router.get("/",
   auth.required,
   system.getSystemUsers)
 
+router.get("/:userId",
+  auth.required,
+  system.getSystemUserFromId)
+
 router.post("/store", 
   auth.required, 
   body('name').isString(),
@@ -20,9 +24,8 @@ router.post("/changepassword",
   body('password').isLength({ min: 8 }).trim().escape(),
   system.changeSystemUserPassword)
 
-router.delete("/", 
+router.delete("/:userId", 
   auth.required, 
-  body('id').isString(),
   system.deleteSystemUser)
 
 module.exports = router
