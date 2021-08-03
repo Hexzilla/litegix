@@ -50,13 +50,13 @@ const createCronJob = async function (req, res) {
       })
     }
 
-    errors = await agent.createCronJob(req.body)
-    if (errors) {
-      return res.status(422).json({
-        success: false,
-        errors: errors
-      })
-    }
+    // errors = await agent.createCronJob(req.body)
+    // if (errors) {
+    //   return res.status(422).json({
+    //     success: false,
+    //     errors: errors
+    //   })
+    // }
 
     req.body.time = req.body.minute+" "+req.body.hour+" "+req.body.dayOfMonth+" "+req.body.month+" "+req.body.dayOfWeek
     
@@ -64,8 +64,8 @@ const createCronJob = async function (req, res) {
     cronjob.serverId = server.id
     await cronjob.save()
 
-    // const message = `Added new Cron Job ${req.body.name}`;
-    // await activity.createServerActivityLogInfo(server.id, message)
+    const message = `Added new Cron Job ${req.body.label}`;
+    await activity.createServerActivityLogInfo(server.id, message)
 
     res.json({
       success: true,
