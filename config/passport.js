@@ -12,7 +12,14 @@ passport.use(
       passReqToCallback: true
     },
     async (req, email, password, done) => {
+      console.log('this is passport signup');
       try {
+        find = await User.findOne({email: req.body.email})
+
+        if(find)
+        {
+          return done(null, null)
+        }
         const username = req.body.name
         const user = await User.create({ username, email })
         user.setPassword(password)

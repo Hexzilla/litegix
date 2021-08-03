@@ -8,6 +8,8 @@ const getProfile = function (req, res, next) {
     .populate('company')
     .then(user => {
       if (!user) { return res.sendStatus(404); }
+       console.log('============ user info ==================');
+       console.log(user);      // user.company too OK
 
       res.json(user.toProfileJSON())
     })
@@ -36,6 +38,7 @@ const updateProfile = function(req, res, next) {
       user.username = req.body.name
       user.timezone = req.body.timezone
       user.loginNotification = req.body.loginNotification
+      //console.log(user)
       user.save()
       res.json({ success: true, message: 'Profile is updated' })
     })
@@ -45,6 +48,7 @@ const updateProfile = function(req, res, next) {
 const updateCompany = function(req, res, next) {
   const errors = validator.validationResult(req);
   if (!errors.isEmpty()) {
+    console.log(errors.array());
     return res.status(422).json({ errors: errors.array() });
   }
 
@@ -56,7 +60,8 @@ const updateCompany = function(req, res, next) {
       if (!user.company) {
         const company = new Company(req.body)
         company.save()
-
+        console.log("  company.save()  ");
+        console.log(company);
         user.company = company
         user.save()
       }

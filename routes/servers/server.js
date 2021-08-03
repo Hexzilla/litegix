@@ -3,7 +3,7 @@ const router = require("express").Router()
 const auth = require("../auth")
 const server = require("../../services/server")
 
-router.post("/delete",
+router.delete("/",
   auth.required,
   server.deleteServer);
 

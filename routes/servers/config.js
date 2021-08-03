@@ -8,6 +8,13 @@ router.post("/shell",
   body('address').isIP(4),
   server.getShellCommands)
 
+router.get("/installscript", 
+  auth.required, 
+  server.getInstallScript)
+
+router.get("/installstate/:state", 
+  server.getInstallState)
+
 router.get("/script/:token", server.getScript)
 
 module.exports = router

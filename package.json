@@ -21,6 +21,7 @@
     "body-parser": "1.19.0",
     "cors": "2.8.5",
     "crypto-js": "^4.0.0",
+    "date-diff": "^0.2.2",
     "dotenv": "^10.0.0",
     "ejs": "3.1.6",
     "errorhandler": "1.5.1",
@@ -36,10 +37,12 @@
     "mongoose": "5.12.14",
     "mongoose-unique-validator": "2.0.3",
     "morgan": "1.10.0",
+    "nodemailer": "^6.6.3",
     "passport": "0.4.1",
     "passport-local": "1.0.0",
     "randomstring": "^1.2.1",
     "slug": "5.1.0",
+    "timezones-list": "^3.0.1",
     "underscore": "1.13.1"
   },
   "devDependencies": {

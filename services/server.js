@@ -96,7 +96,8 @@ const storeServer = async function (req, res, next) {
 
     res.json({
       success: true,
-      message: "Your server has been successfully created."
+      message: "Your server has been successfully created.",
+      id:server._id
     })
   } catch (e) {
     console.error(e)
@@ -123,7 +124,7 @@ const getSummary = async function (req, res, next) {
     freeMemory: 3.2643470764160156,
     diskTotal: 40.18845696,
     diskFree: 33.756172288,
-    loadAvg: 0,
+    loadAvg: 16,
     uptime: "475h 50m 20s"
   }
   await server.save()
@@ -182,6 +183,30 @@ const getScript = async function (req, res, next) {
         errors: "Can't read file"
       })
     })
+}
+
+const getInstallScript = async function (req, res, next) {
+
+  var server = req.server;
+  res.json({
+    success: true,
+    data: {
+      name: server.name,
+      loginScrit: "ssh root@"+server.address,
+      installScript:"export DEBIAN_FRONTEND=noninteractive; echo 'Acquire::ForceIPv4 \"true\";' | tee /etc/apt/apt.conf.d/99force-ipv4; apt-get update; apt-get install curl netcat-openbsd -y; curl -4 --silent --location https://manage.runcloud.io/scripts/installer/CPrbSW1mAlOtJYmpqIbFjDow4A1625194843IO3wfDGx52pa2CX4zgcFdYvT7iavSFAtjl6KaOP68uTbdmJ5KbBveOCjbT8pVnon/ZSuNix0TNOedZ6ozpK2g0aq9TIumfvjHyMx6kNwzcZQDsmOKujkqjVSgoi8cswxRhwwov4UsQxP7OhvJDxLhSXwYZUtB8jxrnTESsGtu9Zkrgcl7r8InSJxnT6Fy8BlW | bash -; export DEBIAN_FRONTEND=newt",
+    }
+  })
+}
+
+const getInstallState = async function (req, res, next) {
+
+  var sta = req.params.state;
+  res.json({
+    success: true,
+    data: {
+      state: (sta/1)+5,
+    }
+  })
 }
 
 const updateInstallState = async function (req, res, next) {
@@ -283,6 +308,8 @@ module.exports = {
   deleteServer,
   getSummary,
   getScript,
+  getInstallScript,
+  getInstallState,
   getShellCommands,
   updateInstallState,
   updateServerState,

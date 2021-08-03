@@ -1173,7 +1173,7 @@ module.exports = {
   switchingadvancedSSLsetting,
 
 
-  storeCustomWebApplication,
+  storeWebApplication,
   storeWordpressWebApplication,
   deleteWebApplication,
 }

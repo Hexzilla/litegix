@@ -3,7 +3,7 @@ const router = require("express").Router()
 const auth = require("../auth")
 const profile = require("../../services/profile")
 
-router.get("/", auth.required, profile.getProfile)
+router.post("/", auth.required, profile.getProfile)
 
 // Upate user profile
 router.post("/update", 
@@ -17,8 +17,9 @@ router.post("/update",
 // Update company info
 router.post("/updatecompany", 
   auth.required,
-  body('name').isLength({ min: 3, max: 20 }).isFQDN().trim().escape(),
+  body('name').isLength({ min: 3, max: 100 }).trim().escape(),  //.isFQDN()
   body('address1').notEmpty(),
+  body('address2').notEmpty(),
   body('city').notEmpty(),
   body('postal').isNumeric(),
   body('state').notEmpty(),
