@@ -8,7 +8,7 @@ router.post("/password/update",
   auth.required,
   body('current_password').isString(),
   body('password').isString().isLength({ min: 8 }),
-  body('password_confirm').matches('password').withMessage('Passwords must match.'),
+  //body('password_confirm').matches('password').withMessage('Passwords must match.'),
   authService.changePassword)
 
 router.delete("/", 
