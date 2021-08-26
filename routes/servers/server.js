@@ -7,13 +7,13 @@ router.delete("/",
   auth.required,
   server.deleteServer);
   
-  router.post("/activitylogs",
-    auth.required,
-    server.activityLogs);
+router.post("/activitylogs",
+  auth.required,
+  server.activityLogs);
 
-    router.post("/delete",
-    auth.required,
-    server.deleteServer);
+router.post("/delete",
+  auth.required,
+  server.deleteServer);
 
 router.post("/summary",
   auth.required,
