@@ -31,15 +31,8 @@ const getServers = function (req, res, next) {
     .catch(next)
 }
 
-const storeServer = async function (req, res, next) {
+const storeServer = async (req, res, next) => {
   try {
-    const errors = valiator.validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({
-        errors: errors.array()
-      });
-    }
-
     let result = await Server.findOne({
       address: req.body.address
     })
@@ -156,13 +149,6 @@ const getPHPVersion = async function (req, res) {
 }
 
 const updatePHPVersion = async function (req, res) {
-  const errors = valiator.validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(422).json({
-      errors: errors.array()
-    });
-  }
-
   let server = req.server
   server.phpVersion = req.body.phpVersion
   await server.save()
@@ -173,13 +159,6 @@ const updatePHPVersion = async function (req, res) {
 }
 
 const getShellCommands = function (req, res) {
-  const errors = valiator.validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(422).json({
-      errors: errors.array()
-    });
-  }
-
   const token = {
     userId: req.payload.id,
     address: req.body.address,
@@ -255,13 +234,6 @@ const updateInstallState = async function (req, res, next) {
 }
 
 const updateServerState = async function (req, res) {
-  let errors = valiator.validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(422).json({
-      errors: errors.array()
-    });
-  }
-
   console.log("updateServerState", req.body)
 
   const usage = new Usage(req.body)
@@ -276,15 +248,7 @@ const updateServerState = async function (req, res) {
 // get method
 // getting Server by url param serverId
 const getServerInfo = async function (req, res, next) {
-
   try {
-    const errors = valiator.validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({
-        errors: errors.array()
-      });
-    }
-
     var server = req.server;
     // console.log(server.useremail);
     // console.log(server.user);

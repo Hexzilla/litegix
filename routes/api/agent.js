@@ -1,6 +1,7 @@
 const { body } = require('express-validator')
 const router = require('express').Router();
 const mongoose = require('mongoose');
+const validate = require('../validate')
 const Server = mongoose.model("Server")
 const server = require("../../services/server")
 
@@ -23,6 +24,7 @@ router.post('/:serverId/monitor/state',
   body('cpu').notEmpty(),
   body('disk').notEmpty(),
   body('loadavg').notEmpty(),
+  validate,
   server.updateServerState);
 
 module.exports = router;

@@ -1,6 +1,7 @@
 const { body } = require('express-validator')
 const router = require("express").Router()
 const auth = require("../auth")
+const validate = require("../validate")
 const server = require("../../services/server")
 
 router.delete("/",
@@ -26,6 +27,7 @@ router.get("/phpVersion",
 router.post("/phpVersion",
   auth.required,
   body('phpVersion').notEmpty(),
+  validate,
   server.updatePHPVersion);
 
 module.exports = router
