@@ -220,6 +220,21 @@ const getVaultedSSHKeys = async function (req, res) {
 
 const createServerSSHKey = async function (req, res) {
   try {
+    const systemusers = await SystemUser.find({
+      serverId: req.server.id,
+    });
+    return res.json({
+      success: true,
+      data: { systemusers: systemusers },
+    });
+  } catch (e) {
+    console.error(e);
+    return res.status(501).json({ success: false });
+  }
+};
+
+const storeServerSSHKey = async function (req, res) {
+  try {
     const errors = valiator.validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(422).json({ success: false, errors: errors.array() });
@@ -227,11 +242,11 @@ const createServerSSHKey = async function (req, res) {
 
     const server = req.server;
 
-    const serverSSHKey = await ServerSSHKey.find({
+    let sshkey = await ServerSSHKey.find({
       serverId: server.id,
       label: req.body.label,
     });
-    if (serverSSHKey) {
+    if (sshkey && sshkey.length > 0) {
       return res.status(422).json({
         success: false,
         errors: {
@@ -248,9 +263,9 @@ const createServerSSHKey = async function (req, res) {
     //   })
     // }
 
-    serverSSHKey = new ServerSSHKey(req.body);
-    serverSSHKey.serverId = server.id;
-    await serverSSHKey.save();
+    sshkey = new ServerSSHKey(req.body);
+    sshkey.serverId = server.id;
+    await sshkey.save();
 
     const message = `Added new SSH key ${req.body.label} with user ${req.body.userId}`;
     await activity.createServerActivityLogInfo(req.body.serverId, message);
@@ -524,6 +539,7 @@ module.exports = {
   getServerSSHKeys,
   getVaultedSSHKeys,
   createServerSSHKey,
+  storeServerSSHKey,
   deleteServerSSHKey,
   deleteVaultedSSHKey,
   getDeploymentKeys,
