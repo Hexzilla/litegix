@@ -43,7 +43,8 @@
     "randomstring": "^1.2.1",
     "slug": "5.1.0",
     "timezones-list": "^3.0.1",
-    "underscore": "1.13.1"
+    "underscore": "1.13.1",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "newman": "^5.2.4",

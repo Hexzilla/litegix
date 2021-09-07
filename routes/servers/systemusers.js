@@ -8,7 +8,7 @@ router.get("/", auth.required, async function (req, res) {
   try {
     const response = await system.getSystemUsers(req.server);
     return res.json(response);
-  } catch (error) {
+  } catch (e) {
     console.error(e);
     return res.status(501).json({ success: false });
   }
@@ -19,7 +19,7 @@ router.get("/:userId", auth.required, async function (req, res) {
     const userId = req.params.userId;
     const response = await system.getSystemUserById(req.server, userId);
     return res.json(response);
-  } catch (error) {
+  } catch (e) {
     console.error(e);
     return res.status(501).json({ success: false });
   }
@@ -35,7 +35,7 @@ router.post(
     try {
       const response = await system.storeSystemUser(req.server, req.body);
       return res.json(response);
-    } catch (error) {
+    } catch (e) {
       console.error(e);
       return res.status(501).json({ success: false });
     }
@@ -55,7 +55,7 @@ router.delete("/:userId", auth.required, async function (req, res) {
     const userId = req.params.userId;
     const response = await system.deleteSystemUser(req.server, userId);
     return res.json(response);
-  } catch (error) {
+  } catch (e) {
     console.error(e);
     return res.status(501).json({ success: false });
   }

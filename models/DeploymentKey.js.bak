@@ -1,0 +1,23 @@
+var mongoose = require("mongoose");
+
+var DeploymentKeySchema = new mongoose.Schema(
+  {
+    serverId: { type: mongoose.Schema.Types.ObjectId, ref: "Server" },
+    name: { type: String, required: [true, "can't be blank"] },
+    userName: { type: String, required: [true, "can't be blank"] },
+    publicKey: { type: String, required: [true, "can't be blank"] },
+  },
+  {
+    timestamps: false,
+  }
+);
+
+DeploymentKeySchema.methods.getJson = function () {
+  return {
+    id: this._id,
+    name: this.name,
+    publicKey: this.publicKey,
+  };
+};
+
+mongoose.model("DeploymentKey", DeploymentKeySchema);

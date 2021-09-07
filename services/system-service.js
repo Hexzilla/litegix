@@ -1,4 +1,5 @@
 const valiator = require("express-validator");
+const uuid = require("uuid");
 const { getServer } = require("./server");
 const { getUser } = require("./auth");
 const mongoose = require("mongoose");
@@ -83,41 +84,6 @@ const getVaultedSSHKeys = async function (req, res) {
   }
 };
 
-const createServerSSHKey = async function (req, res) {
-  try {
-    const systemusers = await SystemUser.find({
-      serverId: req.server.id,
-    });
-    return res.json({
-      success: true,
-      data: { systemusers: systemusers },
-    });
-  } catch (e) {
-    console.error(e);
-    return res.status(501).json({ success: false });
-  }
-};
-
-const deleteServerSSHKey = async function (req, res) {
-  try {
-    let server = req.server;
-    await SSHKey.deleteOne({
-      serverId: server.id,
-      id: req.params.keyId,
-    });
-
-    res.json({
-      success: true,
-      message: "Server SSH Key has been successfully deleted.",
-    });
-  } catch (error) {
-    return res.status(501).json({
-      success: false,
-      errors: error,
-    });
-  }
-};
-
 const deleteVaultedSSHKey = async function (req, res) {
   try {
     await SSHKey.deleteOne({
@@ -128,69 +94,6 @@ const deleteVaultedSSHKey = async function (req, res) {
     res.json({
       success: true,
       message: "SSH Key has been successfully deleted.",
-    });
-  } catch (error) {
-    return res.status(501).json({
-      success: false,
-      errors: error,
-    });
-  }
-};
-
-const getDeploymentKeys = async function (req, res) {
-  try {
-    let { server, errors } = await getServer(req);
-    if (errors) {
-      return res.status(422).json({ success: false, errors: errors });
-    }
-
-    res.json({
-      success: true,
-      data: {
-        deploymentKeys: server.deploymentKeys,
-      },
-    });
-  } catch (error) {
-    return res.status(501).json({
-      success: false,
-      errors: error,
-    });
-  }
-};
-
-const createDeploymentKey = async function (req, res) {
-  try {
-    let { server, errors } = await getServer(req);
-    if (errors) {
-      return res.status(422).json({ success: false, errors: errors });
-    }
-
-    if (server.deploymentKeys.find((it) => it.name === req.body.name)) {
-      return res.status(422).json({
-        success: false,
-        errors: {
-          message: "Label is duplicated",
-        },
-      });
-    }
-
-    errors = await agent.createDeploymentKey(req.body);
-    if (errors) {
-      return res.status(422).json({
-        success: false,
-        errors: errors,
-      });
-    }
-
-    server.deploymentKeys.push(req.body);
-    await server.save();
-
-    const message = `Added new deployment key ${req.body.name} with user ${req.body.userName}`;
-    await activity.createServerActivityLogInfo(req.body.serverId, message);
-
-    res.json({
-      success: true,
-      message: "It has been successfully created.",
     });
   } catch (error) {
     return res.status(501).json({
@@ -350,7 +253,7 @@ module.exports = {
     const users = await SystemUser.find({ serverId: server.id });
     return {
       success: true,
-      data: { users: users },
+      data: { users: users.map((it) => it.getJson()) },
     };
   },
 
@@ -499,8 +402,43 @@ module.exports = {
   },
 
   deleteVaultedSSHKey,
-  getDeploymentKeys,
-  createDeploymentKey,
+
+  getDeploymentKeys: async function (server) {
+    const users = await SystemUser.find({ serverId: server.id });
+    return {
+      success: true,
+      data: { users: users.map((it) => it.toDeploymentKeyJson()) },
+    };
+  },
+
+  storeDeploymentKey: async function (server, userId) {
+    const user = await SystemUser.findById(userId);
+    if (!user) {
+      return {
+        success: false,
+        errors: { userId: "doesn't exists." },
+      };
+    }
+
+    const deploymentKey = `TEST_PUBLIC_KEY_${userId}_${uuid.v4()}`;
+
+    // errors = await agent.storeDeploymentKey(userId, deploymentKey)
+    // if (errors) {
+    //   return { success: false, errors: errors }
+    // }
+
+    user.deploymentKey = deploymentKey;
+    await user.save();
+
+    const message = `Created new deployment key for system user ${user.name}`;
+    await activity.createServerActivityLogInfo(server.id, message);
+
+    return {
+      success: true,
+      data: { key: deploymentKey },
+    };
+  },
+
   deleteDeploymentKey,
   getSupervisorJobs,
   createSupervisorJob,

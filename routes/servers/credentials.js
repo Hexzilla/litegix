@@ -8,7 +8,7 @@ router.get("/", auth.required, async function (req, res) {
   try {
     const response = await system.getServerSSHKeys(req.server);
     return res.json(response);
-  } catch (error) {
+  } catch (e) {
     console.error(e);
     return res.status(501).json({ success: false });
   }
@@ -20,7 +20,7 @@ router.get("/create", auth.required, async function (req, res) {
   try {
     const response = await system.createServerSSHKey(req.server);
     return res.json(response);
-  } catch (error) {
+  } catch (e) {
     console.error(e);
     return res.status(501).json({ success: false });
   }
@@ -37,7 +37,7 @@ router.post(
     try {
       const response = await system.storeServerSSHKey(req.server, req.body);
       return res.json(response);
-    } catch (error) {
+    } catch (e) {
       console.error(e);
       return res.status(501).json({ success: false });
     }
@@ -49,7 +49,7 @@ router.delete("/:keyId", auth.required, async function (req, res) {
     const keyId = req.params.keyId;
     const response = await system.deleteServerSSHKey(req.server, keyId);
     return res.json(response);
-  } catch (error) {
+  } catch (e) {
     console.error(e);
     return res.status(501).json({ success: false });
   }

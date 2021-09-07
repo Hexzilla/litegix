@@ -19,4 +19,12 @@ SystemUserSchema.methods.getJson = function () {
   };
 };
 
+SystemUserSchema.methods.toDeploymentKeyJson = function () {
+  return {
+    id: this._id,
+    name: this.name,
+    deploymentKey: this.deploymentKey,
+  };
+};
+
 mongoose.model("SystemUser", SystemUserSchema);
