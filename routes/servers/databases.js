@@ -4,7 +4,15 @@ const auth = require("../auth");
 const validate = require("../validate");
 const database = require("../../services/database-service");
 
-router.get("/", auth.required, database.getDatabases);
+router.get("/", auth.required, async function (req, res) {
+  try {
+    const response = await database.getDatabases(req.server);
+    return res.json(response);
+  } catch (e) {
+    console.error(e);
+    return res.status(501).json({ success: false });
+  }
+});
 
 router.get("/create", auth.required, database.createDatabase);
 

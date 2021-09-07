@@ -8,35 +8,14 @@ const agent = require("./agent");
 const activity = require("./activity");
 
 module.exports = {
-  getDatabases: async function (req, res) {
-    try {
-      let server = req.server;
-      let results = [];
-      await Database.find({ serverId: server.id })
-        .then(function (databases) {
-          var userQueries = [];
-          results = databases;
-          databases.forEach(function (database) {
-            userQueries.push(
-              DatabaseUser.find({ _id: { $in: database.users } })
-            );
-          });
-
-          return Promise.all(userQueries);
-        })
-        .then(function (userlist) {
-          for (var i = 0; i < userlist.length; i++) {
-            results[i].users = userlist[i];
-          }
-          return res.json({
-            success: true,
-            data: { results },
-          });
-        });
-    } catch (e) {
-      console.error(e);
-      return res.status(501).json({ success: false });
-    }
+  getDatabases: async function (server) {
+    const databases = await Database.find({ serverId: server.id }).populate(
+      "users"
+    );
+    return {
+      success: true,
+      data: databases,
+    };
   },
 
   createDatabase: async function (req, res) {
