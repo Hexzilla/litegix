@@ -103,6 +103,15 @@ router.put(
   database.changePassword
 );
 
-router.delete("/users/:dbuserId", auth.required, database.deleteDatabaseUser);
+router.delete("/users/:userId", auth.required, async function (req, res) {
+  try {
+    const userId = req.params.userId;
+    const response = await database.deleteDatabaseUser(req.server, userId);
+    return res.json(response);
+  } catch (e) {
+    console.error(e);
+    return res.status(501).json({ success: false });
+  }
+});
 
 module.exports = router;

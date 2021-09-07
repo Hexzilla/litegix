@@ -307,40 +307,31 @@ module.exports = {
     };
   },
 
-  deleteDatabaseUser: async function (req, res) {
-    try {
-      let errors = valiator.validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(422).json({ success: false, errors: errors.array() });
-      }
-
-      let user = await DatabaseUser.findById(req.params.dbuserId);
-      if (!user) {
-        return res.status(422).json({
-          success: false,
-          errors: { message: "It doesn't exists" },
-        });
-      }
-
-      // errors = await agent.deleteDatabaseUser(user.name)
-      // if (errors) {
-      //   return res.status(422).json({ success: false, errors: errors })
-      // }
-
-      await user.remove();
-
-      const message = `Deleted database user ${user.name}`;
-      await activity.createServerActivityLogInfo(req.params.serverId, message);
-
-      res.json({
-        success: true,
-        message: "It has been successfully deleted.",
-      });
-    } catch (e) {
-      console.error(e);
-      return res.status(501).json({ success: false });
+  deleteDatabaseUser: async function (server, userId) {
+    const user = await DatabaseUser.findById(userId);
+    if (!user) {
+      return {
+        success: false,
+        errors: { message: "It doesn't exists" },
+      };
     }
+
+    /*errors = await agent.deleteDatabaseUser(user.name);
+    if (errors) {
+      return res.status(422).json({ success: false, errors: errors });
+    }*/
+
+    await user.remove();
+
+    const message = `Deleted database user ${user.name}`;
+    await activity.createServerActivityLogInfo(server.id, message);
+
+    return {
+      success: true,
+      data: { id: userId, name: user.name },
+    };
   },
+
   getPhpVersion: async function (req, res) {
     try {
       let { server, errors } = await getServer(req);
