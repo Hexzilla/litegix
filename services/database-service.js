@@ -14,7 +14,7 @@ module.exports = {
     );
     return {
       success: true,
-      data: databases,
+      data: { databases: databases.map((it) => it.toJSON()) },
     };
   },
 

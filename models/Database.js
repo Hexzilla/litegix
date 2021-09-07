@@ -12,4 +12,13 @@ var DatabaseSchema = new mongoose.Schema(
   }
 );
 
+DatabaseSchema.methods.toJSON = function () {
+  return {
+    id: this._id,
+    name: this.name,
+    collation: this.collation,
+    users: this.users.map((it) => it.toJSON()),
+  };
+};
+
 mongoose.model("Database", DatabaseSchema);
