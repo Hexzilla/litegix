@@ -26,7 +26,7 @@ router.get("/:userId", auth.required, async function (req, res) {
 });
 
 router.post(
-  "/store",
+  "/",
   auth.required,
   body("name").isString(),
   body("password").isString(),

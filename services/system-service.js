@@ -64,36 +64,6 @@ const changeSystemUserPassword = async function (req, res) {
   }
 };
 
-const deleteSystemUser = async function (req, res) {
-  try {
-    let user = await SystemUser.findById(req.params.userId);
-    if (!user) {
-      return res.status(422).json({
-        success: false,
-        errors: { message: "It doesn't exists" },
-      });
-    }
-
-    // errors = await agent.deleteSystemUser(user.name)
-    // if (errors) {
-    //   return res.status(422).json({ success: false, errors: errors })
-    // }
-
-    await user.remove();
-
-    const message = `Deleted system user ${req.body.name}`;
-    await activity.createServerActivityLogInfo(req.body.serverId, message);
-
-    res.json({
-      success: true,
-      message: "It has been successfully deleted.",
-    });
-  } catch (e) {
-    console.error(e);
-    return res.status(501).json({ success: false });
-  }
-};
-
 const getVaultedSSHKeys = async function (req, res) {
   try {
     const sshKeys = await SSHKey.find({ userId: req.payload.id });
@@ -426,7 +396,7 @@ module.exports = {
 
     return {
       success: true,
-      data: { user: exists },
+      data: { user: user },
     };
   },
 
@@ -470,7 +440,18 @@ module.exports = {
   },
 
   getVaultedSSHKeys,
-  createServerSSHKey,
+
+  createServerSSHKey: async function (server) {
+    const systemusers = await SystemUser.find({
+      serverId: server.id,
+    });
+    return {
+      success: true,
+      data: {
+        systemusers: systemusers.map((it) => it.getJson()),
+      },
+    };
+  },
 
   storeServerSSHKey: async function (server, data) {
     const exists = await ServerSSHKey.find({

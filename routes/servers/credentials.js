@@ -16,7 +16,15 @@ router.get("/", auth.required, async function (req, res) {
 
 router.get("/vault", auth.required, system.getVaultedSSHKeys);
 
-router.get("/create", auth.required, system.createServerSSHKey);
+router.get("/create", auth.required, async function (req, res) {
+  try {
+    const response = await system.createServerSSHKey(req.server);
+    return res.json(response);
+  } catch (error) {
+    console.error(e);
+    return res.status(501).json({ success: false });
+  }
+});
 
 router.post(
   "/",
