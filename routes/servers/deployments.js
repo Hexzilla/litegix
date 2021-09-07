@@ -31,12 +31,4 @@ router.post(
   }
 );
 
-router.delete(
-  "/",
-  auth.required,
-  body("serverId").isString(),
-  body("name").isString(),
-  system.deleteDeploymentKey
-);
-
 module.exports = router;

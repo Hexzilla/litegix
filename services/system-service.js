@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 const SystemUser = mongoose.model("SystemUser");
 const SSHKey = mongoose.model("SSHKey");
 const ServerSSHKey = mongoose.model("ServerSSHKey");
+const CronJob = mongoose.model("CronJob");
 const agent = require("./agent");
 const activity = require("./activity");
 
@@ -94,48 +95,6 @@ const deleteVaultedSSHKey = async function (req, res) {
     res.json({
       success: true,
       message: "SSH Key has been successfully deleted.",
-    });
-  } catch (error) {
-    return res.status(501).json({
-      success: false,
-      errors: error,
-    });
-  }
-};
-
-const deleteDeploymentKey = async function (req, res) {
-  try {
-    let { server, errors } = await getServer(req);
-    if (errors) {
-      return res.status(422).json({ success: false, errors: errors });
-    }
-
-    const index = server.deploymentKeys.findIndex(
-      (it) => it.name === req.body.name
-    );
-    if (index < 0) {
-      return res.status(422).json({
-        success: false,
-        errors: {
-          message: "It doesn't exists",
-        },
-      });
-    }
-
-    errors = await agent.deleteDeploymentKey(req.body.name);
-    if (errors) {
-      return res.status(422).json({
-        success: false,
-        errors: errors,
-      });
-    }
-
-    server.deploymentKeys.splice(index, 1);
-    await server.save();
-
-    res.json({
-      success: true,
-      message: "Deployment Key has been successfully deleted.",
     });
   } catch (error) {
     return res.status(501).json({
@@ -439,8 +398,62 @@ module.exports = {
     };
   },
 
-  deleteDeploymentKey,
   getSupervisorJobs,
   createSupervisorJob,
   deleteSupervisorJob,
+
+  getCronJobList: async function (server) {
+    const cronjobs = await CronJob.find({ serverId: server.id });
+    return {
+      success: true,
+      data: { cronjobs },
+    };
+  },
+
+  getCronJobById: async function (jobId) {
+    const cronjob = await CronJob.findById(jobId);
+    return {
+      success: true,
+      data: { cronjob },
+    };
+  },
+
+  storeCronJob: async function (server, data) {
+    const exists = await CronJob.findOne({
+      serverId: server.id,
+      label: data.label,
+    });
+    if (exists) {
+      return {
+        success: false,
+        errors: { label: "has already been taken." },
+      };
+    }
+
+    // errors = await agent.createCronJob(data)
+    // if (errors) {
+    //   return { success: false, errors: errors })
+    // }
+
+    data.time = [
+      data.minute,
+      data.hour,
+      data.dayOfMonth,
+      data.month,
+      data.dayOfWeek,
+    ].join(" ");
+    console.log(data);
+
+    const cronjob = new CronJob(data);
+    cronjob.serverId = server.id;
+    await cronjob.save();
+
+    const message = `Added new Cron Job ${data.label}`;
+    await activity.createServerActivityLogInfo(server.id, message);
+
+    return {
+      success: true,
+      message: "It has been successfully created.",
+    };
+  },
 };
