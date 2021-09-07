@@ -18,15 +18,7 @@ module.exports = {
     };
   },
 
-  createDatabase: async function (req, res) {
-    return res.json({
-      success: true,
-      data: {
-        users: ["runcloud", "dbuser"],
-        collations: ["utf8_general_ci", "utf16_general_ci"],
-      },
-    });
-  },
+  createDatabase: async function () {},
 
   storeDatabase: async function (server, data) {
     const exists = await Database.findOne({
@@ -70,6 +62,31 @@ module.exports = {
       success: true,
       message: "It has been successfully created.",
       database: database,
+    };
+  },
+
+  deleteDatabase: async function (server, databaseId) {
+    const database = await Database.findById(databaseId);
+    if (!database) {
+      return {
+        success: false,
+        errors: { message: "It doesn't exists" },
+      };
+    }
+
+    /*errors = await agent.deleteDatabase(database.name)
+    if (errors) {
+      return res.status(422).json({ success: false, errors: errors })
+    }*/
+
+    await database.remove();
+
+    const message = `Deleted database ${database.name}`;
+    await activity.createServerActivityLogInfo(server.id, message);
+
+    return {
+      success: true,
+      data: { id: databaseId },
     };
   },
 
@@ -183,36 +200,6 @@ module.exports = {
       return res.json({
         success: true,
         message: "It has been successfully granted.",
-      });
-    } catch (e) {
-      console.error(e);
-      return res.status(501).json({ success: false });
-    }
-  },
-
-  deleteDatabase: async function (req, res) {
-    try {
-      let database = await Database.findById(req.params.databaseId);
-      if (!database) {
-        return res.status(422).json({
-          success: false,
-          errors: { message: "It doesn't exists" },
-        });
-      }
-
-      // errors = await agent.deleteDatabase(database.name)
-      // if (errors) {
-      //   return res.status(422).json({ success: false, errors: errors })
-      // }
-
-      await database.remove();
-
-      const message = `Deleted database ${req.body.name}`;
-      await activity.createServerActivityLogInfo(req.body.serverId, message);
-
-      res.json({
-        success: true,
-        message: "It has been successfully deleted.",
       });
     } catch (e) {
       console.error(e);

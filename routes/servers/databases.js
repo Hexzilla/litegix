@@ -14,7 +14,15 @@ router.get("/", auth.required, async function (req, res) {
   }
 });
 
-router.get("/create", auth.required, database.createDatabase);
+router.get("/create", auth.required, async function (req, res) {
+  return res.json({
+    success: true,
+    data: {
+      users: ["runcloud", "dbuser"],
+      collations: ["utf8_general_ci", "utf16_general_ci"],
+    },
+  });
+});
 
 router.post(
   "/",
@@ -33,6 +41,17 @@ router.post(
   }
 );
 
+router.delete("/:databaseId", auth.required, async function (req, res) {
+  try {
+    const databaseId = req.params.databaseId;
+    const response = await database.deleteDatabase(req.server, databaseId);
+    res.json(response);
+  } catch (e) {
+    console.error(e);
+    return res.status(501).json({ success: false });
+  }
+});
+
 router.get("/:databaseId/grant", auth.required, database.getUngrantedDBuser);
 
 router.post(
@@ -47,8 +66,6 @@ router.delete(
   auth.required,
   database.revokeDBuser
 );
-
-router.delete("/:databaseId", auth.required, database.deleteDatabase);
 
 router.get("/users", auth.required, database.getDatabaseUsers);
 
