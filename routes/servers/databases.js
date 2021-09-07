@@ -67,7 +67,15 @@ router.delete(
   database.revokeDBuser
 );
 
-router.get("/users", auth.required, database.getDatabaseUsers);
+router.get("/users", auth.required, async function (req, res) {
+  try {
+    const response = await database.getDatabaseUserList(req.server);
+    return res.json(response);
+  } catch (e) {
+    console.error(e);
+    return res.status(501).json({ success: false });
+  }
+});
 
 router.get("/users/:dbuserId", auth.required, database.getDatabaseUser);
 
@@ -76,7 +84,16 @@ router.post(
   auth.required,
   body("name").isString(),
   body("password").isString(),
-  database.storeDatabaseUser
+  validate,
+  async function (req, res) {
+    try {
+      const response = await database.storeDatabaseUser(req.server, req.body);
+      return res.json(response);
+    } catch (e) {
+      console.error(e);
+      return res.status(501).json({ success: false });
+    }
+  }
 );
 
 router.put(

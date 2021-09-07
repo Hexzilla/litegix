@@ -228,17 +228,12 @@ module.exports = {
     }
   },
 
-  getDatabaseUsers: async function (req, res) {
-    try {
-      const users = await DatabaseUser.find({ serverId: req.server.id });
-      return res.json({
-        success: true,
-        data: { dbusers: users },
-      });
-    } catch (e) {
-      console.error(e);
-      return res.status(501).json({ success: false });
-    }
+  getDatabaseUserList: async function (server) {
+    const users = await DatabaseUser.find({ serverId: server.id });
+    return {
+      success: true,
+      data: { dbusers: users },
+    };
   },
 
   createDatabaseUser: async function (req, res) {
@@ -279,48 +274,37 @@ module.exports = {
     }
   },
 
-  storeDatabaseUser: async function (req, res) {
-    try {
-      let errors = valiator.validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(422).json({ success: false, errors: errors.array() });
-      }
-
-      let server = req.server;
-      let user = await DatabaseUser.findOne({
-        serverId: server.id,
-        name: req.body.name,
-      });
-      if (user) {
-        return res.status(422).json({
-          success: false,
-          errors: { name: "has already been taken." },
-        });
-      }
-
-      // errors = await agent.createDatabaseUser(req.body)
-      // if (errors) {
-      //   return res.status(422).json({
-      //     success: false,
-      //     errors: errors
-      //   })
-      // }
-
-      user = new DatabaseUser(req.body);
-      user.serverId = server.id;
-      await user.save();
-
-      const message = `Added new database user ${req.body.name} with password`;
-      await activity.createServerActivityLogInfo(server.id, message);
-
-      res.json({
-        success: true,
-        message: "It has been successfully created.",
-      });
-    } catch (e) {
-      console.error(e);
-      return res.status(501).json({ success: false });
+  storeDatabaseUser: async function (server, data) {
+    const exists = await DatabaseUser.findOne({
+      serverId: server.id,
+      name: data.name,
+    });
+    if (exists) {
+      return {
+        success: false,
+        errors: { name: "has already been taken." },
+      };
     }
+
+    /*errors = await agent.createDatabaseUser(data);
+    if (errors) {
+      return res.status(422).json({
+        success: false,
+        errors: errors,
+      });
+    }*/
+
+    const user = new DatabaseUser(data);
+    user.serverId = server.id;
+    await user.save();
+
+    const message = `Added new database user ${data.name} with password`;
+    await activity.createServerActivityLogInfo(server.id, message);
+
+    return {
+      success: true,
+      message: "It has been successfully created.",
+    };
   },
 
   deleteDatabaseUser: async function (req, res) {
