@@ -207,25 +207,18 @@ module.exports = {
     }
   },
 
-  getDatabaseUser: async function (req, res) {
-    try {
-      const dbuser = await DatabaseUser.findById(req.params.dbuserId);
-      if (!dbuser) {
-        return res.status(422).json({
-          success: false,
-          errors: {
-            message: "User doesn't exists",
-          },
-        });
-      }
-      return res.json({
-        success: true,
-        data: { dbuser: dbuser },
-      });
-    } catch (e) {
-      console.error(e);
-      return res.status(501).json({ success: false });
+  getDatabaseUser: async function (server, userId) {
+    const user = await DatabaseUser.findById(userId);
+    if (!user) {
+      return {
+        success: false,
+        errors: { message: "User doesn't exists" },
+      };
     }
+    return {
+      success: true,
+      data: { dbuser: user },
+    };
   },
 
   getDatabaseUserList: async function (server) {
@@ -241,37 +234,6 @@ module.exports = {
       success: true,
       data: {},
     });
-  },
-
-  changePassword: async function (req, res) {
-    try {
-      let errors = valiator.validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(422).json({ success: false, errors: errors.array() });
-      }
-
-      let user = await DatabaseUser.findById(req.params.dbuserId);
-      if (!user) {
-        return res.status(422).json({
-          success: false,
-          errors: { message: "It doesn't exists" },
-        });
-      }
-
-      user.password = req.body.password;
-      await user.save();
-
-      const message = `successfully password changed for ${user.name}`;
-      await activity.createServerActivityLogInfo(req.params.serverId, message);
-
-      res.json({
-        success: true,
-        message: "It has been successfully changed.",
-      });
-    } catch (e) {
-      console.error(e);
-      return res.status(501).json({ success: false });
-    }
   },
 
   storeDatabaseUser: async function (server, data) {
@@ -330,6 +292,37 @@ module.exports = {
       success: true,
       data: { id: userId, name: user.name },
     };
+  },
+
+  changePassword: async function (req, res) {
+    try {
+      let errors = valiator.validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(422).json({ success: false, errors: errors.array() });
+      }
+
+      let user = await DatabaseUser.findById(req.params.dbuserId);
+      if (!user) {
+        return res.status(422).json({
+          success: false,
+          errors: { message: "It doesn't exists" },
+        });
+      }
+
+      user.password = req.body.password;
+      await user.save();
+
+      const message = `successfully password changed for ${user.name}`;
+      await activity.createServerActivityLogInfo(req.params.serverId, message);
+
+      res.json({
+        success: true,
+        message: "It has been successfully changed.",
+      });
+    } catch (e) {
+      console.error(e);
+      return res.status(501).json({ success: false });
+    }
   },
 
   getPhpVersion: async function (req, res) {

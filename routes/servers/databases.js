@@ -77,7 +77,16 @@ router.get("/users", auth.required, async function (req, res) {
   }
 });
 
-router.get("/users/:dbuserId", auth.required, database.getDatabaseUser);
+router.get("/users/:dbuserId", auth.required, async function (req, res) {
+  try {
+    const dbuserId = req.params.dbuserId;
+    const response = await database.getDatabaseUser(req.server, dbuserId);
+    return res.json(response);
+  } catch (e) {
+    console.error(e);
+    return res.status(501).json({ success: false });
+  }
+});
 
 router.post(
   "/users",
