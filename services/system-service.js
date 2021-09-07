@@ -8,91 +8,6 @@ const ServerSSHKey = mongoose.model("ServerSSHKey");
 const agent = require("./agent");
 const activity = require("./activity");
 
-const getSystemUsers = async function (req, res) {
-  try {
-    const users = await SystemUser.find({ serverId: req.server.id });
-    return res.json({
-      success: true,
-      data: { users: users },
-    });
-  } catch (e) {
-    console.error(e);
-    return res.status(501).json({ success: false });
-  }
-};
-
-const getSystemUserFromId = async function (req, res) {
-  try {
-    const users = await SystemUser.find({
-      serverId: req.server.id,
-      _id: req.params.userId,
-    });
-    return res.json({
-      success: true,
-      data: { users: users },
-    });
-  } catch (e) {
-    console.error(e);
-    return res.status(501).json({ success: false });
-  }
-};
-
-const createSystemUser = async function (req, res) {
-  try {
-    res.json({
-      success: true,
-      data: {},
-    });
-  } catch (e) {
-    console.error(e);
-    return res.status(501).json({ success: false });
-  }
-};
-
-const storeSystemUser = async function (req, res) {
-  try {
-    let errors = valiator.validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ success: false, errors: errors.array() });
-    }
-
-    let server = req.server;
-    let user = await SystemUser.findOne({
-      serverId: server.id,
-      name: req.body.name,
-    });
-    if (user) {
-      return res.status(422).json({
-        success: false,
-        errors: { name: "has already been taken." },
-      });
-    }
-
-    // errors = await agent.createSystemUser(req.body)
-    // if (errors) {
-    //   return res.status(422).json({
-    //     success: false,
-    //     errors: errors
-    //   })
-    // }
-
-    user = new SystemUser(req.body);
-    user.serverId = server.id;
-    await user.save();
-
-    const message = `Added new system user ${req.body.name} with password`;
-    await activity.createServerActivityLogInfo(server.id, message);
-
-    res.json({
-      success: true,
-      message: "It has been successfully created.",
-    });
-  } catch (e) {
-    console.error(e);
-    return res.status(501).json({ success: false });
-  }
-};
-
 const changeSystemUserPassword = async function (req, res) {
   try {
     let errors = valiator.validationResult(req);
@@ -179,26 +94,6 @@ const deleteSystemUser = async function (req, res) {
   }
 };
 
-const getServerSSHKeys = async function (req, res) {
-  try {
-    let server = req.server;
-    const sshKeys = await ServerSSHKey.find({ serverId: server.id });
-
-    res.json({
-      success: true,
-      data: {
-        sshKeys: sshKeys,
-        // sshKeys: sshKeys.map(it => it.name)
-      },
-    });
-  } catch (error) {
-    return res.status(501).json({
-      success: false,
-      errors: error,
-    });
-  }
-};
-
 const getVaultedSSHKeys = async function (req, res) {
   try {
     const sshKeys = await SSHKey.find({ userId: req.payload.id });
@@ -230,55 +125,6 @@ const createServerSSHKey = async function (req, res) {
   } catch (e) {
     console.error(e);
     return res.status(501).json({ success: false });
-  }
-};
-
-const storeServerSSHKey = async function (req, res) {
-  try {
-    const errors = valiator.validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ success: false, errors: errors.array() });
-    }
-
-    const server = req.server;
-
-    let sshkey = await ServerSSHKey.find({
-      serverId: server.id,
-      label: req.body.label,
-    });
-    if (sshkey && sshkey.length > 0) {
-      return res.status(422).json({
-        success: false,
-        errors: {
-          message: "Label is duplicated",
-        },
-      });
-    }
-
-    // errors = await agent.createSSHKey(req.body)
-    // if (errors) {
-    //   return res.status(422).json({
-    //     success: false,
-    //     errors: errors
-    //   })
-    // }
-
-    sshkey = new ServerSSHKey(req.body);
-    sshkey.serverId = server.id;
-    await sshkey.save();
-
-    const message = `Added new SSH key ${req.body.label} with user ${req.body.userId}`;
-    await activity.createServerActivityLogInfo(req.body.serverId, message);
-
-    res.json({
-      success: true,
-      message: "It has been successfully created.",
-    });
-  } catch (error) {
-    return res.status(501).json({
-      success: false,
-      errors: error,
-    });
   }
 };
 
@@ -530,17 +376,147 @@ const deleteSupervisorJob = async function (req, res) {
 };
 
 module.exports = {
-  getSystemUsers,
-  getSystemUserFromId,
-  createSystemUser,
-  storeSystemUser,
+  getSystemUsers: async function (server) {
+    const users = await SystemUser.find({ serverId: server.id });
+    return {
+      success: true,
+      data: { users: users },
+    };
+  },
+
+  getSystemUserById: async function (server, userId) {
+    const users = await SystemUser.find({
+      serverId: server.id,
+      _id: userId,
+    });
+    return {
+      success: true,
+      data: { users: users },
+    };
+  },
+
+  createSystemUser: async function (server, data) {},
+
+  storeSystemUser: async function (server, data) {
+    const exists = await SystemUser.findOne({
+      serverId: server.id,
+      name: data.name,
+    });
+    if (exists) {
+      return {
+        success: false,
+        errors: { name: "has already been taken." },
+      };
+    }
+
+    // errors = await agent.createSystemUser(data)
+    // if (errors) {
+    //   return res.status(422).json({
+    //     success: false,
+    //     errors: errors
+    //   })
+    // }
+
+    const user = new SystemUser(data);
+    user.serverId = server.id;
+    await user.save();
+
+    const message = `Added new system user ${user.name} with password`;
+    await activity.createServerActivityLogInfo(server.id, message);
+
+    return {
+      success: true,
+      data: { user: exists },
+    };
+  },
+
   changeSystemUserPassword,
-  deleteSystemUser,
-  getServerSSHKeys,
+
+  deleteSystemUser: async function (server, userId) {
+    const user = await SystemUser.findById(userId);
+    if (!user) {
+      return {
+        success: false,
+        errors: { message: "It doesn't exists" },
+      };
+    }
+
+    // errors = await agent.deleteSystemUser(user.name)
+    // if (errors) {
+    //   return { success: false, errors: errors }
+    // }
+
+    await user.remove();
+
+    const message = `Deleted system user ${user.name}`;
+    await activity.createServerActivityLogInfo(server.id, message);
+
+    return {
+      success: true,
+      data: { id: userId },
+    };
+  },
+
+  getServerSSHKeys: async function (server) {
+    const sshKeys = await ServerSSHKey.find({ serverId: server.id });
+
+    return {
+      success: true,
+      data: {
+        sshKeys: sshKeys,
+        // sshKeys: sshKeys.map(it => it.name)
+      },
+    };
+  },
+
   getVaultedSSHKeys,
   createServerSSHKey,
-  storeServerSSHKey,
-  deleteServerSSHKey,
+
+  storeServerSSHKey: async function (server, data) {
+    const exists = await ServerSSHKey.find({
+      serverId: server.id,
+      label: data.label,
+    });
+    if (exists && exists.length > 0) {
+      return {
+        success: false,
+        errors: { message: "Label is duplicated" },
+      };
+    }
+
+    /*errors = await agent.createSSHKey(data)
+    if (errors) {
+      return res.status(422).json({
+        success: false,
+        errors: errors
+      })
+    }*/
+
+    const sshkey = new ServerSSHKey(data);
+    sshkey.serverId = server.id;
+    await sshkey.save();
+
+    const message = `Added new SSH key ${data.label} with user ${data.userId}`;
+    await activity.createServerActivityLogInfo(server.id, message);
+
+    return {
+      success: true,
+      data: { sshkey: sshkey },
+    };
+  },
+
+  deleteServerSSHKey: async function (server, keyId) {
+    const result = await SSHKey.deleteOne({
+      serverId: server.id,
+      id: req.params.keyId,
+    });
+
+    return {
+      success: true,
+      data: { id: keyId },
+    };
+  },
+
   deleteVaultedSSHKey,
   getDeploymentKeys,
   createDeploymentKey,
