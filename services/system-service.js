@@ -366,7 +366,7 @@ module.exports = {
     const users = await SystemUser.find({ serverId: server.id });
     return {
       success: true,
-      data: { users: users.map((it) => it.toDeploymentKeyJson()) },
+      data: { keys: users.map((it) => it.toDeploymentKeyJson()) },
     };
   },
 
