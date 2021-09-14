@@ -4,32 +4,6 @@ const mongoose = require("mongoose");
 const CronJob = mongoose.model("CronJob");
 const activity = require("./activity");
 
-const getCronJobs = async function (req, res) {
-  try {
-    const cronjobs = await CronJob.find({ serverId: req.server.id });
-    return res.json({
-      success: true,
-      data: { cronjobs },
-    });
-  } catch (e) {
-    console.error(e);
-    return res.status(501).json({ success: false });
-  }
-};
-
-const getCronJob = async function (req, res) {
-  try {
-    const cronjob = await CronJob.findById(req.params.jobId);
-    return res.json({
-      success: true,
-      data: { cronjob },
-    });
-  } catch (e) {
-    console.error(e);
-    return res.status(501).json({ success: false });
-  }
-};
-
 const createCronJob = async function (req, res) {
   try {
     let errors = valiator.validationResult(req);
@@ -133,8 +107,22 @@ const removeCronJob = async function (req, res) {
 };
 
 module.exports = {
-  getCronJobs,
-  getCronJob,
+  getCronJobs: async function (server) {
+    const cronjobs = await CronJob.find({ serverId: server.id });
+    return {
+      success: true,
+      data: { cronjobs },
+    };
+  },
+
+  getCronJob: async function (jobId) {
+    const cronjob = await CronJob.findById(jobId);
+    return {
+      success: true,
+      data: { cronjob },
+    };
+  },
+
   createCronJob,
   removeCronJob,
 };
