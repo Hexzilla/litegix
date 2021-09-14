@@ -1,17 +1,17 @@
-var http = require('http'),
-    path = require('path'),
-    methods = require('methods'),
-    express = require('express'),
-    bodyParser = require('body-parser'),
-    session = require('express-session'),
-    cors = require('cors'),
-    passport = require('passport'),
-    errorhandler = require('errorhandler'),
-    mongoose = require('mongoose'),
-    useragent = require('express-useragent');
+var http = require("http"),
+  path = require("path"),
+  methods = require("methods"),
+  express = require("express"),
+  bodyParser = require("body-parser"),
+  session = require("express-session"),
+  cors = require("cors"),
+  passport = require("passport"),
+  errorhandler = require("errorhandler"),
+  mongoose = require("mongoose"),
+  useragent = require("express-useragent");
 
-require('dotenv').config();
-var isProduction = process.env.NODE_ENV === 'production';
+require("dotenv").config();
+var isProduction = process.env.NODE_ENV === "production";
 
 // Create global app object
 var app = express();
@@ -19,46 +19,55 @@ var app = express();
 app.use(cors());
 
 // Normal express config defaults
-app.use(require('morgan')('dev'));
+app.use(require("morgan")("dev"));
 app.use(express.json());
-app.use(express.urlencoded({
-  extended: true
-}));
+app.use(
+  express.urlencoded({
+    extended: true,
+  })
+);
 
 app.use(useragent.express());
-app.use(require('method-override')());
-app.use(express.static(__dirname + '/public'));
+app.use(require("method-override")());
+app.use(express.static(__dirname + "/public"));
 
-app.use(session({ secret: 'litegix.easy-server-management-2021', cookie: { maxAge: 60000 }, resave: false, saveUninitialized: false  }));
+const secret = isProduction ? process.env.SECRET : "litegix.debug";
+app.use(
+  session({
+    secret: secret,
+    cookie: { maxAge: 60000 },
+    resave: false,
+    saveUninitialized: false,
+  })
+);
 
 if (!isProduction) {
   app.use(errorhandler());
 }
 
-mongoose.set('useNewUrlParser', true);
-mongoose.set('useFindAndModify', false);
-mongoose.set('useCreateIndex', true);
-mongoose.set('useUnifiedTopology', true);
+mongoose.set("useNewUrlParser", true);
+mongoose.set("useFindAndModify", false);
+mongoose.set("useCreateIndex", true);
+mongoose.set("useUnifiedTopology", true);
 
 if (isProduction) {
   mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true });
 } else {
-  mongoose.connect('mongodb://localhost/litegix', { useNewUrlParser: true });
-  mongoose.set('debug', true);
+  mongoose.connect("mongodb://localhost/litegix", { useNewUrlParser: true });
+  mongoose.set("debug", true);
 }
 
-require('./models');
-require('./config/passport');
-
+require("./models");
+require("./config/passport");
 
 //require('./migrations/country')()
 //require('./migrations/credittopup')()
 
-app.use(require('./routes'));
+app.use(require("./routes"));
 
 /// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  var err = new Error('Not Found');
+app.use(function (req, res, next) {
+  var err = new Error("Not Found");
   err.status = 404;
   next(err);
 });
@@ -68,40 +77,43 @@ app.use(function(req, res, next) {
 // development error handler
 // will print stacktrace
 if (!isProduction) {
-  app.use(function(err, req, res, next) {
+  app.use(function (err, req, res, next) {
     console.log(err.stack);
 
     res.status(err.status || 500);
 
-    res.json({'errors': {
-      message: err.message,
-      error: err
-    }});
+    res.json({
+      errors: {
+        message: err.message,
+        error: err,
+      },
+    });
   });
 }
 
 // production error handler
 // no stacktraces leaked to user
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   res.status(err.status || 500);
-  res.json({'errors': {
-    message: err.message,
-    error: {}
-  }});
+  res.json({
+    errors: {
+      message: err.message,
+      error: {},
+    },
+  });
 });
-
 
 // get the unhandled rejection and throw it to another fallback handler we already have.
-process.on('unhandledRejection', (reason, promise) => {
+process.on("unhandledRejection", (reason, promise) => {
   throw reason;
 });
- 
-process.on('uncaughtException', err => {
-  console.error('There was an uncaught error', err)
-  process.exit(1) //mandatory (as per the Node.js docs)
-})
+
+process.on("uncaughtException", (err) => {
+  console.error("There was an uncaught error", err);
+  process.exit(1); //mandatory (as per the Node.js docs)
+});
 
 // finally, let's start our server...
-var server = app.listen( process.env.PORT || 3000, function(){
-  console.log('Listening on port ' + server.address().port);
+var server = app.listen(process.env.PORT || 3000, function () {
+  console.log("Listening on port " + server.address().port);
 });
