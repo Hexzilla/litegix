@@ -3,6 +3,7 @@ const uuid = require("uuid");
 const { getServer } = require("./server-service");
 const { getUser } = require("./auth");
 const mongoose = require("mongoose");
+const Service = mongoose.model("Service");
 const SystemUser = mongoose.model("SystemUser");
 const SSHKey = mongoose.model("SSHKey");
 const ServerSSHKey = mongoose.model("ServerSSHKey");
@@ -464,6 +465,53 @@ module.exports = {
         phpVersion: "7.2",
         versions: ["7.2", "7.4", "8.0"],
       },
+    };
+  },
+
+  getSystemServices: async function (server) {
+    //const services = await Service.find({ serverId: server.id });
+    const services = [
+      {
+        symbol: "media/svg/misc/015-telegram.svg",
+        service: "Beanstalk",
+        version: "1.11-1",
+        processor_usage: "40%",
+        memory_usage: "80MB",
+        status: true,
+        action: "",
+      },
+      {
+        symbol: "media/svg/misc/006-plurk.svg",
+        service: "Httpd/Apache",
+        version: "2.4-3.3",
+        processor_usage: "-",
+        memory_usage: "-",
+        status: false,
+        action: "ReactJs, HTML",
+      },
+      {
+        symbol: "media/svg/misc/003-puzzle.svg",
+        service: "MariaDB",
+        version: "1.456-maria-focal",
+        processor_usage: "-",
+        memory_usage: "-",
+        status: true,
+        action: "Laravel, Metronic",
+      },
+      {
+        symbol: "media/svg/misc/005-bebo.svg",
+        service: "Memcached",
+        version: "1.525-2ubuntu0.1",
+        processor_usage: "45%",
+        memory_usage: "8GB",
+        status: false,
+        action: "AngularJS, C#",
+      },
+    ];
+    console.log("getSystemServices", services);
+    return {
+      success: true,
+      data: { services },
     };
   },
 };

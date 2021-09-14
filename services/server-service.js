@@ -15,52 +15,6 @@ const { exception } = require("console");
 const defaultScript =
   "export DEBIAN_FRONTEND=noninteractive; echo 'Acquire::ForceIPv4 \"true\";' | tee /etc/apt/apt.conf.d/99force-ipv4; apt-get update; apt-get install curl netcat-openbsd -y; curl -4 --silent --location http://localhost:3000/servers/config/script/USER_INFO | bash -; export DEBIAN_FRONTEND=newt";
 
-/*
-const storeServer = async (req, res, next) => {
-  try {
-    let result = await Server.findOne({
-      address: req.body.address,
-    });
-    if (result) {
-      return res.status(422).json({
-        success: false,
-        errors: {
-          address: "has already been taken.",
-        },
-      });
-    }
-
-    result = await Server.findOne({
-      name: req.body.name,
-      user: req.payload.id,
-    });
-    if (result) {
-      return res.status(422).json({
-        success: false,
-        errors: {
-          name: "has already been taken.",
-        },
-      });
-    }
-
-    const server = new Server(req.body);
-    server.connected = false;
-    server.user = req.payload.id;
-    await server.save();
-
-    res.json({
-      success: true,
-      message: "Your server has been successfully created.",
-      id: server._id,
-    });
-  } catch (e) {
-    console.error(e);
-    return res.status(501).json({
-      success: false,
-    });
-  }
-};*/
-
 const activityLogs = async function (req, res, next) {
   try {
     //console.log('server.activityLogs');
