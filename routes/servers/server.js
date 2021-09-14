@@ -31,12 +31,12 @@ router.get("/phpVersion", auth.required, async function (req, res) {
 router.put(
   "/phpVersion",
   auth.required,
-  body("version").notEmpty(),
+  body("phpVersion").notEmpty(),
   validate,
   async function (req, res) {
     try {
-      const version = req.body.version;
-      const response = await server.updatePhpVersion(req.server, version);
+      const phpVersion = req.body.phpVersion;
+      const response = await server.updatePhpVersion(req.server, phpVersion);
       return res.json(response);
     } catch (e) {
       console.error(e);
