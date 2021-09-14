@@ -1,5 +1,5 @@
 const valiator = require("express-validator");
-const { getServer } = require("./server");
+const { getServer } = require("./server-service");
 const mongoose = require("mongoose");
 mongoose.Promise = require("bluebird");
 const Database = mongoose.model("Database");
@@ -322,27 +322,6 @@ module.exports = {
     } catch (e) {
       console.error(e);
       return res.status(501).json({ success: false });
-    }
-  },
-
-  getPhpVersion: async function (req, res) {
-    try {
-      let { server, errors } = await getServer(req);
-      if (errors) {
-        return res.status(422).json({ success: false, errors: errors });
-      }
-
-      res.json({
-        success: true,
-        data: {
-          phpVersion: server.phpVersion,
-        },
-      });
-    } catch (error) {
-      return res.status(501).json({
-        success: false,
-        errors: error,
-      });
     }
   },
 };

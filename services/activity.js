@@ -1,32 +1,31 @@
-const mongoose = require("mongoose")
-const ServerActivity = mongoose.model("ServerActivity")
-const UserActivity = mongoose.model("UserActivity")
-const {getServer} = require("./server")
-const agent = require("./agent")
-const moment = require('moment');
+const mongoose = require("mongoose");
+const ServerActivity = mongoose.model("ServerActivity");
+const UserActivity = mongoose.model("UserActivity");
+const { getServer } = require("./server-service");
+const agent = require("./agent");
+const moment = require("moment");
 
 const getServerActivityLogs = async function (req, res) {
   try {
-    let {server, errors} = await getServer(req)
+    let { server, errors } = await getServer(req);
     if (errors) {
-      return res.status(422).json({ success: false, errors: errors })
+      return res.status(422).json({ success: false, errors: errors });
     }
 
-    const logs = await ServerActivity.find({server: req.body.serverId})
-    res.json({ 
+    const logs = await ServerActivity.find({ server: req.body.serverId });
+    res.json({
       success: true,
       data: {
-        logs: logs
-      }
-    })
-  }
-  catch (error) {
-    return res.status(501).json({ 
+        logs: logs,
+      },
+    });
+  } catch (error) {
+    return res.status(501).json({
       success: false,
-      errors: error
+      errors: error,
     });
   }
-}
+};
 
 const createServerActivityLogInfo = async function (serverId, message, level) {
   try {
@@ -35,14 +34,13 @@ const createServerActivityLogInfo = async function (serverId, message, level) {
       category: 1,
       level: 1,
       message: message,
-      date: moment()
+      date: moment(),
     });
     await activity.save();
+  } catch (error) {
+    return { errors: errors };
   }
-  catch (error) {
-    return {errors: errors}
-  }
-}
+};
 
 const createUserActivityLogInfo = async function (userId, message, level) {
   try {
@@ -51,17 +49,16 @@ const createUserActivityLogInfo = async function (userId, message, level) {
       category: 1,
       level: 1,
       message: message,
-      date: moment()
+      date: moment(),
     });
     await activity.save();
+  } catch (error) {
+    return { errors: errors };
   }
-  catch (error) {
-    return {errors: errors}
-  }
-}
+};
 
 module.exports = {
   getServerActivityLogs,
   createServerActivityLogInfo,
-  createUserActivityLogInfo
-}
+  createUserActivityLogInfo,
+};

@@ -15,20 +15,7 @@ const { exception } = require("console");
 const defaultScript =
   "export DEBIAN_FRONTEND=noninteractive; echo 'Acquire::ForceIPv4 \"true\";' | tee /etc/apt/apt.conf.d/99force-ipv4; apt-get update; apt-get install curl netcat-openbsd -y; curl -4 --silent --location http://localhost:3000/servers/config/script/USER_INFO | bash -; export DEBIAN_FRONTEND=newt";
 
-const getServers = function (req, res, next) {
-  Server.find({ user: req.payload.id })
-    .then((servers) => {
-      //console.log(servers)
-      res.json({
-        success: true,
-        data: {
-          servers: servers,
-        },
-      });
-    })
-    .catch(next);
-};
-
+/*
 const storeServer = async (req, res, next) => {
   try {
     let result = await Server.findOne({
@@ -72,7 +59,7 @@ const storeServer = async (req, res, next) => {
       success: false,
     });
   }
-};
+};*/
 
 const activityLogs = async function (req, res, next) {
   try {
@@ -97,22 +84,6 @@ const activityLogs = async function (req, res, next) {
   }
 };
 
-const deleteServer = async function (req, res, next) {
-  try {
-    console.log("server.deleteServer");
-    const server = await Server.findById(req.server.id);
-    if (!server) throw exception({ status: 409, msg: "failed" });
-    server.delete();
-    res.json({
-      success: true,
-    });
-  } catch (error) {
-    res.json({
-      success: failed,
-    });
-  }
-};
-
 const getSummary = async function (req, res, next) {
   console.log("getSummary", req.server);
   let server = req.server;
@@ -132,24 +103,6 @@ const getSummary = async function (req, res, next) {
   res.json({
     success: true,
     data: server.toSummaryJSON(),
-  });
-};
-
-const getPHPVersion = async function (req, res) {
-  let server = req.server;
-  res.json({
-    success: true,
-    data: server.phpVersion,
-  });
-};
-
-const updatePHPVersion = async function (req, res) {
-  let server = req.server;
-  server.phpVersion = req.body.phpVersion;
-  await server.save();
-  res.json({
-    success: true,
-    data: server.phpVersion,
   });
 };
 
@@ -357,9 +310,64 @@ const updateSetting = async function (req, res, next) {
 
 module.exports = {
   getServer,
-  getServers,
-  storeServer,
-  deleteServer,
+
+  getServers: async function (userId) {
+    const servers = await Server.find({ userId: userId });
+    return {
+      success: true,
+      data: {
+        userId: userId,
+        servers: servers,
+      },
+    };
+  },
+
+  storeServer: async (userId, data) => {
+    const searchByAddress = await Server.findOne({
+      address: data.address,
+    });
+    if (searchByAddress) {
+      return {
+        success: false,
+        errors: {
+          address: "has already been taken.",
+        },
+      };
+    }
+
+    const searchByName = await Server.findOne({
+      name: data.name,
+      userId: userId,
+    });
+    if (searchByName) {
+      return {
+        success: false,
+        errors: {
+          name: "has already been taken.",
+        },
+      };
+    }
+
+    const server = new Server(data);
+    server.connected = false;
+    server.userId = userId;
+    await server.save();
+
+    return {
+      success: true,
+      data: { id: server._id },
+    };
+  },
+
+  deleteServer: async function (server) {
+    await server.delete();
+
+    return {
+      success: true,
+      data: { id: server._id },
+    };
+  },
+
   activityLogs,
   getSummary,
   getScript,
@@ -370,6 +378,27 @@ module.exports = {
   updateServerState,
   getServerInfo,
   updateSetting,
-  getPHPVersion,
-  updatePHPVersion,
+
+  getPhpVersion: async function (server) {
+    return {
+      success: true,
+      data: {
+        avaliable: ["7.2", "7.4", "8.0"],
+        phpVersion: server.phpVersion,
+      },
+    };
+  },
+
+  updatePhpVersion: async function (server, version) {
+    server.phpVersion = version;
+    await server.save();
+
+    return {
+      success: true,
+      data: {
+        id: server._id,
+        phpVersion: version,
+      },
+    };
+  },
 };

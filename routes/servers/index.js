@@ -24,7 +24,6 @@ router.use("/:serverId/databases", require("./databases"));
 router.use("/:serverId/systemusers", require("./systemusers"));
 router.use("/:serverId/sshcredentials", require("./credentials"));
 router.use("/:serverId/deploykeys", require("./deploy-key"));
-router.use("/:serverId/phpcli", require("./phpcli"));
 router.use("/:serverId/cronjobs", require("./cronjobs"));
 router.use("/:serverId/supervisors", require("./supervisors"));
 router.use("/:serverId/notifications", require("./notifications"));

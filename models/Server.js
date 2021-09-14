@@ -33,7 +33,7 @@ var ServerSchema = new mongoose.Schema(
         directory: String,
       },
     ],
-    user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     useremail: { type: String, required: [false, "must email formating"] },
     SSHConfig: {
       Passwordless_Login_Only: { type: Boolean },

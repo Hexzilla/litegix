@@ -1,6 +1,6 @@
 const valiator = require("express-validator");
 const uuid = require("uuid");
-const { getServer } = require("./server");
+const { getServer } = require("./server-service");
 const { getUser } = require("./auth");
 const mongoose = require("mongoose");
 const SystemUser = mongoose.model("SystemUser");
@@ -454,6 +454,16 @@ module.exports = {
     return {
       success: true,
       message: "It has been successfully created.",
+    };
+  },
+
+  getPhpVersions: async function (server) {
+    return {
+      success: true,
+      data: {
+        phpVersion: "7.2",
+        versions: ["7.2", "7.4", "8.0"],
+      },
     };
   },
 };
