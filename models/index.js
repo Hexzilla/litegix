@@ -17,6 +17,7 @@ require("./SSHKey");
 require("./ServerSSHKey");
 require("./IPAddress");
 require("./ServerActivity");
+require("./Supervisor");
 require("./UserActivity");
 require("./Credittopup");
 require("./Serverplan");

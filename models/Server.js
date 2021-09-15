@@ -21,18 +21,6 @@ var ServerSchema = new mongoose.Schema(
       loadAvg: Number,
       uptime: String,
     },
-    supervisors: [
-      {
-        name: { type: String, required: [true, "can't be blank"] },
-        userName: { type: String, required: [true, "can't be blank"] },
-        numprocs: { type: Number, required: [true, "can't be blank"] },
-        vendorBinary: { type: String, required: [true, "can't be blank"] },
-        command: { type: String, required: [true, "can't be blank"] },
-        autoStart: Boolean,
-        autoRestart: Boolean,
-        directory: String,
-      },
-    ],
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     useremail: { type: String, required: [false, "must email formating"] },
     SSHConfig: {

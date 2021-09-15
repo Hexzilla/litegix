@@ -2,6 +2,7 @@ const valiator = require("express-validator");
 const { getServer } = require("./server-service");
 const mongoose = require("mongoose");
 const CronJob = mongoose.model("CronJob");
+const Supervisor = mongoose.model("Supervisor");
 const activity = require("./activity");
 
 const rebuildJob = async function (req, res) {
@@ -17,38 +18,28 @@ const rebuildJob = async function (req, res) {
   }
 };
 
-const removeCronJob = async function (req, res) {
-  try {
-    const cronJob = await CronJob.findById(req.params.jobId);
-    if (!cronJob) {
-      return res.status(422).json({
-        success: false,
-        errors: {
-          message: "It doesn't exists",
-        },
-      });
-    }
+const getVendorBinaries = function () {
+  return [
+    "/Litegix/Packages/php72/bin/php",
+    "/Litegix/Packages/php73/bin/php",
+    "/Litegix/Packages/php74/bin/php",
+    "/Litegix/Packages/php80/bin/php",
+    "/user/bin/node",
+    "/bin/bash",
+  ];
+};
 
-    errors = await agent.removeCronJob(req.body);
-    if (errors) {
-      return res.status(422).json({
-        success: false,
-        errors: errors,
-      });
-    }
-
-    await cronJob.remove();
-
-    res.json({
-      success: true,
-      message: "It has been successfully deleted.",
-    });
-  } catch (error) {
-    return res.status(501).json({
-      success: false,
-      errors: error,
-    });
-  }
+const getPredefinedSettings = function () {
+  return [
+    "Every Minutes",
+    "Every 10 Minutes",
+    "Every 30 Minutes",
+    "Every Hours",
+    "All midnight",
+    "Every Day",
+    "Every Week",
+    "Every Month",
+  ];
 };
 
 module.exports = {
@@ -71,24 +62,8 @@ module.exports = {
   createCronJob: async function (server) {
     return {
       success: true,
-      vendor_binaries: [
-        "/Litegix/Packages/php72/bin/php",
-        "/Litegix/Packages/php73/bin/php",
-        "/Litegix/Packages/php74/bin/php",
-        "/Litegix/Packages/php80/bin/php",
-        "/user/bin/node",
-        "/bin/bash",
-      ],
-      predefined_settings: [
-        "Every Minutes",
-        "Every 10 Minutes",
-        "Every 30 Minutes",
-        "Every Hours",
-        "All midnight",
-        "Every Day",
-        "Every Week",
-        "Every Month",
-      ],
+      vendor_binaries: getVendorBinaries(),
+      predefined_settings: getPredefinedSettings(),
     };
   },
 
@@ -104,13 +79,13 @@ module.exports = {
       };
     }
 
-    // errors = await agent.createCronJob(data)
-    // if (errors) {
-    //   return {
-    //     success: false,
-    //     errors: errors
-    //   }
-    // }
+    /*const errors = await agent.createCronJob(data)
+    if (errors) {
+      return {
+        success: false,
+        errors: errors
+      }
+    }*/
 
     data.time = [
       data.minute,
@@ -132,5 +107,106 @@ module.exports = {
       data: { cronJob },
     };
   },
-  removeCronJob,
+  removeCronJob: async function (jobId) {
+    const cronJob = await CronJob.findById(jobId);
+    if (!cronJob) {
+      return {
+        success: false,
+        errors: {
+          message: "It doesn't exists",
+        },
+      };
+    }
+
+    /*const errors = await agent.removeCronJob(req.body);
+    if (errors) {
+      return {
+        success: false,
+        errors: errors,
+      };
+    }*/
+
+    await cronJob.remove();
+
+    return {
+      success: true,
+      data: { cronJob },
+    };
+  },
+
+  getSupervisorJobs: async function (server) {
+    const supervisors = await Supervisor.find({ serverId: server.id });
+    return {
+      success: true,
+      data: { supervisors },
+    };
+  },
+
+  createSupervisorJob: async function (server) {
+    return {
+      success: true,
+      vendor_binaries: getVendorBinaries(),
+      predefined_settings: getPredefinedSettings(),
+    };
+  },
+
+  storeSupervisorJob: async function (server, data) {
+    const exists = await Supervisor.findOne({
+      serverId: server.id,
+      name: data.name,
+    });
+    if (exists) {
+      return {
+        success: false,
+        errors: { name: "has already been taken." },
+      };
+    }
+
+    /*errors = await agent.createSupervisorJob(data);
+    if (errors) {
+      return {
+        success: false,
+        errors: errors,
+      };
+    }*/
+
+    const supervisor = new Supervisor(data);
+    supervisor.serverId = server.id;
+    await supervisor.save();
+
+    const message = `Added new Supervisor Job ${data.name}`;
+    await activity.createServerActivityLogInfo(server.id, message);
+
+    return {
+      success: true,
+      data: { supervisor },
+    };
+  },
+
+  deleteSupervisorJob: async function (jobId) {
+    const supervisor = await Supervisor.findById(jobId);
+    if (!supervisor) {
+      return {
+        success: false,
+        errors: {
+          message: "It doesn't exists",
+        },
+      };
+    }
+
+    /*const errors = await agent.removeSupervisorJob(req.body);
+    if (errors) {
+      return {
+        success: false,
+        errors: errors,
+      };
+    }*/
+
+    await supervisor.remove();
+
+    return {
+      success: true,
+      data: { supervisor },
+    };
+  },
 };

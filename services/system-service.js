@@ -105,109 +105,6 @@ const deleteVaultedSSHKey = async function (req, res) {
   }
 };
 
-const getSupervisorJobs = async function (req, res) {
-  try {
-    let { server, errors } = await getServer(req);
-    if (errors) {
-      return res.status(422).json({ success: false, errors: errors });
-    }
-
-    res.json({
-      success: true,
-      data: {
-        supervisors: server.supervisors,
-      },
-    });
-  } catch (error) {
-    return res.status(501).json({
-      success: false,
-      errors: error,
-    });
-  }
-};
-
-const createSupervisorJob = async function (req, res) {
-  try {
-    let { server, errors } = await getServer(req);
-    if (errors) {
-      return res.status(422).json({ success: false, errors: errors });
-    }
-
-    if (server.supervisors.find((it) => it.name === req.body.name)) {
-      return res.status(422).json({
-        success: false,
-        errors: { name: "has already been taken." },
-      });
-    }
-
-    errors = await agent.createSupervisorJob(req.body);
-    if (errors) {
-      return res.status(422).json({
-        success: false,
-        errors: errors,
-      });
-    }
-
-    server.supervisors.push(req.body);
-    await server.save();
-
-    const message = `Added new supervisor job ${req.body.name}`;
-    await activity.createServerActivityLogInfo(req.body.serverId, message);
-
-    res.json({
-      success: true,
-      message: "It has been successfully created.",
-    });
-  } catch (error) {
-    return res.status(501).json({
-      success: false,
-      errors: error,
-    });
-  }
-};
-
-const deleteSupervisorJob = async function (req, res) {
-  try {
-    let { server, errors } = await getServer(req);
-    if (errors) {
-      return res.status(422).json({ success: false, errors: errors });
-    }
-
-    const index = server.supervisors.findIndex(
-      (it) => it.name === req.body.name
-    );
-    if (index < 0) {
-      return res.status(422).json({
-        success: false,
-        errors: {
-          message: "It doesn't exists",
-        },
-      });
-    }
-
-    errors = await agent.deleteSupervisorJob(req.body.name);
-    if (errors) {
-      return res.status(422).json({
-        success: false,
-        errors: errors,
-      });
-    }
-
-    server.supervisors.splice(index, 1);
-    await server.save();
-
-    res.json({
-      success: true,
-      message: "It has been successfully deleted.",
-    });
-  } catch (error) {
-    return res.status(501).json({
-      success: false,
-      errors: error,
-    });
-  }
-};
-
 module.exports = {
   getSystemUsers: async function (server) {
     const users = await SystemUser.find({ serverId: server.id });
@@ -398,10 +295,6 @@ module.exports = {
       data: { key: deploymentKey },
     };
   },
-
-  getSupervisorJobs,
-  createSupervisorJob,
-  deleteSupervisorJob,
 
   getCronJobList: async function (server) {
     const cronjobs = await CronJob.find({ serverId: server.id });
