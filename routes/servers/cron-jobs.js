@@ -13,18 +13,15 @@ router.get("/", auth.required, async function (req, res) {
   }
 });
 
-router.get("/:jobId", auth.required, async function (req, res) {
+router.get("/create", auth.required, async function (req, res) {
   try {
-    const jobId = req.params.jobId;
-    const response = await cronjob.getCronJob(jobId);
+    const response = await cronjob.createCronJob(req.server);
     return res.json(response);
   } catch (e) {
     console.error(e);
     return res.status(501).json({ success: false });
   }
 });
-
-router.delete("/:jobId", auth.required, cronjob.removeCronJob);
 
 router.post(
   "/",
@@ -37,7 +34,29 @@ router.post(
   body("dayOfMonth").isString(),
   body("month").isString(),
   body("dayOfWeek").isString(),
-  cronjob.createCronJob
+  async function (req, res) {
+    try {
+      const jobId = req.params.jobId;
+      const response = await cronjob.storeCronJob(jobId);
+      return res.json(response);
+    } catch (e) {
+      console.error(e);
+      return res.status(501).json({ success: false });
+    }
+  }
 );
+
+router.get("/:jobId", auth.required, async function (req, res) {
+  try {
+    const jobId = req.params.jobId;
+    const response = await cronjob.getCronJob(jobId);
+    return res.json(response);
+  } catch (e) {
+    console.error(e);
+    return res.status(501).json({ success: false });
+  }
+});
+
+router.delete("/:jobId", auth.required, cronjob.removeCronJob);
 
 module.exports = router;

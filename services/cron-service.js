@@ -4,61 +4,6 @@ const mongoose = require("mongoose");
 const CronJob = mongoose.model("CronJob");
 const activity = require("./activity");
 
-const createCronJob = async function (req, res) {
-  try {
-    let errors = valiator.validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ success: false, errors: errors.array() });
-    }
-
-    let server = req.server;
-    let cronjob = await CronJob.findOne({
-      serverId: server.id,
-      label: req.body.label,
-    });
-    if (cronjob) {
-      return res.status(422).json({
-        success: false,
-        errors: { label: "has already been taken." },
-      });
-    }
-
-    // errors = await agent.createCronJob(req.body)
-    // if (errors) {
-    //   return res.status(422).json({
-    //     success: false,
-    //     errors: errors
-    //   })
-    // }
-
-    req.body.time =
-      req.body.minute +
-      " " +
-      req.body.hour +
-      " " +
-      req.body.dayOfMonth +
-      " " +
-      req.body.month +
-      " " +
-      req.body.dayOfWeek;
-
-    cronjob = new CronJob(req.body);
-    cronjob.serverId = server.id;
-    await cronjob.save();
-
-    const message = `Added new Cron Job ${req.body.label}`;
-    await activity.createServerActivityLogInfo(server.id, message);
-
-    res.json({
-      success: true,
-      message: "It has been successfully created.",
-    });
-  } catch (e) {
-    console.error(e);
-    return res.status(501).json({ success: false });
-  }
-};
-
 const rebuildJob = async function (req, res) {
   try {
     const cronjob = await CronJob.findById(req.params.jobId);
@@ -108,10 +53,10 @@ const removeCronJob = async function (req, res) {
 
 module.exports = {
   getCronJobs: async function (server) {
-    const cronjobs = await CronJob.find({ serverId: server.id });
+    const cronJobs = await CronJob.find({ serverId: server.id });
     return {
       success: true,
-      data: { cronjobs },
+      data: { cronJobs },
     };
   },
 
@@ -123,6 +68,69 @@ module.exports = {
     };
   },
 
-  createCronJob,
+  createCronJob: async function (server) {
+    return {
+      success: true,
+      vendor_binaries: [
+        "/Litegix/Packages/php72/bin/php",
+        "/Litegix/Packages/php73/bin/php",
+        "/Litegix/Packages/php74/bin/php",
+        "/Litegix/Packages/php80/bin/php",
+        "/user/bin/node",
+        "/bin/bash",
+      ],
+      predefined_settings: [
+        "Every Minutes",
+        "Every 10 Minutes",
+        "Every 30 Minutes",
+        "Every Hours",
+        "All midnight",
+        "Every Day",
+        "Every Week",
+        "Every Month",
+      ],
+    };
+  },
+
+  storeCronJob: async function (server, data) {
+    const exists = await CronJob.findOne({
+      serverId: server.id,
+      label: data.label,
+    });
+    if (exists) {
+      return {
+        success: false,
+        errors: { label: "has already been taken." },
+      };
+    }
+
+    // errors = await agent.createCronJob(data)
+    // if (errors) {
+    //   return {
+    //     success: false,
+    //     errors: errors
+    //   }
+    // }
+
+    data.time = [
+      data.minute,
+      data.hour,
+      data.dayOfMonth,
+      data.month,
+      data.dayOfWeek,
+    ].join(" ");
+
+    const cronJob = new CronJob(data);
+    cronJob.serverId = server.id;
+    await cronJob.save();
+
+    const message = `Added new Cron Job ${data.label}`;
+    await activity.createServerActivityLogInfo(server.id, message);
+
+    return {
+      success: true,
+      data: { cronJob },
+    };
+  },
   removeCronJob,
 };
