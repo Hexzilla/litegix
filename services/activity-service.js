@@ -5,28 +5,6 @@ const { getServer } = require("./server-service");
 const agent = require("./agent");
 const moment = require("moment");
 
-const getServerActivityLogs = async function (req, res) {
-  try {
-    let { server, errors } = await getServer(req);
-    if (errors) {
-      return res.status(422).json({ success: false, errors: errors });
-    }
-
-    const logs = await ServerActivity.find({ server: req.body.serverId });
-    res.json({
-      success: true,
-      data: {
-        logs: logs,
-      },
-    });
-  } catch (error) {
-    return res.status(501).json({
-      success: false,
-      errors: error,
-    });
-  }
-};
-
 const createServerActivityLogInfo = async function (serverId, message, level) {
   try {
     const activity = new ServerActivity({
@@ -58,7 +36,13 @@ const createUserActivityLogInfo = async function (userId, message, level) {
 };
 
 module.exports = {
-  getServerActivityLogs,
+  getServerActivityLogs: async function (server) {
+    const logs = await ServerActivity.find({ serverId: server.id });
+    return {
+      success: true,
+      data: { logs },
+    };
+  },
   createServerActivityLogInfo,
   createUserActivityLogInfo,
 };

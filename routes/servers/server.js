@@ -14,8 +14,6 @@ router.delete("/", auth.required, async function (req, res) {
   }
 });
 
-router.post("/activitylogs", auth.required, server.activityLogs);
-
 router.post("/summary", auth.required, server.getSummary);
 
 router.get("/phpVersion", auth.required, async function (req, res) {

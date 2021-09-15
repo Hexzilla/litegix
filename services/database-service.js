@@ -5,7 +5,7 @@ mongoose.Promise = require("bluebird");
 const Database = mongoose.model("Database");
 const DatabaseUser = mongoose.model("DatabaseUser");
 const agent = require("./agent");
-const activity = require("./activity");
+const activity = require("./activity-service");
 
 module.exports = {
   getDatabases: async function (server) {

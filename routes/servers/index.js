@@ -17,7 +17,6 @@ router.param("serverId", function (req, res, next, serverId) {
 });
 
 router.use("/", require("./servers"));
-router.use("/:serverId", require("./server"));
 router.use("/:serverId/config", require("./config"));
 router.use("/:serverId/webapps", require("./webapps"));
 router.use("/:serverId/databases", require("./databases"));
@@ -30,6 +29,7 @@ router.use("/:serverId/notifications", require("./notifications"));
 router.use("/:serverId/services", require("./services"));
 router.use("/:serverId/securities", require("./securities"));
 router.use("/:serverId/settings", require("./settings"));
-router.use("/:serverId/logs", require("./logs"));
+router.use("/:serverId/activities", require("./activity"));
+router.use("/:serverId", require("./server"));
 
 module.exports = router;

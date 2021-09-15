@@ -3,7 +3,7 @@ const { getServer } = require("./server-service");
 const mongoose = require("mongoose");
 const CronJob = mongoose.model("CronJob");
 const Supervisor = mongoose.model("Supervisor");
-const activity = require("./activity");
+const activity = require("./activity-service");
 
 const rebuildJob = async function (req, res) {
   try {

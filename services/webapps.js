@@ -10,7 +10,7 @@ const Installer = mongoose.model("InstallerPHPScript");
 const SystemUser = mongoose.model("SystemUser");
 const User = mongoose.model("User");
 const agent = require("./agent");
-const activity = require("./activity");
+const activity = require("./activity-service");
 // const timezones = require('timezones-list');
 
 const getWebApplications = async function (req, res) {

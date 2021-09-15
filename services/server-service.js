@@ -15,29 +15,6 @@ const { exception } = require("console");
 const defaultScript =
   "export DEBIAN_FRONTEND=noninteractive; echo 'Acquire::ForceIPv4 \"true\";' | tee /etc/apt/apt.conf.d/99force-ipv4; apt-get update; apt-get install curl netcat-openbsd -y; curl -4 --silent --location http://localhost:3000/servers/config/script/USER_INFO | bash -; export DEBIAN_FRONTEND=newt";
 
-const activityLogs = async function (req, res, next) {
-  try {
-    //console.log('server.activityLogs');
-    const server = await Server.findById(req.server.id);
-    //console.log(server);
-
-    if (!server) throw exception({ status: 409, msg: "failed" });
-
-    activityLogList = await ActivityLog.find({ serverId: req.server.id });
-    //console.log(activityLogList)
-    res.json({
-      success: true,
-      data: activityLogList.length > 0 ? activityLogList : {},
-    });
-  } catch (error) {
-    console.log(error);
-    res.json({
-      success: "failed",
-      data: error,
-    });
-  }
-};
-
 const getSummary = async function (req, res, next) {
   console.log("getSummary", req.server);
   let server = req.server;
@@ -322,7 +299,6 @@ module.exports = {
     };
   },
 
-  activityLogs,
   getSummary,
   getScript,
   getInstallScript,

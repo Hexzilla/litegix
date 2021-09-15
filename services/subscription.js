@@ -1,219 +1,197 @@
-const valiator = require('express-validator')
-const mongoose = require("mongoose")
+const valiator = require("express-validator");
+const mongoose = require("mongoose");
 //const Plan = mongoose.model("Plan")
-const Credittopup = mongoose.model("Credittopup")
-const Subscription = mongoose.model("Subscription")
-const Serverplan = mongoose.model("Serverplan")
-const Backupplan = mongoose.model("Backupplan")
-const User = mongoose.model("User")
-const agent = require("./agent")
-const activity = require("./activity")
-const defaultlevels = require("../routes/subscriptions/credittopup.json")
+const Credittopup = mongoose.model("Credittopup");
+const Subscription = mongoose.model("Subscription");
+const Serverplan = mongoose.model("Serverplan");
+const Backupplan = mongoose.model("Backupplan");
+const User = mongoose.model("User");
+const agent = require("./agent");
+const activity = require("./activity-service");
+const defaultlevels = require("../routes/subscriptions/credittopup.json");
 
-
-const getCredittopup = async function (req, res)
-{
-  const levels = await Credittopup.find().sort({level:1})
-  if( levels.length==0 ) levels = defaultlevels;
-  return res.json({ 
+const getCredittopup = async function (req, res) {
+  const levels = await Credittopup.find().sort({ level: 1 });
+  if (levels.length == 0) levels = defaultlevels;
+  return res.json({
     success: true,
-    levels: levels
-  })
-}
+    levels: levels,
+  });
+};
 
 const getCurrentServerPlan = async function (req, res) {
   try {
-    const user = await User.findById(req.payload.id)
+    const user = await User.findById(req.payload.id);
     if (!user) {
-      return res.status(501).json({ 
+      return res.status(501).json({
         success: false,
-        message: "Invalid User"
+        message: "Invalid User",
       });
     }
-    const subscription = await Subscription.find({ userId: req.payload.id })
+    const subscription = await Subscription.find({ userId: req.payload.id });
     //console.log(subscription)
-    return res.json({ 
+    return res.json({
       success: true,
-      data: subscription
-    })
-  }
-  catch (e) {
-    console.error(e)
+      data: subscription,
+    });
+  } catch (e) {
+    console.error(e);
     return res.status(501).json({ success: false });
   }
-}
+};
 
-
-const createSubscription = async function(req, res)
-{
+const createSubscription = async function (req, res) {
   try {
-    const user = await User.findById(req.payload.id)
+    const user = await User.findById(req.payload.id);
     if (!user) {
-      return res.status(501).json({ 
+      return res.status(501).json({
         success: false,
-        message: "Invalid User"
+        message: "Invalid User",
       });
     }
-    let subscription
-    const subscriptionlist = await Subscription.find({userId :req.payload.id})
-    
-    if(subscriptionlist.length==0)
-    {
-      subscription = new Subscription(
-                  {
-                    userId : req.payload.id,
-                    serverplan : {
-                      count : req.body.serverplanprice>0 ? 1 : 0,
-                      price : req.body.serverplanprice
-                    },
-                    backupplan : {
-                      count : req.body.backupplanprice>0 ? 1 : 0,
-                      price : req.body.backupplanprice
-                    },
-                    //userbalance : {type: Float, required: [true, "can't be blank"]},
-                  })
+    let subscription;
+    const subscriptionlist = await Subscription.find({
+      userId: req.payload.id,
+    });
 
-    }
-    else
-    {
-      subscription = subscriptionlist[0]
+    if (subscriptionlist.length == 0) {
+      subscription = new Subscription({
+        userId: req.payload.id,
+        serverplan: {
+          count: req.body.serverplanprice > 0 ? 1 : 0,
+          price: req.body.serverplanprice,
+        },
+        backupplan: {
+          count: req.body.backupplanprice > 0 ? 1 : 0,
+          price: req.body.backupplanprice,
+        },
+        //userbalance : {type: Float, required: [true, "can't be blank"]},
+      });
+    } else {
+      subscription = subscriptionlist[0];
     }
 
-    await subscription.save()
-    return res.json({ 
+    await subscription.save();
+    return res.json({
       success: true,
-      data: subscription
-    })
-  }
-  catch (e) {
-    console.error(e)
+      data: subscription,
+    });
+  } catch (e) {
+    console.error(e);
     return res.status(501).json({ success: false });
-  }  
-}
-
-const defaultServerPlans = require("../routes/subscriptions/serverplan.json")
-const defaultBackupPlans = require("../routes/subscriptions/backupplan.json")
-const getServerPlans = async function(req, res)
-{
-  let serverPlans = await Serverplan.find().sort({index:1})
-  if( serverPlans.length==0 ) 
-  {
-    serverPlans = defaultServerPlans
-    Serverplan.insertMany(serverPlans)
   }
-  return res.json({ 
-    success: true,
-    data: serverPlans
-  })
-}
+};
 
-const getBackupPlans = async function(req, res)
-{
-  let backupPlans = await Backupplan.find().sort({index:1})
-  if( backupPlans.length==0 ) 
-  {
-    backupPlans = defaultBackupPlans
-    Backupplan.insertMany(backupPlans)
+const defaultServerPlans = require("../routes/subscriptions/serverplan.json");
+const defaultBackupPlans = require("../routes/subscriptions/backupplan.json");
+const getServerPlans = async function (req, res) {
+  let serverPlans = await Serverplan.find().sort({ index: 1 });
+  if (serverPlans.length == 0) {
+    serverPlans = defaultServerPlans;
+    Serverplan.insertMany(serverPlans);
   }
-  return res.json({ 
+  return res.json({
     success: true,
-    data: backupPlans
-  })
-}
+    data: serverPlans,
+  });
+};
 
-const insertUserBalance = async function(req, res)
-{
+const getBackupPlans = async function (req, res) {
+  let backupPlans = await Backupplan.find().sort({ index: 1 });
+  if (backupPlans.length == 0) {
+    backupPlans = defaultBackupPlans;
+    Backupplan.insertMany(backupPlans);
+  }
+  return res.json({
+    success: true,
+    data: backupPlans,
+  });
+};
+
+const insertUserBalance = async function (req, res) {
   try {
-    const user = await User.findById(req.payload.id)
+    const user = await User.findById(req.payload.id);
     if (!user) {
-      return res.status(501).json({ 
+      return res.status(501).json({
         success: false,
-        message: "Invalid User"
+        message: "Invalid User",
       });
     }
-    let subscription
-    const subscriptionlist = await Subscription.find({userId :req.payload.id})
-    
-    if(subscriptionlist.length==0)
-    {
-      subscription = new Subscription(
-                  {
-                    userId : req.payload.id,
-                    serverplan : {
-                      count : req.body.serverplanprice>0 ? 1 : 0,
-                      price : req.body.serverplanprice
-                    },
-                    backupplan : {
-                      count : req.body.backupplanprice>0 ? 1 : 0,
-                      price : req.body.backupplanprice
-                    },
-                    userbalance : req.body.credittopupamount,
-                  })
+    let subscription;
+    const subscriptionlist = await Subscription.find({
+      userId: req.payload.id,
+    });
 
-    }
-    else
-    {
-      subscription = subscriptionlist[0]
-      subscription.userbalance = req.body.credittopupamount
+    if (subscriptionlist.length == 0) {
+      subscription = new Subscription({
+        userId: req.payload.id,
+        serverplan: {
+          count: req.body.serverplanprice > 0 ? 1 : 0,
+          price: req.body.serverplanprice,
+        },
+        backupplan: {
+          count: req.body.backupplanprice > 0 ? 1 : 0,
+          price: req.body.backupplanprice,
+        },
+        userbalance: req.body.credittopupamount,
+      });
+    } else {
+      subscription = subscriptionlist[0];
+      subscription.userbalance = req.body.credittopupamount;
     }
 
-    await subscription.save()
-    return res.json({ 
+    await subscription.save();
+    return res.json({
       success: true,
-      data: subscription
-    })
-  }
-  catch (e) {
-    console.error(e)
+      data: subscription,
+    });
+  } catch (e) {
+    console.error(e);
     return res.status(501).json({ success: false });
-  }  
-}
+  }
+};
 
-
-const active = async function(req, res)
-{
-  const user = await User.findById(req.payload.id)
-    if (!user) {
-      return res.status(501).json({ 
-        success: false,
-        message: "Invalid User"
-      });
-    }
-  return res.json({ 
+const active = async function (req, res) {
+  const user = await User.findById(req.payload.id);
+  if (!user) {
+    return res.status(501).json({
+      success: false,
+      message: "Invalid User",
+    });
+  }
+  return res.json({
     success: true,
-    data: []
-  })
-}
+    data: [],
+  });
+};
 
-const inactive = async function(req, res)
-{
-  const user = await User.findById(req.payload.id)
-    if (!user) {
-      return res.status(501).json({ 
-        success: false,
-        message: "Invalid User"
-      });
-    }
-  return res.json({ 
+const inactive = async function (req, res) {
+  const user = await User.findById(req.payload.id);
+  if (!user) {
+    return res.status(501).json({
+      success: false,
+      message: "Invalid User",
+    });
+  }
+  return res.json({
     success: true,
-    data: []
-  })
-}
+    data: [],
+  });
+};
 
-const canceled = async function(req, res)
-{
-  const user = await User.findById(req.payload.id)
-    if (!user) {
-      return res.status(501).json({ 
-        success: false,
-        message: "Invalid User"
-      });
-    }
-  return res.json({ 
+const canceled = async function (req, res) {
+  const user = await User.findById(req.payload.id);
+  if (!user) {
+    return res.status(501).json({
+      success: false,
+      message: "Invalid User",
+    });
+  }
+  return res.json({
     success: true,
-    data: []
-  })
-}
+    data: [],
+  });
+};
 module.exports = {
   getCurrentServerPlan,
   createSubscription,
@@ -223,5 +201,5 @@ module.exports = {
   insertUserBalance,
   active,
   inactive,
-  canceled
-}
+  canceled,
+};

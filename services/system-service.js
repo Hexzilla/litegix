@@ -9,7 +9,7 @@ const SSHKey = mongoose.model("SSHKey");
 const ServerSSHKey = mongoose.model("ServerSSHKey");
 const CronJob = mongoose.model("CronJob");
 const agent = require("./agent");
-const activity = require("./activity");
+const activity = require("./activity-service");
 
 const changeSystemUserPassword = async function (req, res) {
   try {
