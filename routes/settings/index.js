@@ -1,9 +1,10 @@
-var router = require("express").Router()
+var router = require("express").Router();
 
-router.use("/profile", require("./profile"))
-router.use("/account", require("./account"))
-router.use("/apikey", require("./apikey"))
-router.use("/notifications", require("./notifications"))
-router.use("/ipwhitelist", require("./ipwhitelist"))
+router.use("/profile", require("./profile"));
+router.use("/account", require("./account"));
+router.use("/apikey", require("./apikey"));
+router.use("/notifications", require("./notifications"));
+router.use("/ipwhitelist", require("./ipwhitelist"));
+router.use("/activity", require("./activity"));
 
-module.exports = router
+module.exports = router;

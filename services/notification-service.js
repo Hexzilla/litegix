@@ -5,61 +5,6 @@ const Channel = mongoose.model("Channel");
 const agent = require("./agent");
 const activity = require("./activity-service");
 
-const getNotifications = async function (req, res) {
-  try {
-    const user = await User.findById(req.payload.id);
-    if (!user) {
-      return res.status(501).json({
-        success: false,
-        message: "Invalid User",
-      });
-    }
-    const channels = await Channel.find({ userId: req.payload.id });
-
-    return res.json({
-      success: true,
-      data: {
-        newsletters: user.newsletters,
-        channels: channels.map((it) => it.toJSON()),
-      },
-    });
-  } catch (e) {
-    console.error(e);
-    return res.status(501).json({ success: false });
-  }
-};
-
-const subscribe = async function (req, res) {
-  try {
-    const user = await User.findById(req.payload.id);
-    if (!user) {
-      return res.status(501).json({
-        success: false,
-        message: "Invalid User",
-      });
-    }
-
-    user.newsletters = {
-      subscription: true,
-      announchment: true,
-      blog: true,
-      events: true,
-    };
-    await user.save();
-
-    const message = `Subscribe to newsletter`;
-    await activity.createUserActivityLogInfo(user.id, message);
-
-    res.json({
-      success: true,
-      message: "It has been successfully updated.",
-    });
-  } catch (e) {
-    console.error(e);
-    return res.status(501).json({ success: false });
-  }
-};
-
 const unsubscribe = async function (req, res) {
   try {
     const user = await User.findById(req.payload.id);
@@ -236,8 +181,51 @@ const getChannel = async function (req, res) {
   }
 };
 module.exports = {
-  getNotifications,
-  subscribe,
+  getNotifications: async function (userId) {
+    const user = await User.findById(userId);
+    if (!user) {
+      return {
+        success: false,
+        errors: { userId: "doesn't exists." },
+      };
+    }
+    const channels = await Channel.find({ userId });
+
+    return {
+      success: true,
+      data: {
+        newsletters: user.newsletters,
+        channels: channels.map((it) => it.toJSON()),
+      },
+    };
+  },
+  subscribe: async function (userId, data) {
+    const user = await User.findById(userId);
+    if (!user) {
+      return {
+        success: false,
+        errors: { userId: "doesn't exists." },
+      };
+    }
+
+    user.newsletters = {
+      subscription: data.subscription,
+      announchment: data.announchment,
+      blog: data.blog,
+      events: data.events,
+    };
+    await user.save();
+
+    const message = `Subscribe to newsletter`;
+    await activity.createUserActivityLogInfo(user.id, message);
+
+    return {
+      success: true,
+      data: {
+        newsletters: user.newsletters,
+      },
+    };
+  },
   unsubscribe,
   storeChannel,
   updateChannel,

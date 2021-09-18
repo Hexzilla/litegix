@@ -36,11 +36,18 @@ const createUserActivityLogInfo = async function (userId, message, level) {
 };
 
 module.exports = {
-  getServerActivityLogs: async function (server) {
-    const logs = await ServerActivity.find({ serverId: server.id });
+  getAccountActivityLogs: async function (userId) {
+    const activities = await UserActivity.find({ userId });
     return {
       success: true,
-      data: { logs },
+      data: { activities },
+    };
+  },
+  getServerActivityLogs: async function (server) {
+    const activities = await ServerActivity.find({ serverId: server.id });
+    return {
+      success: true,
+      data: { activities },
     };
   },
   createServerActivityLogInfo,

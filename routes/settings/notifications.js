@@ -1,57 +1,76 @@
-const { body } = require('express-validator')
-const mongoose = require("mongoose")
-const Channel = mongoose.model("Channel")
-const router = require("express").Router()
-const auth = require("../auth")
-const notification = require("../../services/notification")
+const { body } = require("express-validator");
+const mongoose = require("mongoose");
+const Channel = mongoose.model("Channel");
+const router = require("express").Router();
+const auth = require("../auth");
+const notification = require("../../services/notification-service");
 
 // Preload server on routes with ':channelId'
 router.param("channelId", function (req, res, next, channelId) {
   Channel.findById(channelId)
     .then(function (item) {
       if (!item) {
-        return res.sendStatus(404)
+        return res.sendStatus(404);
       }
 
-      req.notification = item
-      return next()
+      req.notification = item;
+      return next();
     })
-    .catch(next)
-})
+    .catch(next);
+});
 
+router.get("/", auth.required, auth.required, async function (req, res) {
+  try {
+    const userId = req.payload.id;
+    const response = await notification.getNotifications(userId);
+    return res.json(response);
+  } catch (e) {
+    console.error(e);
+    return res.status(501).json({ success: false });
+  }
+});
 
-router.get("/", 
+router.post("/newsletters/subscribe", auth.required, async function (req, res) {
+  try {
+    const userId = req.payload.id;
+    const response = await notification.subscribe(userId, req.body);
+    return res.json(response);
+  } catch (e) {
+    console.error(e);
+    return res.status(501).json({ success: false });
+  }
+});
+
+router.post(
+  "/newsletters/unsubscribe",
   auth.required,
-  notification.getNotifications)
+  notification.unsubscribe
+);
 
-router.post("/newsletters/subscribe",
+router.get(
+  "/channels/store",
   auth.required,
-  notification.subscribe)
+  body("channel").isString(),
+  body("name").isString(),
+  notification.storeChannel
+);
 
-router.post("/newsletters/unsubscribe",
+router.post(
+  "/channels/:channelId/update",
   auth.required,
-  notification.unsubscribe)
+  body("channel").isString(),
+  body("name").isString(),
+  notification.updateChannel
+);
 
-router.get("/channels/store", 
-  auth.required,
-  body('channel').isString(),
-  body('name').isString(),
-  notification.storeChannel)
+router.get("/channels/:channelId", auth.required, notification.getChannel);
 
-router.post("/channels/:channelId/update",
+router.post(
+  "/channels/:channelId/healthsetting",
   auth.required,
-  body('channel').isString(),
-  body('name').isString(),
-  notification.updateChannel)
+  body("load").isNumeric().isInt({ min: 1, max: 255 }),
+  body("memory").isNumeric().isInt({ min: 1, max: 99 }),
+  notification.channelHealthsetting
+);
 
-router.get("/channels/:channelId",
-  auth.required,
-  notification.getChannel)
-
-router.post("/channels/:channelId/healthsetting",
-  auth.required,
-  body('load').isNumeric().isInt({min:1,max:255}),
-  body('memory').isNumeric().isInt({min:1,max:99}),
-  notification.channelHealthsetting)
-  
-module.exports = router
+module.exports = router;
