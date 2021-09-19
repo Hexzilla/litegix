@@ -114,6 +114,6 @@ process.on("uncaughtException", (err) => {
 });
 
 // finally, let's start our server...
-var server = app.listen(process.env.PORT || 3000, function () {
+var server = app.listen(process.env.PORT || 80, function () {
   console.log("Listening on port " + server.address().port);
 });
