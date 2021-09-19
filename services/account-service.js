@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const User = mongoose.model("User");
+const IPAddress = mongoose.model("IPAddress");
 const randomstring = require("randomstring");
 const activity = require("./activity-service");
 
@@ -84,12 +85,33 @@ module.exports = {
     await user.save();
 
     const message =
-      req.body.state === true ? "Enable API Access" : "Disable API Access";
+      data.state === true ? "Enable API Access" : "Disable API Access";
     await activity.createUserActivityLogInfo(user.id, message);
 
     return {
       success: true,
       data: { apiKeys: user.apiKeys },
+    };
+  },
+
+  getAllowedIPAddresses: async function (userId) {
+    const addresses = await IPAddress.find({ userId });
+    return {
+      success: true,
+      data: { addresses },
+    };
+  },
+
+  addAllowedIPAddress: async function (userId, data) {
+    const addr = new IPAddress(data);
+    addr.userId = userId;
+
+    const saved = await addr.save();
+    console.log(saved);
+
+    return {
+      success: true,
+      data: { address: data.address },
     };
   },
 };
