@@ -49,16 +49,6 @@ const decryptToken = function (token) {
   return JSON.parse(decrypted);
 };
 
-const getInstallState = async function (req, res, next) {
-  var sta = req.params.state;
-  res.json({
-    success: true,
-    data: {
-      state: sta / 1 + 5,
-    },
-  });
-};
-
 const updateInstallState = async function (req, res, next) {
   const token = getToken(req.params.token);
   console.log("updateInstallState, Token:", token, req.body);
@@ -257,32 +247,6 @@ module.exports = {
 
   getSummary,
 
-  getInstallShell: async function (userId, server) {
-    const payload = {
-      userId,
-      serverId: server.id,
-    };
-    const token = encryptToken(payload);
-    return {
-      success: true,
-      data: {
-        name: server.name,
-        loginScript: "ssh root@" + server.address,
-        installScript: config.install_script(token),
-      },
-    };
-  },
-
-  getScriptFile: async function (encryptedToken) {
-    const token = decryptToken(encryptedToken);
-    console.log("getScriptFile, Token:", token);
-
-    const filePath = path.join(__dirname, "../scripts/install.sh");
-    const text = await readFile(filePath, "utf8");
-    return text;
-  },
-
-  getInstallState,
   updateInstallState,
   updateServerState,
   getServerInfo,

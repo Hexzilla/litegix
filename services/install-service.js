@@ -41,10 +41,20 @@ module.exports = {
 
   getAgentInstallScript: async function (encryptedToken) {
     const token = decryptToken(encryptedToken);
-    console.log("getScriptFile, Token:", token);
+    console.log("InstallScript, Token:", token);
 
     const filePath = path.join(__dirname, "../scripts/install.sh");
     const text = await readFile(filePath, "utf8");
     return text;
+  },
+
+  getInstallState: async function (server) {
+    return {
+      success: true,
+      data: {
+        state: "Install",
+        percent: 20,
+      },
+    };
   },
 };

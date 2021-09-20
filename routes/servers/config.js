@@ -16,6 +16,14 @@ router.get("/bashscript", auth.required, async function (req, res) {
   }
 });
 
-router.get("/installstate/:state", server.getInstallState);
+router.get("/installstate", auth.required, async function (req, res) {
+  try {
+    const response = await install.getInstallState(req.server);
+    res.json(response);
+  } catch (e) {
+    console.error(e);
+    return res.status(501).json({ success: false });
+  }
+});
 
 module.exports = router;
