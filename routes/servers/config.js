@@ -3,11 +3,12 @@ const router = require("express").Router();
 const auth = require("../auth");
 const validate = require("../validate");
 const server = require("../../services/server-service");
+const install = require("../../services/install-service");
 
-router.get("/shell", auth.required, async function (req, res) {
+router.get("/bashscript", auth.required, async function (req, res) {
   try {
     const userId = req.payload.id;
-    const response = await server.getInstallShell(userId, req.server);
+    const response = await install.getBashScript(userId, req.server);
     res.json(response);
   } catch (e) {
     console.error(e);
