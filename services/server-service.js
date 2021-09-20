@@ -8,6 +8,7 @@ const Server = mongoose.model("Server");
 const Usage = mongoose.model("Usage");
 const User = mongoose.model("User");
 const ActivityLog = mongoose.model("ActivityLog");
+const config = require("./config");
 
 const crypto = require("./crypto");
 const { exception } = require("console");
@@ -34,92 +35,6 @@ const getSummary = async function (req, res, next) {
   res.json({
     success: true,
     data: server.toSummaryJSON(),
-  });
-};
-
-const getShellCommands = function (req, res) {
-  const token = {
-    userId: req.payload.id,
-    address: req.body.address,
-    serverId: "",
-  };
-  console.log("commands-token", token);
-  const encrypted = crypto.encrypt(JSON.stringify(token));
-  const scriptId = encrypted.split("/").join(".");
-  const commands = defaultScript.replace("USER_INFO", scriptId);
-  console.log("commands", commands);
-
-  res.json({
-    success: true,
-    data: {
-      commands: commands,
-    },
-  });
-};
-
-const getToken = function (token) {
-  const encrypted = token.split(".").join("/");
-  const decrypted = crypto.decrypt(encrypted);
-  return JSON.parse(decrypted);
-};
-
-const getScript = async function (req, res, next) {
-  const token = getToken(req.params.token);
-  console.log("GetScript, Token:", token);
-
-  const filePath = path.join(__dirname, "../scripts/install.sh");
-  readFile(filePath, "utf8")
-    .then((text) => {
-      console.log(text);
-      res.send(text);
-    })
-    .catch((err) => {
-      return res.status(422).json({
-        errors: "Can't read file",
-      });
-    });
-};
-
-const getInstallScript = async function (req, res, next) {
-  var server = req.server;
-  res.json({
-    success: true,
-    data: {
-      name: server.name,
-      loginScrit: "ssh root@" + server.address,
-      installScript:
-        "export DEBIAN_FRONTEND=noninteractive; echo 'Acquire::ForceIPv4 \"true\";' | tee /etc/apt/apt.conf.d/99force-ipv4; apt-get update; apt-get install curl netcat-openbsd -y; curl -4 --silent --location https://manage.runcloud.io/scripts/installer/CPrbSW1mAlOtJYmpqIbFjDow4A1625194843IO3wfDGx52pa2CX4zgcFdYvT7iavSFAtjl6KaOP68uTbdmJ5KbBveOCjbT8pVnon/ZSuNix0TNOedZ6ozpK2g0aq9TIumfvjHyMx6kNwzcZQDsmOKujkqjVSgoi8cswxRhwwov4UsQxP7OhvJDxLhSXwYZUtB8jxrnTESsGtu9Zkrgcl7r8InSJxnT6Fy8BlW | bash -; export DEBIAN_FRONTEND=newt",
-    },
-  });
-};
-
-const getInstallState = async function (req, res, next) {
-  var sta = req.params.state;
-  res.json({
-    success: true,
-    data: {
-      state: sta / 1 + 5,
-    },
-  });
-};
-
-const updateInstallState = async function (req, res, next) {
-  const token = getToken(req.params.token);
-  console.log("updateInstallState, Token:", token, req.body);
-  res.json({
-    success: true,
-  });
-};
-
-const updateServerState = async function (req, res) {
-  console.log("updateServerState", req.body);
-
-  const usage = new Usage(req.body);
-  usage.serverId = req.server.id;
-  await usage.save();
-
-  res.json({
-    success: true,
   });
 };
 
@@ -300,12 +215,18 @@ module.exports = {
   },
 
   getSummary,
-  getScript,
-  getInstallScript,
-  getInstallState,
-  getShellCommands,
-  updateInstallState,
-  updateServerState,
+
+  updateServerUsage: async function (req, res) {
+    console.log("updateServerUsage", req.body);
+
+    const usage = new Usage(req.body);
+    usage.serverId = req.server.id;
+    await usage.save();
+
+    res.json({
+      success: true,
+    });
+  },
   getServerInfo,
   updateSetting,
 

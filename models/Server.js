@@ -32,6 +32,11 @@ var ServerSchema = new mongoose.Schema(
       Third_Party_Software_Update: { type: Boolean },
       Security_Update: { type: Boolean },
     },
+    installation: {
+      status: String,
+      message: String,
+      progress: Number,
+    },
   },
   {
     timestamps: true,
