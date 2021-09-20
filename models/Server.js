@@ -35,6 +35,7 @@ var ServerSchema = new mongoose.Schema(
     installation: {
       status: String,
       message: String,
+      progress: Number,
     },
   },
   {

@@ -70,14 +70,22 @@ module.exports = {
       };
     }
 
+    let message = data.message;
+    if (data.status === "started") {
+      message =
+        "Starting installation. Upgrading system to latest update. This will take a while...";
+    }
+
     server.installation = {
       status: data.status,
-      message: data.message,
+      message: message,
+      progress: 10,
     };
     await server.save();
 
     return {
       success: true,
+      data: server.installation,
     };
   },
 
