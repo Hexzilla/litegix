@@ -5,7 +5,6 @@ const authService = require("../services/auth");
 router.use("/api", require("./api"));
 router.use("/settings", require("./settings"));
 router.use("/servers", require("./servers"));
-router.use("/install", require("./install"));
 router.use("/subscriptions", require("./subscriptions"));
 router.use("/payment", require("./payment"));
 
