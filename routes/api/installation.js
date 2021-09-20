@@ -13,6 +13,15 @@ router.get("/script/:token", async function (req, res) {
   }
 });
 
-router.post("/status/:token", server.updateInstallState);
+router.post("/status/:token", async function (req, res) {
+  try {
+    const token = req.params.token;
+    const result = await install.updateInstallState(token, req.body);
+    res.json(result);
+  } catch (e) {
+    console.error(e);
+    return res.status(501).json({ success: false });
+  }
+});
 
 module.exports = router;

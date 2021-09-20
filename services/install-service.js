@@ -57,4 +57,36 @@ module.exports = {
       },
     };
   },
+
+  updateInstallState: async function (encryptedToken, data) {
+    const { serverId } = decryptToken(encryptedToken);
+    console.log("updateInstallState, Token:", serverId, data);
+
+    const server = await Server.findById(serverId);
+    if (!server) {
+      return {
+        success: false,
+        errors: { message: "invalid_server_id" },
+      };
+    }
+
+    server.installation = {
+      status: data.status,
+      message: data.message,
+    };
+    await server.save();
+
+    return {
+      success: true,
+    };
+  },
+
+  getInstallStatus: async function (server) {
+    return {
+      success: true,
+      data: {
+        ...server.installation,
+      },
+    };
+  },
 };

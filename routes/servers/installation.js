@@ -16,9 +16,9 @@ router.get("/bashscript", auth.required, async function (req, res) {
   }
 });
 
-router.get("/installstate", auth.required, async function (req, res) {
+router.get("/installstatus", auth.required, async function (req, res) {
   try {
-    const response = await install.getInstallState(req.server);
+    const response = await install.getInstallStatus(req.server);
     res.json(response);
   } catch (e) {
     console.error(e);

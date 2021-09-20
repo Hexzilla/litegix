@@ -38,37 +38,6 @@ const getSummary = async function (req, res, next) {
   });
 };
 
-const encryptToken = (payload) => {
-  const encrypted = crypto.encrypt(JSON.stringify(payload));
-  return encrypted.split("/").join(".");
-};
-
-const decryptToken = function (token) {
-  const encrypted = token.split(".").join("/");
-  const decrypted = crypto.decrypt(encrypted);
-  return JSON.parse(decrypted);
-};
-
-const updateInstallState = async function (req, res, next) {
-  const token = getToken(req.params.token);
-  console.log("updateInstallState, Token:", token, req.body);
-  res.json({
-    success: true,
-  });
-};
-
-const updateServerState = async function (req, res) {
-  console.log("updateServerState", req.body);
-
-  const usage = new Usage(req.body);
-  usage.serverId = req.server.id;
-  await usage.save();
-
-  res.json({
-    success: true,
-  });
-};
-
 // get method
 // getting Server by url param serverId
 const getServerInfo = async function (req, res, next) {
@@ -247,8 +216,17 @@ module.exports = {
 
   getSummary,
 
-  updateInstallState,
-  updateServerState,
+  updateServerUsage: async function (req, res) {
+    console.log("updateServerUsage", req.body);
+
+    const usage = new Usage(req.body);
+    usage.serverId = req.server.id;
+    await usage.save();
+
+    res.json({
+      success: true,
+    });
+  },
   getServerInfo,
   updateSetting,
 
