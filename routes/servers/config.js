@@ -4,18 +4,17 @@ const auth = require("../auth");
 const validate = require("../validate");
 const server = require("../../services/server-service");
 
-router.post(
-  "/shell",
-  auth.required,
-  body("address").isIP(4),
-  validate,
-  server.getShellCommands
-);
-
-router.get("/installscript", auth.required, server.getInstallScript);
+router.get("/shell", auth.required, async function (req, res) {
+  try {
+    const userId = req.payload.id;
+    const response = await server.getInstallShell(userId, req.server);
+    res.json(response);
+  } catch (e) {
+    console.error(e);
+    return res.status(501).json({ success: false });
+  }
+});
 
 router.get("/installstate/:state", server.getInstallState);
-
-router.get("/script/:token", server.getScript);
 
 module.exports = router;

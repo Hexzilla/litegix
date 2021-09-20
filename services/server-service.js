@@ -8,6 +8,7 @@ const Server = mongoose.model("Server");
 const Usage = mongoose.model("Usage");
 const User = mongoose.model("User");
 const ActivityLog = mongoose.model("ActivityLog");
+const config = require("./config");
 
 const crypto = require("./crypto");
 const { exception } = require("console");
@@ -37,60 +38,15 @@ const getSummary = async function (req, res, next) {
   });
 };
 
-const getShellCommands = function (req, res) {
-  const token = {
-    userId: req.payload.id,
-    address: req.body.address,
-    serverId: "",
-  };
-  console.log("commands-token", token);
-  const encrypted = crypto.encrypt(JSON.stringify(token));
-  const scriptId = encrypted.split("/").join(".");
-  const commands = defaultScript.replace("USER_INFO", scriptId);
-  console.log("commands", commands);
-
-  res.json({
-    success: true,
-    data: {
-      commands: commands,
-    },
-  });
+const encryptToken = (payload) => {
+  const encrypted = crypto.encrypt(JSON.stringify(payload));
+  return encrypted.split("/").join(".");
 };
 
-const getToken = function (token) {
+const decryptToken = function (token) {
   const encrypted = token.split(".").join("/");
   const decrypted = crypto.decrypt(encrypted);
   return JSON.parse(decrypted);
-};
-
-const getScript = async function (req, res, next) {
-  const token = getToken(req.params.token);
-  console.log("GetScript, Token:", token);
-
-  const filePath = path.join(__dirname, "../scripts/install.sh");
-  readFile(filePath, "utf8")
-    .then((text) => {
-      console.log(text);
-      res.send(text);
-    })
-    .catch((err) => {
-      return res.status(422).json({
-        errors: "Can't read file",
-      });
-    });
-};
-
-const getInstallScript = async function (req, res, next) {
-  var server = req.server;
-  res.json({
-    success: true,
-    data: {
-      name: server.name,
-      loginScrit: "ssh root@" + server.address,
-      installScript:
-        "export DEBIAN_FRONTEND=noninteractive; echo 'Acquire::ForceIPv4 \"true\";' | tee /etc/apt/apt.conf.d/99force-ipv4; apt-get update; apt-get install curl netcat-openbsd -y; curl -4 --silent --location https://manage.runcloud.io/scripts/installer/CPrbSW1mAlOtJYmpqIbFjDow4A1625194843IO3wfDGx52pa2CX4zgcFdYvT7iavSFAtjl6KaOP68uTbdmJ5KbBveOCjbT8pVnon/ZSuNix0TNOedZ6ozpK2g0aq9TIumfvjHyMx6kNwzcZQDsmOKujkqjVSgoi8cswxRhwwov4UsQxP7OhvJDxLhSXwYZUtB8jxrnTESsGtu9Zkrgcl7r8InSJxnT6Fy8BlW | bash -; export DEBIAN_FRONTEND=newt",
-    },
-  });
 };
 
 const getInstallState = async function (req, res, next) {
@@ -300,10 +256,33 @@ module.exports = {
   },
 
   getSummary,
-  getScript,
-  getInstallScript,
+
+  getInstallShell: async function (userId, server) {
+    const payload = {
+      userId,
+      serverId: server.id,
+    };
+    const token = encryptToken(payload);
+    return {
+      success: true,
+      data: {
+        name: server.name,
+        loginScript: "ssh root@" + server.address,
+        installScript: config.install_script(token),
+      },
+    };
+  },
+
+  getScriptFile: async function (encryptedToken) {
+    const token = decryptToken(encryptedToken);
+    console.log("getScriptFile, Token:", token);
+
+    const filePath = path.join(__dirname, "../scripts/install.sh");
+    const text = await readFile(filePath, "utf8");
+    return text;
+  },
+
   getInstallState,
-  getShellCommands,
   updateInstallState,
   updateServerState,
   getServerInfo,
