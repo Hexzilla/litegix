@@ -2,20 +2,20 @@
 # Litegix installer script
 
 LITEGIX_TOKEN=""
-LITEGIX_URL="http://localhost:3600"
+LITEGIX_URL=""
 INSTALL_STATE_URL="$LITEGIX_URL/api/installation/status$LITEGIX_TOKEN"
 
 OS_NAME=`lsb_release -s -i`
 OS_VERSION=`lsb_release -s -r`
 OS_CODE_NAME=`lsb_release -s -c`
 SUPPORTED_VERSIONS="16.04 18.04 20.04"
-PHP_CLI_VERSION="php74rc"
-INSTALL_PACKAGE="nginx-rc apache2-rc litegix-agent curl git wget mariadb-server expect nano openssl redis-server python-setuptools perl zip unzip net-tools bc fail2ban augeas-tools libaugeas0 augeas-lenses firewalld build-essential acl memcached beanstalkd passwd unattended-upgrades postfix nodejs make jq "
+PHP_CLI_VERSION="php74"
+INSTALL_PACKAGE="litegix-agent curl git wget mariadb-server expect nano openssl redis-server python-setuptools perl zip unzip net-tools bc fail2ban augeas-tools libaugeas0 augeas-lenses firewalld build-essential acl memcached beanstalkd passwd unattended-upgrades postfix nodejs make jq "
 
 # Services detection
 SERVICES=$(systemctl --type=service --state=active | grep -E '\.service' | cut -d ' ' -f1 | sed -r 's/.{8}$//' | tr '\n' ' ')
-DETECTEDSERVICESCOUNT=0
-DETECTEDSERVICESNAME=""
+DETECTED_SERVICES_COUNT=0
+DETECTED_SERVICES_NAME=""
 
 
 function send_state {
@@ -24,20 +24,8 @@ function send_state {
   sleep 2
 }
 
-function ReplaceWholeLine {
-    sed -i "s/$1.*/$2/" $3
-}
-
-function ReplaceTrueWholeLine {
+function replace_true_whole_line {
     sed -i "s/.*$1.*/$2/" $3
-}
-
-function checkServiceInstalled {
-    if rpm -qa | grep -q $1; then
-        return 1
-    else
-        return 0
-    fi
 }
 
 function get_random_string {
@@ -45,22 +33,22 @@ function get_random_string {
 }
 
 function fix_auto_update() {
-    AUTOUPDATEFILE50="/etc/apt/apt.conf.d/50unattended-upgrades"
-    AUTOUPDATEFILE20="/etc/apt/apt.conf.d/20auto-upgrades"
+    AUTO_UPDATE_FILE_50="/etc/apt/apt.conf.d/50unattended-upgrades"
+    AUTO_UPDATE_FILE_20="/etc/apt/apt.conf.d/20auto-upgrades"
 
-    sed -i 's/Unattended-Upgrade::Allowed-Origins {/Unattended-Upgrade::Allowed-Origins {\n        "Litegix:${distro_codename}";/g' $AUTOUPDATEFILE50
-    ReplaceTrueWholeLine "\"\${distro_id}:\${distro_codename}-security\";" "        \"\${distro_id}:\${distro_codename}-security\";" $AUTOUPDATEFILE50
-    ReplaceTrueWholeLine "\/\/Unattended-Upgrade::AutoFixInterruptedDpkg" "Unattended-Upgrade::AutoFixInterruptedDpkg \"true\";" $AUTOUPDATEFILE50
-    ReplaceTrueWholeLine "\/\/Unattended-Upgrade::Remove-Unused-Dependencies" "Unattended-Upgrade::Remove-Unused-Dependencies \"true\";" $AUTOUPDATEFILE50
+    sed -i 's/Unattended-Upgrade::Allowed-Origins {/Unattended-Upgrade::Allowed-Origins {\n        "Litegix:${distro_codename}";/g' $AUTO_UPDATE_FILE_50
+    replace_true_whole_line "\"\${distro_id}:\${distro_codename}-security\";" "        \"\${distro_id}:\${distro_codename}-security\";" $AUTO_UPDATE_FILE_50
+    replace_true_whole_line "\/\/Unattended-Upgrade::AutoFixInterruptedDpkg" "Unattended-Upgrade::AutoFixInterruptedDpkg \"true\";" $AUTO_UPDATE_FILE_50
+    replace_true_whole_line "\/\/Unattended-Upgrade::Remove-Unused-Dependencies" "Unattended-Upgrade::Remove-Unused-Dependencies \"true\";" $AUTO_UPDATE_FILE_50
 
     echo -ne "\n\n
     Dpkg::Options {
        \"--force-confdef\";
        \"--force-confold\";
-    }" >> $AUTOUPDATEFILE50
+    }" >> $AUTO_UPDATE_FILE_50
 
-    echo "APT::Periodic::Update-Package-Lists \"1\";" > $AUTOUPDATEFILE20
-    echo "APT::Periodic::Unattended-Upgrade \"1\";" >> $AUTOUPDATEFILE20
+    echo "APT::Periodic::Update-Package-Lists \"1\";" > $AUTO_UPDATE_FILE_20
+    echo "APT::Periodic::Unattended-Upgrade \"1\";" >> $AUTO_UPDATE_FILE_20
 }
 
 function bootstrap_server {
@@ -76,7 +64,7 @@ function bootstrap_installer {
     # Litegix
     # wget -qO - https://release.runcloud.io/runcloud.key | apt-key add -
     # MariaDB
-    apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xF1656F24C74CD1D8
+    # apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xF1656F24C74CD1D8
 
     # Install Litegix Source List
     # echo "deb [arch=amd64] https://release.runcloud.io/ $OS_CODE_NAME main" > /etc/apt/sources.list.d/runcloud.list
@@ -89,21 +77,20 @@ function bootstrap_installer {
         add-apt-repository 'deb [arch=amd64] http://sfo1.mirrors.digitalocean.com/mariadb/repo/10.4/ubuntu xenial main'
 
         PIPEXEC="pip"
-
         INSTALL_PACKAGE+="libmysqlclient20 python-pip php55 php55-essentials php56 php56-essentials php70 php70-essentials php71 php71-essentials php72 php72-essentials php73 php73-essentials php74 php74-essentials php80 php80-essentials"
+
     elif [[ "$OS_CODE_NAME" == 'bionic' ]]; then
         add-apt-repository 'deb [arch=amd64] http://nyc2.mirrors.digitalocean.com/mariadb/repo/10.4/ubuntu bionic main'
         add-apt-repository 'deb [arch=amd64] http://sfo1.mirrors.digitalocean.com/mariadb/repo/10.4/ubuntu bionic main'
 
         PIPEXEC="pip"
-
         INSTALL_PACKAGE+="libmysqlclient20 python-pip php70 php70-essentials php71 php71-essentials php72 php72-essentials php73 php73-essentials php74 php74-essentials php80 php80-essentials"
+
     elif [[ "$OS_CODE_NAME" == 'focal' ]]; then
         add-apt-repository 'deb [arch=amd64] http://nyc2.mirrors.digitalocean.com/mariadb/repo/10.4/ubuntu focal main'
         add-apt-repository 'deb [arch=amd64] http://sfo1.mirrors.digitalocean.com/mariadb/repo/10.4/ubuntu focal main'
 
         PIPEXEC="pip3"
-
         INSTALL_PACKAGE+="libmysqlclient21 python3-pip php72 php72-essentials php73 php73-essentials php74 php74-essentials php80 php80-essentials dirmngr gnupg libmagic-dev"
     fi
 
@@ -111,7 +98,6 @@ function bootstrap_installer {
     echo "Package: *
 Pin: release o=MariaDB
 Pin-Priority: 900" > /etc/apt/preferences
-
 }
 
 function enable_swap {
@@ -337,7 +323,7 @@ v03VfaTd1dUF1HmcqJSl/DYeeBVYjT8GtAKWI5JrvCKDIPvOB98xMysCAQI=
 -----END DH PARAMETERS-----" > /etc/nginx-rc/dhparam.pem
 }
 
-function BootstrapAgent {
+function install_agent {
     AGENTLOCATION="/Litegix/Packages/LitegixAgent"
     cp $AGENTLOCATION/config.json.example $AGENTLOCATION/config.json
     sed -i "s/{SERVERID}/KxT0TXo7ABGpH5zxHB3JcKknZe1623833285bNTdK7P7MYEy48xlIdJemQxlqLrtgD6O2SCUtMGy2TiDxyemfVIzZ7rF8xq0QrRb/g" $AGENTLOCATION/config.json
@@ -593,52 +579,52 @@ fi
 # existing services checker
 
 if [[ $SERVICES == *"nginx"* ]]; then
-  let "DETECTEDSERVICESCOUNT+=1"
-  DETECTEDSERVICESNAME+=" Nginx"
+  let "DETECTED_SERVICES_COUNT+=1"
+  DETECTED_SERVICES_NAME+=" Nginx"
 fi
 
 if [[ $SERVICES == *"apache2"* ]]; then
-  let "DETECTEDSERVICESCOUNT+=1"
-  DETECTEDSERVICESNAME+=" Apache"
+  let "DETECTED_SERVICES_COUNT+=1"
+  DETECTED_SERVICES_NAME+=" Apache"
 fi
 
 if [[ $SERVICES == *"lshttpd"* ]]; then
-  let "DETECTEDSERVICESCOUNT+=1"
-  DETECTEDSERVICESNAME+=" LiteSpeed"
+  let "DETECTED_SERVICES_COUNT+=1"
+  DETECTED_SERVICES_NAME+=" LiteSpeed"
 fi
 
 if [[ $SERVICES == *"mysql"* ]]; then
-  let "DETECTEDSERVICESCOUNT+=1"
-  DETECTEDSERVICESNAME+=" MySQL"
+  let "DETECTED_SERVICES_COUNT+=1"
+  DETECTED_SERVICES_NAME+=" MySQL"
 fi
 
 if [[ $SERVICES == *"mariadb"* ]]; then
-  let "DETECTEDSERVICESCOUNT+=1"
-  DETECTEDSERVICESNAME+=" MariaDB"
+  let "DETECTED_SERVICES_COUNT+=1"
+  DETECTED_SERVICES_NAME+=" MariaDB"
 fi
 
 if [[ $SERVICES == *"php"* ]]; then
-  let "DETECTEDSERVICESCOUNT+=1"
-  DETECTEDSERVICESNAME+=" PHP"
+  let "DETECTED_SERVICES_COUNT+=1"
+  DETECTED_SERVICES_NAME+=" PHP"
 fi
 
 if [[ $SERVICES == *"webmin"* ]]; then
-  let "DETECTEDSERVICESCOUNT+=1"
-  DETECTEDSERVICESNAME+=" Webmin"
+  let "DETECTED_SERVICES_COUNT+=1"
+  DETECTED_SERVICES_NAME+=" Webmin"
 fi
 
 if [[ $SERVICES == *"lscpd"* ]]; then
-  let "DETECTEDSERVICESCOUNT+=1"
-  DETECTEDSERVICESNAME+=" CyberPanel"
+  let "DETECTED_SERVICES_COUNT+=1"
+  DETECTED_SERVICES_NAME+=" CyberPanel"
 fi
 
 if [[ $SERVICES == *"psa"* ]]; then
-  let "DETECTEDSERVICESCOUNT+=1"
-  DETECTEDSERVICESNAME+=" Plesk Panel"
+  let "DETECTED_SERVICES_COUNT+=1"
+  DETECTED_SERVICES_NAME+=" Plesk Panel"
 fi
 
-if [[ $DETECTEDSERVICESCOUNT -ne 0 ]]; then
-    message="Installer detected $DETECTEDSERVICESCOUNT existing services;$DETECTEDSERVICESNAME. Installation will not proceed."
+if [[ $DETECTED_SERVICES_COUNT -ne 0 ]]; then
+    message="Installer detected $DETECTED_SERVICES_COUNT existing services;$DETECTED_SERVICES_NAME. Installation will not proceed."
     echo $message
     curl -4 -H "Content-Type: application/json" -X POST https://manage.runcloud.io/webhooks/serverinstallation/status/KxT0TXo7ABGpH5zxHB3JcKknZe1623833285bNTdK7P7MYEy48xlIdJemQxlqLrtgD6O2SCUtMGy2TiDxyemfVIzZ7rF8xq0QrRb/wjJBIt5dhHfjLqfqeVPkNA0KVAw1EwZgjM5NlVmSJeh1olj2yWBQgEqDSdCbIbg4Ju8yviM4k4dJkgj8jgca5UoX5ag0Qbsjkzsno3BN7ughUIyV0UC1euuaZTzbvAqf -d '{"status": "err", "message": "'"$message"'"}'
     exit 1
@@ -647,7 +633,7 @@ fi
 # end services checker
 
 # Checking open port
-send_state "port"
+send_state "start"
 check_port
 
 # Bootstrap the server
@@ -688,7 +674,7 @@ fix_auto_update
 
 # Agent
 send_state "agent"
-#BootstrapAgent
+#install_agent
 
 # Firewall
 send_state "firewall"
@@ -717,8 +703,6 @@ if [ -f /tmp/installation.log ]; then
     rm /tmp/installation.log
 fi
 
-############################# MOTD ##################################
-
 echo "
 Litegix
 - Do not use \"root\" user to create/modify any web app files
@@ -726,18 +710,14 @@ Litegix
 " > /etc/motd
 
 
-############################# Register ##################################
 # Try register as installed
 # Don't attempt to try spam this link. Rate limit in action. 1 query per minute and will be block for a minute
 # curl -4 -H "Content-Type: application/json" -X POST https://manage.runcloud.io/webhooks/serverinstallation/firstregistration/KxT0TXo7ABGpH5zxHB3JcKknZe1623833285bNTdK7P7MYEy48xlIdJemQxlqLrtgD6O2SCUtMGy2TiDxyemfVIzZ7rF8xq0QrRb/wjJBIt5dhHfjLqfqeVPkNA0KVAw1EwZgjM5NlVmSJeh1olj2yWBQgEqDSdCbIbg4Ju8yviM4k4dJkgj8jgca5UoX5ag0Qbsjkzsno3BN7ughUIyV0UC1euuaZTzbvAqf 
 # systemctl restart litegix-agent
 
-############################# FIX HOSTNAME ##################################
-
 fixHostName=`hostname`
 echo 127.0.0.1 $fixHostName | tee -a /etc/hosts
 
-###################################### INSTALL SUMMARY #####################################
 clear
 echo -ne "\n
 #################################################
