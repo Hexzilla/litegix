@@ -24,6 +24,11 @@ function send_state {
   sleep 2
 }
 
+function send_data {
+  payload=$1
+  curl --ipv4 --header "Content-Type: application/json" -X POST $INSTALL_STATE_URL -d $payload
+}
+
 function replace_true_whole_line {
     sed -i "s/.*$1.*/$2/" $3
 }
@@ -140,7 +145,6 @@ function check_port {
     fi
     ncstatus=$?
     if [[ $ncstatus -ne 0 ]]; then
-        echo "Success"
         clear
 echo -ne "\n
 ##################################################
@@ -551,29 +555,29 @@ export DEBIAN_FRONTEND=noninteractive
 if [[ $EUID -ne 0 ]]; then
     message="This installer must be run as root!"
     echo $message 1>&2
-    curl -4 -H "Content-Type: application/json" -X POST https://manage.runcloud.io/webhooks/serverinstallation/status/KxT0TXo7ABGpH5zxHB3JcKknZe1623833285bNTdK7P7MYEy48xlIdJemQxlqLrtgD6O2SCUtMGy2TiDxyemfVIzZ7rF8xq0QrRb/wjJBIt5dhHfjLqfqeVPkNA0KVAw1EwZgjM5NlVmSJeh1olj2yWBQgEqDSdCbIbg4Ju8yviM4k4dJkgj8jgca5UoX5ag0Qbsjkzsno3BN7ughUIyV0UC1euuaZTzbvAqf -d '{"status": "err", "message": "'"$message"'"}' 
+    send_data '{"status": "err", "message": "'"$message"'"}'
     exit 1
 fi
 
 if [[ "$OS_NAME" != "Ubuntu" ]]; then
     message="This installer only support $OS_NAME"
     echo $message
-    curl -4 -H "Content-Type: application/json" -X POST https://manage.runcloud.io/webhooks/serverinstallation/status/KxT0TXo7ABGpH5zxHB3JcKknZe1623833285bNTdK7P7MYEy48xlIdJemQxlqLrtgD6O2SCUtMGy2TiDxyemfVIzZ7rF8xq0QrRb/wjJBIt5dhHfjLqfqeVPkNA0KVAw1EwZgjM5NlVmSJeh1olj2yWBQgEqDSdCbIbg4Ju8yviM4k4dJkgj8jgca5UoX5ag0Qbsjkzsno3BN7ughUIyV0UC1euuaZTzbvAqf -d '{"status": "err", "message": "'"$message"'"}' 
+    send_data '{"status": "err", "message": "'"$message"'"}'
     exit 1
 fi
 
 if [[ $(uname -m) != "x86_64" ]]; then
     message="This installer only support x86_64 architecture"
     echo $message
-    curl -4 -H "Content-Type: application/json" -X POST https://manage.runcloud.io/webhooks/serverinstallation/status/KxT0TXo7ABGpH5zxHB3JcKknZe1623833285bNTdK7P7MYEy48xlIdJemQxlqLrtgD6O2SCUtMGy2TiDxyemfVIzZ7rF8xq0QrRb/wjJBIt5dhHfjLqfqeVPkNA0KVAw1EwZgjM5NlVmSJeh1olj2yWBQgEqDSdCbIbg4Ju8yviM4k4dJkgj8jgca5UoX5ag0Qbsjkzsno3BN7ughUIyV0UC1euuaZTzbvAqf -d '{"status": "err", "message": "'"$message"'"}' 
+    send_data '{"status": "err", "message": "'"$message"'"}'
     exit 1
 fi
 
 grep -q $OS_VERSION <<< $SUPPORTED_VERSIONS
 if [[ $? -ne 0 ]]; then
     message="This installer does not support $OS_NAME $OS_VERSION"
-    echo $message
-    curl -4 -H "Content-Type: application/json" -X POST https://manage.runcloud.io/webhooks/serverinstallation/status/KxT0TXo7ABGpH5zxHB3JcKknZe1623833285bNTdK7P7MYEy48xlIdJemQxlqLrtgD6O2SCUtMGy2TiDxyemfVIzZ7rF8xq0QrRb/wjJBIt5dhHfjLqfqeVPkNA0KVAw1EwZgjM5NlVmSJeh1olj2yWBQgEqDSdCbIbg4Ju8yviM4k4dJkgj8jgca5UoX5ag0Qbsjkzsno3BN7ughUIyV0UC1euuaZTzbvAqf -d '{"status": "err", "message": "'"$message"'"}' 
+    echo $message    
+    send_data '{"status": "err", "message": "'"$message"'"}'
     exit 1
 fi
 
@@ -667,7 +671,7 @@ install_mariadb
 
 # Web Application
 send_state "webapp"
-install_webapp
+#install_webapp
 
 # Auto Update
 send_state "autoupdate"
@@ -719,7 +723,7 @@ Litegix
 fixHostName=`hostname`
 echo 127.0.0.1 $fixHostName | tee -a /etc/hosts
 
-clear
+#clear
 echo -ne "\n
 #################################################
 # Finished installation. Do not lose any of the
