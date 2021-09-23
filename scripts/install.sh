@@ -5,6 +5,9 @@ LITEGIX_TOKEN=""
 LITEGIX_URL=""
 INSTALL_STATE_URL="$LITEGIX_URL/api/installation/status$LITEGIX_TOKEN"
 
+echo "INSTALL_STATE_URL: $INSTALL_STATE_URL"
+sleep 2
+
 OS_NAME=`lsb_release -s -i`
 OS_VERSION=`lsb_release -s -r`
 OS_CODE_NAME=`lsb_release -s -c`
@@ -20,12 +23,15 @@ DETECTED_SERVICES_NAME=""
 
 function send_state {
   state=$1
+  echo "send_state:$state"
+  sleep 5
   curl --ipv4 --header "Content-Type: application/json" -X POST $INSTALL_STATE_URL -d '{"state": "'"$state"'"}'
   sleep 2
 }
 
 function send_data {
   payload=$1
+  echo "send_data:$payload"
   curl --ipv4 --header "Content-Type: application/json" -X POST $INSTALL_STATE_URL -d $payload
 }
 
