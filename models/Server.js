@@ -6,7 +6,7 @@ var ServerSchema = new mongoose.Schema(
     name: { type: String, required: [true, "can't be blank"] },
     address: { type: String, required: [true, "can't be blank"] },
     provider: String,
-    webServer: String,
+    webserver: String,
     database: String,
     phpVersion: String,
     connected: Boolean,

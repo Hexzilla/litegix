@@ -135,7 +135,7 @@ module.exports = {
     if (exists) {
       return {
         success: false,
-        errors: { name: "has already been taken." },
+        errors: { message: "Name has already been taken." },
       };
     }
 

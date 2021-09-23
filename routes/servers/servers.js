@@ -19,7 +19,7 @@ router.post(
   auth.required,
   body("name").notEmpty(),
   body("address").isIP(4),
-  body("web_server").notEmpty(),
+  body("webserver").notEmpty(),
   body("database").notEmpty(),
   body("phpVersion").notEmpty(),
   validate,

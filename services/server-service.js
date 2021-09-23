@@ -163,7 +163,15 @@ module.exports = {
       success: true,
       data: {
         userId: userId,
-        servers: servers,
+        servers: servers.map((it) => {
+          return {
+            id: it._id,
+            name: it.name,
+            address: it.address,
+            connected: it.connected,
+            webserver: it.webserver,
+          };
+        }),
       },
     };
   },
@@ -176,7 +184,7 @@ module.exports = {
       return {
         success: false,
         errors: {
-          address: "has already been taken.",
+          message: "Server address has already been taken.",
         },
       };
     }
@@ -189,7 +197,7 @@ module.exports = {
       return {
         success: false,
         errors: {
-          name: "has already been taken.",
+          message: "Server name has already been taken.",
         },
       };
     }

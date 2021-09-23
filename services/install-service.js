@@ -100,6 +100,7 @@ module.exports = {
       progress = 75;
       message = "Configuring MariaDB database...";
     } else if (data.status === "finish") {
+      server.connected = true;
       progress = 100;
       message = "Server has been installed successufuly";
     }

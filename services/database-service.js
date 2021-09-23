@@ -28,7 +28,7 @@ module.exports = {
     if (exists) {
       return {
         success: false,
-        errors: { name: "has already been taken." },
+        errors: { message: "Database name has already been taken." },
       };
     }
 
@@ -46,7 +46,7 @@ module.exports = {
       if (!user) {
         return {
           success: false,
-          errors: { user: "doesn't exists." },
+          errors: { message: "Invalid User." },
         };
       }
       options.users = [data.userId];
@@ -244,7 +244,7 @@ module.exports = {
     if (exists) {
       return {
         success: false,
-        errors: { name: "has already been taken." },
+        errors: { message: "Database User name has already been taken." },
       };
     }
 
