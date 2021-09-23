@@ -128,22 +128,23 @@ function install_package {
 }
 
 function check_port {
-    echo -ne "\n\n\nChecking if port 34210 is accessible...\n"
+    echo -ne "\n\n\nChecking if port 21000 is accessible...\n"
 
     # send command to check wait 2 seconds inside jobs before trying
-    curl -4 -H "Content-Type: application/json" -X POST https://manage.runcloud.io/webhooks/serverinstallation/testport/KxT0TXo7ABGpH5zxHB3JcKknZe1623833285bNTdK7P7MYEy48xlIdJemQxlqLrtgD6O2SCUtMGy2TiDxyemfVIzZ7rF8xq0QrRb/wjJBIt5dhHfjLqfqeVPkNA0KVAw1EwZgjM5NlVmSJeh1olj2yWBQgEqDSdCbIbg4Ju8yviM4k4dJkgj8jgca5UoX5ag0Qbsjkzsno3BN7ughUIyV0UC1euuaZTzbvAqf 
+    # curl -4 -H "Content-Type: application/json" -X POST https://manage.runcloud.io/webhooks/serverinstallation/testport/KxT0TXo7ABGpH5zxHB3JcKknZe1623833285bNTdK7P7MYEy48xlIdJemQxlqLrtgD6O2SCUtMGy2TiDxyemfVIzZ7rF8xq0QrRb/wjJBIt5dhHfjLqfqeVPkNA0KVAw1EwZgjM5NlVmSJeh1olj2yWBQgEqDSdCbIbg4Ju8yviM4k4dJkgj8jgca5UoX5ag0Qbsjkzsno3BN7ughUIyV0UC1euuaZTzbvAqf 
     
     if [[ "$OS_CODE_NAME" == 'xenial' ]]; then
-        timeout 15 bash -c "echo -e 'HTTP/1.1 200 OK\r\n' | nc -l 34210"
+        timeout 15 bash -c "echo -e 'HTTP/1.1 200 OK\r\n' | nc -l 21000"
     else
-        timeout 15 bash -c "echo -e 'HTTP/1.1 200 OK\r\n' | nc -N -l 34210"
+        timeout 15 bash -c "echo -e 'HTTP/1.1 200 OK\r\n' | nc -N -l 21000"
     fi
     ncstatus=$?
     if [[ $ncstatus -ne 0 ]]; then
+        echo "Success"
         clear
 echo -ne "\n
 ##################################################
-# Unable to connect through port 34210 inside    #
+# Unable to connect through port 21000 inside    #
 # this server. Please disable firewall for this  #
 # port and rerun the installation script again!  #
 ##################################################
@@ -206,7 +207,7 @@ filter = sshd
 [litegix-agent]
 enabled = true
 logpath = /var/log/litegix.log
-port = 34210
+port = 21000
 banaction = iptables
 maxretry = 2" > /etc/fail2ban/jail.local
 }
@@ -454,7 +455,7 @@ function setup_firewall {
 <service>
   <short>Litegix Agent</short>
   <description>Allow your server and Litegix service to communicate to each other.</description>
-  <port protocol=\"tcp\" port=\"34210\"/>
+  <port protocol=\"tcp\" port=\"21000\"/>
 </service>" > /etc/firewalld/services/litegix.xml
 
     echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>
@@ -634,7 +635,7 @@ fi
 
 # Checking open port
 send_state "start"
-check_port
+#check_port
 
 # Bootstrap the server
 send_state "config"
