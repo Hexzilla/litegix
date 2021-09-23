@@ -22,16 +22,16 @@ DETECTED_SERVICES_NAME=""
 
 
 function send_state {
-  state=$1
-  echo "send_state:$state"
+  status=$1
+  echo "send_state: $status\n"
   sleep 5
-  curl --ipv4 --header "Content-Type: application/json" -X POST $INSTALL_STATE_URL -d '{"state": "'"$state"'"}'
+  curl --ipv4 --header "Content-Type: application/json" -X POST $INSTALL_STATE_URL -d '{"status": "'"$status"'"}'
   sleep 2
 }
 
 function send_data {
   payload=$1
-  echo "send_data:$payload"
+  echo "send_data: $payload\n"
   curl --ipv4 --header "Content-Type: application/json" -X POST $INSTALL_STATE_URL -d $payload
 }
 

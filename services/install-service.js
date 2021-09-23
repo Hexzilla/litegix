@@ -73,6 +73,7 @@ module.exports = {
         errors: { message: "invalid_server_id" },
       };
     }
+    console.log("updateInstallState, found server");
 
     let progress = 0;
     let message = data.message;
