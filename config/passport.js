@@ -1,7 +1,7 @@
-var passport = require("passport")
-var LocalStrategy = require("passport-local").Strategy
-var mongoose = require("mongoose")
-var User = mongoose.model("User")
+var passport = require("passport");
+var LocalStrategy = require("passport-local").Strategy;
+var mongoose = require("mongoose");
+var User = mongoose.model("User");
 
 passport.use(
   "signup",
@@ -9,29 +9,27 @@ passport.use(
     {
       usernameField: "email",
       passwordField: "password",
-      passReqToCallback: true
+      passReqToCallback: true,
     },
     async (req, email, password, done) => {
-      console.log('this is passport signup');
+      console.log("this is passport signup");
       try {
-        find = await User.findOne({email: req.body.email})
+        find = await User.findOne({ email: req.body.email });
 
-        if(find)
-        {
-          return done(null, null)
+        if (find) {
+          return done(null, null);
         }
-        const username = req.body.name
-        const user = await User.create({ username, email })
-        user.setPassword(password)
-        user.save()
-        return done(null, user)
-      } 
-      catch (error) {
-        done(error)
+        const username = req.body.name;
+        const user = await User.create({ username, email });
+        user.setPassword(password);
+        user.save();
+        return done(null, user);
+      } catch (error) {
+        done(error);
       }
     }
   )
-)
+);
 
 passport.use(
   "login",
@@ -45,13 +43,13 @@ passport.use(
         .then(function (user) {
           if (!user || !user.validPassword(password)) {
             return done(null, false, {
-              errors: { "email or password": "is invalid" },
-            })
+              errors: { message: "Email or password is invalid" },
+            });
           }
 
-          return done(null, user)
+          return done(null, user);
         })
-        .catch(done)
+        .catch(done);
     }
   )
-)
+);

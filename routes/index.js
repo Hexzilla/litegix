@@ -23,6 +23,8 @@ router.post(
   authService.signup
 );
 
+router.get("/logout", authService.logout);
+
 // request user verify
 router.post("/verify/:userId/:verifyCode", authService.userVerify);
 

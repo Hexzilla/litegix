@@ -75,7 +75,7 @@ module.exports = {
     }
     console.log("updateInstallState, found server");
 
-    let progress = 0;
+    let progress = server.installation?.progress || 0;
     let message = data.message;
     if (data.status === "start") {
       progress = 5;

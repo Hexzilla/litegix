@@ -23,8 +23,8 @@ DETECTED_SERVICES_NAME=""
 
 function send_state {
   status=$1
-  echo "send_state: $status\n"
-  sleep 5
+  echo "send_state: $status"
+  sleep 2
   curl --ipv4 --header "Content-Type: application/json" -X POST $INSTALL_STATE_URL -d '{"status": "'"$status"'"}'
   sleep 2
 }
@@ -63,10 +63,12 @@ function fix_auto_update() {
 }
 
 function bootstrap_server {
+    echo "bootstrap_server"
     apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y
 }
 
 function bootstrap_installer {
+    echo "bootstrap_installer"
     rm -f /etc/apt/apt.conf.d/50unattended-upgrades.ucf-dist
 
     apt-get install software-properties-common apt-transport-https -y
@@ -83,10 +85,12 @@ function bootstrap_installer {
     # LTS version nodejs
     curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
 
+    echo "bootstrap_installer_add_repository"
     if [[ "$OS_CODE_NAME" == 'xenial' ]]; then
         add-apt-repository 'deb [arch=amd64] http://nyc2.mirrors.digitalocean.com/mariadb/repo/10.4/ubuntu xenial main'
         add-apt-repository 'deb [arch=amd64] http://sfo1.mirrors.digitalocean.com/mariadb/repo/10.4/ubuntu xenial main'
 
+        echo "bootstrap_installer_add_packages"
         PIPEXEC="pip"
         INSTALL_PACKAGE+="libmysqlclient20 python-pip php55 php55-essentials php56 php56-essentials php70 php70-essentials php71 php71-essentials php72 php72-essentials php73 php73-essentials php74 php74-essentials php80 php80-essentials"
 
@@ -94,6 +98,7 @@ function bootstrap_installer {
         add-apt-repository 'deb [arch=amd64] http://nyc2.mirrors.digitalocean.com/mariadb/repo/10.4/ubuntu bionic main'
         add-apt-repository 'deb [arch=amd64] http://sfo1.mirrors.digitalocean.com/mariadb/repo/10.4/ubuntu bionic main'
 
+        echo "bootstrap_installer_add_packages"
         PIPEXEC="pip"
         INSTALL_PACKAGE+="libmysqlclient20 python-pip php70 php70-essentials php71 php71-essentials php72 php72-essentials php73 php73-essentials php74 php74-essentials php80 php80-essentials"
 
@@ -101,9 +106,12 @@ function bootstrap_installer {
         add-apt-repository 'deb [arch=amd64] http://nyc2.mirrors.digitalocean.com/mariadb/repo/10.4/ubuntu focal main'
         add-apt-repository 'deb [arch=amd64] http://sfo1.mirrors.digitalocean.com/mariadb/repo/10.4/ubuntu focal main'
 
+        echo "bootstrap_installer_add_packages"
         PIPEXEC="pip3"
         INSTALL_PACKAGE+="libmysqlclient21 python3-pip php72 php72-essentials php73 php73-essentials php74 php74-essentials php80 php80-essentials dirmngr gnupg libmagic-dev"
     fi
+
+    echo "INSTALL_PACKAGE; $INSTALL_PACKAGE"
 
     # APT PINNING
     echo "Package: *
@@ -131,11 +139,12 @@ function enable_swap {
     fi
 }
 
-function install_package {
+function install_packages {
     apt-get update
     apt-get remove mysql-common --purge -y
 
-    apt-get install $INSTALL_PACKAGE -y
+    echo "install_packages"
+    apt-get install $install_packages -y
 }
 
 function check_port {
@@ -225,7 +234,6 @@ maxretry = 2" > /etc/fail2ban/jail.local
 function install_mariadb {
     mkdir -p /tmp/lens
     curl -4 $LITEGIX_URL/files/lenses/augeas-mysql.aug --create-dirs -o /tmp/lens/mysql.aug 
-
 
     ROOTPASS=$(get_random_string)
 
@@ -549,8 +557,6 @@ function system_service {
 
 }
 
-LITEGIX_URL="https://manage.litegix.io"
-
 locale-gen en_US en_US.UTF-8
 
 export LANGUAGE=en_US.utf8
@@ -661,7 +667,7 @@ enable_swap
 
 # Install The Packages
 send_state "packages"
-install_package
+install_packages
 
 # Supervisor
 send_state "supervisor"
