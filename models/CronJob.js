@@ -6,6 +6,8 @@ var CronJobSchema = new mongoose.Schema(
     username: { type: String, required: [true, "can't be blank"] },
     time: { type: String, required: [true, "can't be blank"] },
     command: { type: String, required: [true, "can't be blank"] },
+    vendor_binary: { type: String, required: [true, "can't be blank"] },
+    predef_setting: { type: String, required: [true, "can't be blank"] },
     serverId: { type: mongoose.Schema.Types.ObjectId, ref: "Server" },
   },
   {

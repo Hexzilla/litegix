@@ -27,19 +27,15 @@ router.get("/create", auth.required, async function (req, res) {
 router.post(
   "/",
   auth.required,
-  body("label").isString(),
-  body("username").isString(),
-  body("command").isString(),
-  body("minute").isString(),
-  body("hour").isString(),
-  body("dayOfMonth").isString(),
-  body("month").isString(),
-  body("dayOfWeek").isString(),
+  body("label").notEmpty(),
+  body("username").notEmpty(),
+  body("command").notEmpty(),
+  body("vendor_binary").notEmpty(),
+  body("predef_setting").notEmpty(),
   validate,
   async function (req, res) {
     try {
-      const jobId = req.params.jobId;
-      const response = await cronjob.storeCronJob(jobId);
+      const response = await cronjob.storeCronJob(req.server, req.body);
       return res.json(response);
     } catch (e) {
       console.error(e);
