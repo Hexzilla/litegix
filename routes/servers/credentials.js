@@ -29,9 +29,9 @@ router.get("/create", auth.required, async function (req, res) {
 router.post(
   "/",
   auth.required,
-  body("label").isString(),
-  body("userId").isString(),
-  body("publicKey").isString(),
+  body("label").notEmpty(),
+  body("userId").notEmpty(),
+  body("publicKey").notEmpty(),
   validate,
   async function (req, res) {
     try {
