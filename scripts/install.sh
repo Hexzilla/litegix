@@ -454,6 +454,10 @@ EOF
 }
 
 function install_mysql {
+    MYSQLDIR="/usr/lib/litegix/mysql"
+    rm -rf $MYSQLDIR
+    mkdir -p $MYSQLDIR
+
     ROOTPASS=$(get_random_string)
 
     # Install MySQL
@@ -465,7 +469,7 @@ function install_mysql {
     apt-get -qq install expect > /dev/null
 
     # Build Expect script
-    tee ~/secure_our_mysql.sh > /dev/null << EOF
+    tee $MYSQLDIR/secure_our_mysql.sh > /dev/null << EOF
 spawn $(which mysql_secure_installation)
 
 expect "Enter password for user root:"
@@ -495,13 +499,14 @@ EOF
 
     # Run Expect script.
     # This runs the "mysql_secure_installation" script which removes insecure defaults.
-    expect ~/secure_our_mysql.sh
+    expect $MYSQLDIR/secure_our_mysql.sh
 
     # Cleanup
-    rm -v ~/secure_our_mysql.sh # Remove the generated Expect script
+    rm -v $MYSQLDIR/secure_our_mysql.sh # Remove the generated Expect script
     #apt-get -qq purge expect > /dev/null # Uninstall Expect, commented out in case you need Expect
 
-    echo "MySQL setup completed. Insecure defaults are gone. Please remove this script manually when you are done with it (or at least remove the MySQL root password that you put inside it."
+    echo "MySQL ROOT PASSWORD: $ROOTPASS"
+    echo "MySQL setup completed."
 }
 
 function install_mariadb {
@@ -961,7 +966,7 @@ install_mysql
 
 # MariaDB
 send_state "mariadb"
-install_mariadb
+#install_mariadb
 
 # Web Application
 send_state "webapp"
