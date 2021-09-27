@@ -231,6 +231,279 @@ banaction = iptables
 maxretry = 2" > /etc/fail2ban/jail.local
 }
 
+function download_nginx_modules {
+    # Installing a Prebuilt Debian Package from the Official NGINX Repository
+    # Download 3rd Party Modules
+    modname="array-var-nginx-module-0.05.tar.gz"
+    wget -q -O $modname https://github.com/openresty/array-var-nginx-module/archive/refs/tags/v0.05.tar.gz
+    tar -xzf $modname
+    rm $modname
+
+    modname="echo-nginx-module-0.62.tar.gz"
+    wget -q -O $modname https://github.com/openresty/echo-nginx-module/archive/refs/tags/v0.62.tar.gz
+    tar -xzf $modname
+    rm $modname
+
+    modname="ngx_coolkit-0.2.tar.gz"
+    wget -q -O $modname https://github.com/FRiCKLE/ngx_coolkit/archive/refs/tags/0.2.tar.gz
+    tar -xzf $modname
+    rm $modname
+
+    modname="form-input-nginx-module-0.12.tar.gz"
+    wget -q -O $modname https://github.com/calio/form-input-nginx-module/archive/refs/tags/v0.12.tar.gz
+    tar -xzf $modname
+    rm $modname
+
+    modname="encrypted-session-nginx-module-0.08.tar.gz"
+    wget -q -O $modname https://github.com/openresty/encrypted-session-nginx-module/archive/refs/tags/v0.08.tar.gz
+    tar -xzf $modname
+    rm $modname
+
+    modname="ngx_lua-0.10.19.tar.gz"
+    wget -q -O $modname https://github.com/openresty/lua-nginx-module/archive/refs/tags/v0.10.19.tar.gz
+    tar -xzf $modname
+    rm $modname
+
+    modname="ngx_lua_upstream-0.07.tar.gz"
+    wget -q -O $modname https://github.com/openresty/lua-upstream-nginx-module/archive/refs/tags/v0.07.tar.gz
+    tar -xzf $modname
+    rm $modname
+
+    modname="headers-more-nginx-module-0.33.tar.gz"
+    wget -q -O $modname https://github.com/openresty/headers-more-nginx-module/archive/refs/tags/v0.33.tar.gz
+    tar -xzf $modname
+    rm $modname
+
+    modname="memc-nginx-module-0.19.tar.gz"
+    wget -q -O $modname https://github.com/openresty/memc-nginx-module/archive/refs/tags/v0.19.tar.gz
+    tar -xzf $modname
+    rm $modname
+
+    modname="ngx_brotli-1.0.0rc.tar.gz"
+    wget -q -O $modname https://github.com/google/ngx_brotli/archive/refs/tags/v1.0.0rc.tar.gz
+    tar -xzf $modname
+    rm $modname
+
+    modname="ngx_cache_purge-2.3.tar.gz"
+    wget -q -O $modname https://github.com/FRiCKLE/ngx_cache_purge/archive/refs/tags/2.3.tar.gz
+    tar -xzf $modname
+    rm $modname
+
+    modname="ModSecurity-nginx-1.0.2.tar.gz"
+    wget -q -O $modname https://github.com/SpiderLabs/ModSecurity-nginx/archive/refs/tags/v1.0.2.tar.gz
+    tar -xzf $modname
+    rm $modname
+
+    modname="redis2-nginx-module-0.15.tar.gz"
+    wget -q -O $modname https://github.com/openresty/redis2-nginx-module/archive/refs/tags/v0.15.tar.gz
+    tar -xzf $modname
+    rm $modname
+
+    modname="redis-nginx-module-0.3.7.tar.gz"
+    wget -q -O $modname https://github.com/onnimonni/redis-nginx-module/archive/refs/tags/v0.3.7.tar.gz
+    tar -xzf $modname
+    rm $modname
+
+    modname="rds-json-nginx-module-0.15.tar.gz"
+    wget -q -O $modname https://github.com/openresty/rds-json-nginx-module/archive/refs/tags/v0.15.tar.gz
+    tar -xzf $modname
+    rm $modname
+
+    modname="rds-csv-nginx-module-0.09.tar.gz"
+    wget -q -O $modname https://github.com/openresty/rds-csv-nginx-module/archive/refs/tags/v0.09.tar.gz
+    tar -xzf $modname
+    rm $modname
+
+    modname="set-misc-nginx-module-0.32.tar.gz"
+    wget -q -O $modname https://github.com/openresty/set-misc-nginx-module/archive/refs/tags/v0.32.tar.gz
+    tar -xzf $modname
+    rm $modname
+
+    modname="srcache-nginx-module-0.32.tar.gz"
+    wget -q -O $modname https://github.com/openresty/srcache-nginx-module/archive/refs/tags/v0.32.tar.gz
+    tar -xzf $modname
+    rm $modname
+
+    modname="ngx_stream_lua-0.0.9.tar.gz"
+    wget -q -O $modname https://github.com/openresty/stream-lua-nginx-module/archive/refs/tags/v0.0.9.tar.gz
+    tar -xzf $modname
+    rm $modname
+
+    modname="ngx_devel_kit-0.3.1.tar.gz"
+    wget -q -O $modname https://codeload.github.com/vision5/ngx_devel_kit/tar.gz/refs/tags/v0.3.1
+    tar -xzf $modname
+    rm $modname
+
+    modname="xss-nginx-module-0.06.tar.gz"
+    wget -q -O $modname https://github.com/openresty/xss-nginx-module/archive/refs/tags/v0.06.tar.gz
+    tar -xzf $modname
+    rm $modname
+}
+
+function install_nginx {
+    LITEGIX_PACKAGES="/usr/lib/litegix/packages"
+    rm -rf $LITEGIX_PACKAGES
+    mkdir -p $LITEGIX_PACKAGES
+    cd $LITEGIX_PACKAGES
+
+    modname="openssl-1.1.1g.tar.gz"
+    wget http://www.openssl.org/source/$modname
+    tar -xzf $modname
+    rm $modname
+
+    modname="luajit-2.0.5.tar.gz"
+    wget -q -O $modname https://github.com/LuaJIT/LuaJIT/archive/refs/tags/v2.0.5.tar.gz
+    tar -xzf $modname
+    rm $modname
+
+    NGINX_ROOT="/usr/lib/litegix/nginx"
+    NGINX_MODULES="$NGINX_ROOT/modules"
+
+    # Download 3rd Part Modules
+    rm -rf $NGINX_PATH
+    mkdir -p $NGINX_MODULES
+    cd $NGINX_MODULES
+    download_nginx_modules
+
+    # Download the key used to sign NGINX packages and the repository
+    mkdir -p $NGINX_ROOT
+    sudo chown -Rv _apt:root $NGINX_ROOT
+    sudo chmod -Rv 700 $NGINX_ROOT
+    cd $NGINX_ROOT
+
+    wget https://nginx.org/keys/nginx_signing.key
+    apt-key add nginx_signing.key
+
+# Update sources.list
+cat <<-EOF > /etc/apt/sources.list.d/nginx.list
+deb [arch=amd64] http://nginx.org/packages/ubuntu/ focal nginx
+deb-src http://nginx.org/packages/ubuntu/ focal nginx
+EOF
+
+    # Install the NGINX package
+    apt-get remove nginx-common
+    apt-get update
+
+    # Get the build dependencies and the source code for nginx.
+    apt-get build-dep nginx -y
+    apt-get source nginx -y
+
+
+    COMMON_CONFIGURE_ARGS := \
+        --prefix=/etc/litegix/nginx \
+        --with-cc-opt='-O2 -g -O3 -fPIE -fstack-protector-strong -flto -Wno-error=strict-aliasing -Wformat -Werror=format-security -fPIC -Wdate-time -D_FORTIFY_SOURCE=2' \
+        --add-module=$NGINX_MODULES/ngx_devel_kit-0.3.1 \
+        --add-module=$NGINX_MODULES/echo-nginx-module-0.62 \
+        --add-module=$NGINX_MODULES/xss-nginx-module-0.06 \
+        --add-module=$NGINX_MODULES/ngx_coolkit-0.2 \
+        --add-module=$NGINX_MODULES/set-misc-nginx-module-0.32 \
+        --add-module=$NGINX_MODULES/form-input-nginx-module-0.12 \
+        --add-module=$NGINX_MODULES/encrypted-session-nginx-module-0.08 \
+        --add-module=$NGINX_MODULES/srcache-nginx-module-0.32 \
+        --add-module=$NGINX_MODULES/ngx_lua-0.10.19 \
+        --add-module=$NGINX_MODULES/ngx_lua_upstream-0.07 \
+        --add-module=$NGINX_MODULES/headers-more-nginx-module-0.33 \
+        --add-module=$NGINX_MODULES/array-var-nginx-module-0.05 \
+        --add-module=$NGINX_MODULES/memc-nginx-module-0.19 \
+        --add-module=$NGINX_MODULES/redis2-nginx-module-0.15 \
+        --add-module=$NGINX_MODULES/redis-nginx-module-0.3.7 \
+        --add-module=$NGINX_MODULES/rds-json-nginx-module-0.15 \ 
+        --add-module=$NGINX_MODULES/rds-csv-nginx-module-0.09 \
+        --add-module=$NGINX_MODULES/ngx_stream_lua-0.0.9 \
+        --add-module=$NGINX_MODULES/ngx_brotli-1.0.0rc \
+        --add-module=$NGINX_MODULES/ngx_cache_purge-2.3 \
+        --add-module=$NGINX_MODULES/ModSecurity-nginx-1.0.2 \
+        --with-ld-opt='-Wl,-rpath,/usr/lib/litegix/packages/luajit/lib -Wl,-Bsymbolic-functions -fPIE -pie -Wl,-z,relro -Wl,-z,now -fPIC' \
+        --sbin-path=/usr/local/sbin/litegix/nginx \
+        --conf-path=/etc/litegix/nginx/nginx.conf \
+        --error-log-path=/var/log/litegix/nginx/error.log \
+        --http-log-path=/var/log/litegix/nginx/access.log \
+        --lock-path=/var/lock/litegix/nginx.lock \
+        --pid-path=/var/run/litegix/nginx.pid \
+        --group=litegix-www \
+        --user=litegix-www \
+        --with-openssl=$LITEGIX_PACKAGES/openssl-1.1.1g \
+        --with-openssl-opt='-g no-weak-ssl-ciphers no-ssl3 no-shared enable-ec_nistp_64_gcc_128 -DOPENSSL_NO_HEARTBEATS -fstack-protector-strong' --modules-path=$NGINX_MODULES --with-threads \
+        --with-http_stub_status_module \
+        --with-http_ssl_module \
+        --with-http_v2_module \
+        --with-stream \
+        --with-stream_ssl_module \
+        --with-pcre \
+        --with-pcre-jit \
+        --with-file-aio \
+        --with-http_realip_module \
+        --with-http_addition_module \
+        --with-http_flv_module \
+        --with-http_mp4_module \
+        --with-http_gunzip_module \ 
+        --with-http_gzip_static_module \
+        --with-http_geoip_module \
+        --with-http_image_filter_module \
+        --with-http_sub_module \
+        --with-stream \
+        --with-stream_ssl_preread_module \
+
+    cd $NGINX_ROOT/nginx-1.20.1
+    dpkg-buildpackage -uc -b
+    cd ..
+
+    ###############TODO
+    dpkg --install nginx_1.20.1-1~focal_amd64.deb
+    apt-mark hold nginx
+}
+
+function install_mysql {
+    ROOTPASS=$(get_random_string)
+
+    # Install MySQL
+    echo debconf mysql-server/root_password password $ROOTPASS | debconf-set-selections
+    echo debconf mysql-server/root_password_again password $ROOTPASS | debconf-set-selections
+    apt-get -qq install mysql-server > /dev/null # Install MySQL quietly
+
+    # Install Expect
+    apt-get -qq install expect > /dev/null
+
+    # Build Expect script
+    tee ~/secure_our_mysql.sh > /dev/null << EOF
+spawn $(which mysql_secure_installation)
+
+expect "Enter password for user root:"
+send "$ROOTPASS\r"
+
+expect "Press y|Y for Yes, any other key for No:"
+send "y\r"
+
+expect "Please enter 0 = LOW, 1 = MEDIUM and 2 = STRONG:"
+send "2\r"
+
+expect "Change the password for root ? ((Press y|Y for Yes, any other key for No) :"
+send "n\r"
+
+expect "Remove anonymous users? (Press y|Y for Yes, any other key for No) :"
+send "y\r"
+
+expect "Disallow root login remotely? (Press y|Y for Yes, any other key for No) :"
+send "y\r"
+
+expect "Remove test database and access to it? (Press y|Y for Yes, any other key for No) :"
+send "y\r"
+
+expect "Reload privilege tables now? (Press y|Y for Yes, any other key for No) :"
+send "y\r"
+EOF
+
+    # Run Expect script.
+    # This runs the "mysql_secure_installation" script which removes insecure defaults.
+    expect ~/secure_our_mysql.sh
+
+    # Cleanup
+    rm -v ~/secure_our_mysql.sh # Remove the generated Expect script
+    #apt-get -qq purge expect > /dev/null # Uninstall Expect, commented out in case you need Expect
+
+    echo "MySQL setup completed. Insecure defaults are gone. Please remove this script manually when you are done with it (or at least remove the MySQL root password that you put inside it."
+}
+
 function install_mariadb {
     mkdir -p /tmp/lens
     curl -4 $LITEGIX_URL/files/lenses/augeas-mysql.aug --create-dirs -o /tmp/lens/mysql.aug 
@@ -308,25 +581,26 @@ function install_webapp {
     USER="litegix"
     LITEGIX_PASSWORD=$(get_random_string)
     HOMEDIR="/home/$USER/"
-    groupadd users-rc
+    groupadd users-lg
     adduser --disabled-password --gecos "" $USER
-    usermod -a -G users-rc $USER
+    usermod -a -G users-lg $USER
 
     echo "$USER:$LITEGIX_PASSWORD" | chpasswd
     chmod 755 /home
     mkdir -p $HOMEDIR/logs/{nginx,apache2,fpm}
 
     # FACL
-    setfacl -m g:users-rc:x /home
-    setfacl -Rm g:users-rc:- /home/$USER
-    setfacl -Rm g:users-rc:- /etc/mysql
-    setfacl -Rm g:users-rc:- /var/log
+    setfacl -m g:users-lg:x /home
+    setfacl -Rm g:users-lg:- /home/$USER
+    setfacl -Rm g:users-lg:- /etc/mysql
+    setfacl -Rm g:users-lg:- /var/log
     setfacl -Rm g:$USER:rx /home/$USER/logs
 
 
-    mkdir -p /opt/Litegix/{.ssh,letsencrypt}
+    mkdir -p /opt/litegix/{.ssh,letsencrypt}
 
 
+    ############################# TODO
     echo "-----BEGIN DH PARAMETERS-----
 MIICCAKCAgEAzZmGWVJjBWNtfh1Q4MrxFJ5uwTM6xkllSewPOdMq5BYmXOFAhYMr
 vhbig5AJHDexbl/VFp64S6JaokQRbTtiibBfHV92LCK9hVRJ2eB7Wlg6t5+YYjKc
@@ -339,7 +613,7 @@ fIwCFFsqwE4y7zRg1VY7MKc0z6MCBU7om/gI4xlPSSBxAP1fN9hv6MbSV/LEvWxs
 pFyShqTqefToDKiegPpqBs8LAsOtuH78eSm18SgKYpVPL1ph0VhhbphbsmKxmqaU
 +EP6bSOc2tTwCMPWySQslHN4TdbsiQJE/gJuVeaCLM1+u4sd0rU9NQblThPuOILp
 v03VfaTd1dUF1HmcqJSl/DYeeBVYjT8GtAKWI5JrvCKDIPvOB98xMysCAQI=
------END DH PARAMETERS-----" > /etc/nginx-rc/dhparam.pem
+-----END DH PARAMETERS-----" > /etc/litegix/nginx/dhparam.pem
 }
 
 function install_agent {
@@ -480,7 +754,7 @@ function setup_firewall {
 <zone>
   <short>Litegix</short>
   <description>litegix zone to use with Litegix Server</description>
-  <service name=\"rcsa\"/>
+  <service name=\"litegix\"/>
   <service name=\"dhcpv6-client\"/>
   <port protocol=\"tcp\" port=\"22\"/>
   <port protocol=\"tcp\" port=\"80\"/>
@@ -676,6 +950,14 @@ install_supervisor
 # Fail2Ban
 send_state "fail2ban"
 install_fail2ban
+
+# Nginx
+send_state "nginx"
+install_nginx
+
+# MySQL
+send_state "mysql"
+install_mysql
 
 # MariaDB
 send_state "mariadb"
