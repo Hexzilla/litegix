@@ -4,22 +4,16 @@
 LITEGIX_TOKEN=""
 LITEGIX_URL=""
 INSTALL_STATE_URL="$LITEGIX_URL/api/installation/status/$LITEGIX_TOKEN"
+SUPPORTED_VERSIONS="16.04 18.04 20.04"
+PHP_CLI_VERSION="php74"
 
 echo "INSTALL_STATE_URL: $INSTALL_STATE_URL"
 sleep 2
 
-OS_NAME=`lsb_release -s -i`
-OS_VERSION=`lsb_release -s -r`
-OS_CODE_NAME=`lsb_release -s -c`
-SUPPORTED_VERSIONS="16.04 18.04 20.04"
-PHP_CLI_VERSION="php74"
-INSTALL_PACKAGE="litegix-agent curl git wget mariadb-server expect nano openssl redis-server python-setuptools perl zip unzip net-tools bc fail2ban augeas-tools libaugeas0 augeas-lenses firewalld build-essential acl memcached beanstalkd passwd unattended-upgrades postfix nodejs make jq "
-
-# Services detection
-SERVICES=$(systemctl --type=service --state=active | grep -E '\.service' | cut -d ' ' -f1 | sed -r 's/.{8}$//' | tr '\n' ' ')
-DETECTED_SERVICES_COUNT=0
-DETECTED_SERVICES_NAME=""
-
+OS_NAME=$(lsb_release -si)
+OS_VERSION=$(lsb_release -sr)
+OS_CODE_NAME=$(lsb_release -sc)
+INSTALL_PACKAGE="litegix-agent curl git wget mariadb-server expect redis-server fail2ban python-setuptools openssl perl zip unzip net-tools vim nano bc unattended-upgrades postfix nodejs libaugeas0 build-essential augeas-tools passwd acl memcached beanstalkd make jq augeas-lenses firewalld "
 
 function send_state {
   status=$1
@@ -41,6 +35,26 @@ function replace_true_whole_line {
 
 function get_random_string {
     head /dev/urandom | tr -dc _A-Za-z0-9 | head -c55
+}
+
+function check_installed_services {
+    detected_services=""
+    services=$(systemctl -t service --state=active | grep -E '\.service' | sed 's/^\s*//g' | cut -f1 -d' ' | tr '\n' ',')
+    service_names=(nginx apache2 lshttpd mysql mariadb webmin lscpd psa)
+    for sname in ${service_names[@]}; do
+    if [[ $services == *"$sname.service"* ]]; then
+        echo "$service_name exists."
+        detected_services+="$sname "
+    fi
+    done
+    echo "Detected Services: $detected_services"
+
+    if [[ ! -z "$detected_services" ]]; then
+        message="It detected some existing services; $detected_services Installation will not proceed."
+        echo $message
+        send_data '{"status": "err", "message": "'"$message"'"}'
+        exit 1
+    fi
 }
 
 function fix_auto_update() {
@@ -453,6 +467,30 @@ EOF
     apt-mark hold nginx
 }
 
+function install_openlitespeed {
+    grep -Fq  "http://rpms.litespeedtech.com/debian/" /etc/apt/sources.list.d/lst_debian_repo.list
+    if [ $? != 0 ] ; then
+        echo "deb http://rpms.litespeedtech.com/debian/ $OS_CODE_NAME main"  > /etc/apt/sources.list.d/lst_debian_repo.list
+    fi
+    wget -O /etc/apt/trusted.gpg.d/lst_debian_repo.gpg http://rpms.litespeedtech.com/debian/lst_debian_repo.gpg
+    wget -O /etc/apt/trusted.gpg.d/lst_repo.gpg http://rpms.litespeedtech.com/debian/lst_repo.gpg
+    apt-get -y update
+    
+    OLS_VERSION=1.7.14
+    TEMPDIR="/tmp/litegix"
+    mkdir -p $TEMPDIR
+    cd $TEMPDIR
+    wget -O openlitespeed-${OLS_VERSION}.tgz --no-check-certificate https://openlitespeed.org/packages/openlitespeed-${OLS_VERSION}.tgz
+    tar -zxvf openlitespeed-${OLS_VERSION}.tgz
+    chown -R root.root /tmp/openlitespeed
+    chmod -R 777 /tmp/openlitespeed
+    cd $TEMPDIR/openlitespeed
+    bash install.sh
+
+    rm -rf $TEMPDIR/openlitespeed
+    rm -f $TEMPDIR/openlitespeed-${OLS_VERSION}.tgz
+}
+
 function install_mysql {
     MYSQLDIR="/usr/lib/litegix/mysql"
     rm -rf $MYSQLDIR
@@ -622,115 +660,7 @@ v03VfaTd1dUF1HmcqJSl/DYeeBVYjT8GtAKWI5JrvCKDIPvOB98xMysCAQI=
 }
 
 function install_agent {
-    AGENTLOCATION="/Litegix/Packages/LitegixAgent"
-    cp $AGENTLOCATION/config.json.example $AGENTLOCATION/config.json
-    sed -i "s/{SERVERID}/KxT0TXo7ABGpH5zxHB3JcKknZe1623833285bNTdK7P7MYEy48xlIdJemQxlqLrtgD6O2SCUtMGy2TiDxyemfVIzZ7rF8xq0QrRb/g" $AGENTLOCATION/config.json
-    sed -i "s/{SERVERKEY}/wjJBIt5dhHfjLqfqeVPkNA0KVAw1EwZgjM5NlVmSJeh1olj2yWBQgEqDSdCbIbg4Ju8yviM4k4dJkgj8jgca5UoX5ag0Qbsjkzsno3BN7ughUIyV0UC1euuaZTzbvAqf/g" $AGENTLOCATION/config.json
-    sed -i "s/{ENVIRONMENT}/production/g" $AGENTLOCATION/config.json
-    sed -i "s/{WEBSERVER}/nginx/g" $AGENTLOCATION/config.json
-
-    chmod 600 $AGENTLOCATION/config.json
-
-    mkdir -p $AGENTLOCATION/ssl/
-
-    echo "-----BEGIN RSA PRIVATE KEY-----
-MIIEowIBAAKCAQEAsfzEPPWWMy7eteDAJJzHp6xQWOX1Mp1UUOJZHGzoUou6n26x
-aDq5COOKEgW8lnzVxQZgmSPU4SjfZYYRtA400OlQ/AeRvh9PJPVY2mvKlrVzAw0Q
-qHOIs7eegQU5Uw2EwaN4yvDjFZoN7nDUjNXFOpozl6SC3tVF3ofWvWqfjdNU0kgQ
-3yoSk5hjrBu+q8691dgLfT9xMZWT0jqdC6TSgkD9W52uVysaXGXq3XhrdjGUN+Se
-1OdRpIUVCyfq0LYvmAHnmGLj44LGgUm18xIagFfPeZqbVHv1Q3lkVM012eiK8cTG
-YDsLRvtw0DslXfIthpx8uqg5i82FFlb/sFKbzwIDAQABAoIBAGg/ROzzZqrJy/W5
-ErEfBq2FdnXrEkc38PeC63CDtTsLzh2tZslGg7PaGbdelsuJiGdiyddILlpGZzn+
-YYYVQAgQb7d983XovqFF9mnP8pN86UUjNNuE989TP8oPtjiX1WbZCVnL5yVy2rAK
-c+OdHWyqfodV+rTrM4YYB8Vfmt4kq92ZXkjF5jCpBvItVFSrdYRiakNdT5zZv6T4
-Utk/ys/uvS1YY4Kv4+DT1iBsuGwj6gWvL5G/qEzPzhKV4j0NnSPsNkhUMP7kTQlK
-LuW185RDAyuCPJiYIX6XEoJW9wxUERGZKEQx1wyZCUJpYKaZpGogiNMM/KEeZG2z
-IPxDu8ECgYEA32VI2w/0Rz86AnfYDauwVIMywJy/eRl7gthpMlJrTcWV5tLJPY2q
-rCDYduGNbg1Hjx9nZED5d4Wdc1geT179uyQJGeeNVAT5Oa4DcVZQ6UZjlYLcKqRS
-h9J8k7Wmj8Ltr7y4B4KchVQfpZIOIeO+6Nq0buTh0MEGjVQb3Ni4iO8CgYEAy/bl
-WPgIEenVD+Cwn7hrOhJ0UocwFbD48zgtCmHQHDmDboqo/cFIT8M6Oj8VzsClay9U
-fcBOEAgwRiyhya7Fo4VqliimtUvzjwP6jO9C39VKbjiFLVfLuUC5lNJ+mb40V76p
-eyTAwvugyrTTGRlp8V3/Ee0UJ7nZt9iyMP3kWyECgYAvq6xlWr006vAVEL/hAu8o
-yapt4cUWMXLi1A12uJG/UdeQHxDkerOd8ZBfpfgJMPpBN2FXymmxsKiNsZMeOtYI
-NkNe7MOC12Dbhx+i8tlnPicIA5m528DkzOzalFvLt7wC0VGwAJYn+XCbY1RytOfL
-RshUFbF+W4JrbDRZ50FRrwKBgQDEzzpC/SKcVmu25HLJy+P7py8DK1tkst2lo0Ei
-0XtEoOKH2dhy8vxZquIWriTW2eFEaek3ZkZtBdm+/PYobDJdNTHCLvud2OntyEMN
-lxmKbn9hl7w6Iot7+E6aofpzU6uiN2HGZ5JxEuj2cEF56KHnu3GS1JcsNhM1aS2Y
-RIUCwQKBgAsj2mbaIpK9rj7wgO5O2M5SXjr9I6fkG8QVNZeVrkNx0u3Up0iwRrPm
-YgZhFYnRGS9LiPYv7sTAann+ZBk5CdxFAAPrKdGPO0YgTwRPqez21cQCQRAJZ9ZB
-OkMmqD7AuJLTZewwuiYeQQVfNCslV8tfGa2PZaVtzrFOg9zMhG4E
------END RSA PRIVATE KEY-----" > $AGENTLOCATION/ssl/server.key
-    echo "-----BEGIN CERTIFICATE-----
-MIIEKzCCAxOgAwIBAgIUDgXxNwUF3Hi34xMsS70FZ4H1taAwDQYJKoZIhvcNAQEL
-BQAwgaoxCzAJBgNVBAYTAk1ZMQ4wDAYDVQQIDAVKb2hvcjEPMA0GA1UEBwwGU2t1
-ZGFpMRwwGgYDVQQKDBNDb29sIENvZGUgU2RuLiBCaGQuMREwDwYDVQQLDAhSdW5D
-bG91ZDEnMCUGA1UEAwweUnVuQ2xvdWQgQ2VydGlmaWNhdGUgQXV0aG9yaXR5MSAw
-HgYJKoZIhvcNAQkBFhFmaWtyaUBydW5jbG91ZC5pbzAgFw0yMTA2MTQwODQ4MDVa
-GA85OTk5MTIzMTIzNTk1OVowfDELMAkGA1UEBgwCTVkxDjAMBgNVBAgMBUpvaG9y
-MQ8wDQYDVQQHDAZTa3VkYWkxGzAZBgNVBAoMElJ1bkNsb3VkIFNkbi4gQmhkLjEY
-MBYGA1UECwwPUnVuQ2xvdWQgU2VydmVyMRUwEwYDVQQDDAw2NS4yMS40OS4xNzcw
-ggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCx/MQ89ZYzLt614MAknMen
-rFBY5fUynVRQ4lkcbOhSi7qfbrFoOrkI44oSBbyWfNXFBmCZI9ThKN9lhhG0DjTQ
-6VD8B5G+H08k9Vjaa8qWtXMDDRCoc4izt56BBTlTDYTBo3jK8OMVmg3ucNSM1cU6
-mjOXpILe1UXeh9a9ap+N01TSSBDfKhKTmGOsG76rzr3V2At9P3ExlZPSOp0LpNKC
-QP1bna5XKxpcZerdeGt2MZQ35J7U51GkhRULJ+rQti+YAeeYYuPjgsaBSbXzEhqA
-V895mptUe/VDeWRUzTXZ6IrxxMZgOwtG+3DQOyVd8i2GnHy6qDmLzYUWVv+wUpvP
-AgMBAAGjdDByMA4GA1UdDwEB/wQEAwIF4DAPBgNVHRMBAf8EBTADAgEAMB0GA1Ud
-JQQWMBQGCCsGAQUFBwMBBggrBgEFBQcDAjAPBgNVHREECDAGhwRBFTGxMB8GA1Ud
-IwQYMBaAFHq6We761kAAeZeMy5OuerSqODBFMA0GCSqGSIb3DQEBCwUAA4IBAQBN
-8YUlddD+k3nG9z8i9CiIcC5ywj+OAk1NvOPfa1zvlZsgXliD9VMRTRkrqTqw0LCz
-z/qP0PptewKjMDG4G3GSQ5Bs6om2USenUhwXyMNgCMfbUslYceJVXpPkklyFbnfn
-RYMj5yoy2vesSZA8p87J6TYKBnZ8LqjkpnJx5/cNDxQ6Eo2USM2dVOIwmjkNadNh
-boxqQemaVHXDE+GmWWt2rHgTTyREK5nQekqScXn+n111xnNguGAIa1L3lRt5ec4D
-LYGmJdM7UbqQXRLelnGRUlUcMoV0xtEwFYpMiWvpBY5h81XbGgztqVmAZlLCpIeK
-TTvozYQgSUsa0xYs6qCU
------END CERTIFICATE-----" > $AGENTLOCATION/ssl/server.crt
-    echo "-----BEGIN CERTIFICATE-----
-MIIEOzCCAyOgAwIBAgIJAKUwNSAp1Rc0MA0GCSqGSIb3DQEBCwUAMIGqMQswCQYD
-VQQGEwJNWTEOMAwGA1UECAwFSm9ob3IxDzANBgNVBAcMBlNrdWRhaTEcMBoGA1UE
-CgwTQ29vbCBDb2RlIFNkbi4gQmhkLjERMA8GA1UECwwIUnVuQ2xvdWQxJzAlBgNV
-BAMMHlJ1bkNsb3VkIENlcnRpZmljYXRlIEF1dGhvcml0eTEgMB4GCSqGSIb3DQEJ
-ARYRZmlrcmlAcnVuY2xvdWQuaW8wIBcNMTYwOTE2MTQyMTU3WhgPMjExNjA4MjMx
-NDIxNTdaMIGqMQswCQYDVQQGEwJNWTEOMAwGA1UECAwFSm9ob3IxDzANBgNVBAcM
-BlNrdWRhaTEcMBoGA1UECgwTQ29vbCBDb2RlIFNkbi4gQmhkLjERMA8GA1UECwwI
-UnVuQ2xvdWQxJzAlBgNVBAMMHlJ1bkNsb3VkIENlcnRpZmljYXRlIEF1dGhvcml0
-eTEgMB4GCSqGSIb3DQEJARYRZmlrcmlAcnVuY2xvdWQuaW8wggEiMA0GCSqGSIb3
-DQEBAQUAA4IBDwAwggEKAoIBAQC5Dhcl1VuuJcERr/Pz2Y9TNwI92/HGhNeib9+U
-+vgYccKrWlzS477JOnDbeWq6COS6oCNgVugJwHPgd5jBs8qbe4L9LcvdHvGiBQ/j
-s+Gbq0x0/DIAqYVot5G9T2EW9Nao6YTbXaNs8fEWHaWiQsDK9jVYLaHmCFdVk13t
-PkG/0i2qc52PO1911fQ+iXNpt3HiOThWpUawPIV/IpFXjWar7wsZhEp9S5VdbsQL
-iyluEDSlElBBj8FylaACc45gYn1m/YClGQPNdaOXK/O1F8TvOjRqkkUKLy5en4D7
-YImjnnYkYNqOw+IBbylUytq0XdbT9QvBUzT6xbNwUqB6adM9AgMBAAGjYDBeMB0G
-A1UdDgQWBBR6ulnu+tZAAHmXjMuTrnq0qjgwRTAfBgNVHSMEGDAWgBR6ulnu+tZA
-AHmXjMuTrnq0qjgwRTAMBgNVHRMEBTADAQH/MA4GA1UdDwEB/wQEAwIBhjANBgkq
-hkiG9w0BAQsFAAOCAQEAQK1lDleSMV/VCWaMQXK+R7IqY3dl2yYX12Vd9iF+0/Be
-TiLgROoHWA527lHVZzaDm73F3ciayS3cnl8+pER8l0QSjGB4a2SD/Wn8FJ1Tsl+j
-S6M++lSjeP358nVXjGkDFCmhTjEO5CNgZkb7w6IbjDfh6FkFAoY5F2SASoZpqxLV
-w6KrK6vqdTmd+yfwFDtcheyUJvPM3l6hHVzjDOvROT4DMvZ9EictQrDYugDlBwW+
-DjdGBnzCDaozBMND0sS/1IDm9fM6jaABjC1mNw9cAV6yvVQn4Jn/scKt6McgpGew
-xmR8AAA7gTrrNnEkeRR8JxLiRTipWjykUwFIkRkreg==
------END CERTIFICATE-----
-" > $AGENTLOCATION/ssl/ca.crt
-    sleep 1
-    cat $AGENTLOCATION/ssl/server.crt $AGENTLOCATION/ssl/ca.crt > $AGENTLOCATION/ssl/bundle.crt
-
-    chmod 600 $AGENTLOCATION/ssl/server.key
-
-    echo "#!/bin/sh
-if [ \"\$PAM_TYPE\" != \"close_session\" ]; then
-    url=\"https://manage.runcloud.io/webhooks/sshlogin\"
-    curl -4 -X POST  \\
-        -H \"X-Server-ID: KxT0TXo7ABGpH5zxHB3JcKknZe1623833285bNTdK7P7MYEy48xlIdJemQxlqLrtgD6O2SCUtMGy2TiDxyemfVIzZ7rF8xq0QrRb\" \\
-        -H \"X-Server-Key: wjJBIt5dhHfjLqfqeVPkNA0KVAw1EwZgjM5NlVmSJeh1olj2yWBQgEqDSdCbIbg4Ju8yviM4k4dJkgj8jgca5UoX5ag0Qbsjkzsno3BN7ughUIyV0UC1euuaZTzbvAqf\" \\
-        -H \"Content-Type: application/json\" \\
-        --data '{\"user\": \"'\$PAM_USER'\", \"ipAddress\": \"'\$PAM_RHOST'\"}' \"\$url\" &
-fi
-exit
-" > /usr/sbin/notifysshlogin
-
-    chmod 700 /usr/sbin/notifysshlogin
-
-    echo "session optional pam_exec.so seteuid /usr/sbin/notifysshlogin" >> /etc/pam.d/sshd
+    echo "install_agent"
 }
 
 function setup_firewall {
@@ -804,29 +734,23 @@ set /files/etc/ssh/sshd_config/PermitRootLogin yes
 save
 EOF
     systemctl restart sshd
-
 }
 
 function system_service {
-    #systemctl enable litegix-agent
-    #systemctl start litegix-agent
-
     systemctl disable supervisord
     systemctl stop supervisord
 
     systemctl disable redis-server
     systemctl stop redis-server
 
-    systemctl disable memcached
-    systemctl stop memcached
-
     systemctl disable beanstalkd
     systemctl stop beanstalkd
 
+    systemctl disable memcached
+    systemctl stop memcached
 
-    # Fix fail2ban
     touch /var/log/litegix.log
-
+    
     systemctl enable fail2ban
     systemctl start fail2ban
     systemctl restart fail2ban
@@ -834,6 +758,8 @@ function system_service {
     systemctl enable mysql
     systemctl restart mysql
 
+    #systemctl enable litegix-agent
+    #systemctl start litegix-agent
 }
 
 locale-gen en_US en_US.UTF-8
@@ -842,93 +768,10 @@ export LANGUAGE=en_US.utf8
 export LC_ALL=en_US.utf8
 export DEBIAN_FRONTEND=noninteractive
 
-# Checker
-if [[ $EUID -ne 0 ]]; then
-    message="This installer must be run as root!"
-    echo $message 1>&2
-    send_data '{"status": "err", "message": "'"$message"'"}'
-    exit 1
-fi
+# check already installed services
+check_installed_services
 
-if [[ "$OS_NAME" != "Ubuntu" ]]; then
-    message="This installer only support $OS_NAME"
-    echo $message
-    send_data '{"status": "err", "message": "'"$message"'"}'
-    exit 1
-fi
-
-if [[ $(uname -m) != "x86_64" ]]; then
-    message="This installer only support x86_64 architecture"
-    echo $message
-    send_data '{"status": "err", "message": "'"$message"'"}'
-    exit 1
-fi
-
-grep -q $OS_VERSION <<< $SUPPORTED_VERSIONS
-if [[ $? -ne 0 ]]; then
-    message="This installer does not support $OS_NAME $OS_VERSION"
-    echo $message    
-    send_data '{"status": "err", "message": "'"$message"'"}'
-    exit 1
-fi
-
-# existing services checker
-
-if [[ $SERVICES == *"nginx"* ]]; then
-  let "DETECTED_SERVICES_COUNT+=1"
-  DETECTED_SERVICES_NAME+=" Nginx"
-fi
-
-if [[ $SERVICES == *"apache2"* ]]; then
-  let "DETECTED_SERVICES_COUNT+=1"
-  DETECTED_SERVICES_NAME+=" Apache"
-fi
-
-if [[ $SERVICES == *"lshttpd"* ]]; then
-  let "DETECTED_SERVICES_COUNT+=1"
-  DETECTED_SERVICES_NAME+=" LiteSpeed"
-fi
-
-if [[ $SERVICES == *"mysql"* ]]; then
-  let "DETECTED_SERVICES_COUNT+=1"
-  DETECTED_SERVICES_NAME+=" MySQL"
-fi
-
-if [[ $SERVICES == *"mariadb"* ]]; then
-  let "DETECTED_SERVICES_COUNT+=1"
-  DETECTED_SERVICES_NAME+=" MariaDB"
-fi
-
-if [[ $SERVICES == *"php"* ]]; then
-  let "DETECTED_SERVICES_COUNT+=1"
-  DETECTED_SERVICES_NAME+=" PHP"
-fi
-
-if [[ $SERVICES == *"webmin"* ]]; then
-  let "DETECTED_SERVICES_COUNT+=1"
-  DETECTED_SERVICES_NAME+=" Webmin"
-fi
-
-if [[ $SERVICES == *"lscpd"* ]]; then
-  let "DETECTED_SERVICES_COUNT+=1"
-  DETECTED_SERVICES_NAME+=" CyberPanel"
-fi
-
-if [[ $SERVICES == *"psa"* ]]; then
-  let "DETECTED_SERVICES_COUNT+=1"
-  DETECTED_SERVICES_NAME+=" Plesk Panel"
-fi
-
-if [[ $DETECTED_SERVICES_COUNT -ne 0 ]]; then
-    message="Installer detected $DETECTED_SERVICES_COUNT existing services;$DETECTED_SERVICES_NAME. Installation will not proceed."
-    echo $message
-    curl -4 -H "Content-Type: application/json" -X POST https://manage.runcloud.io/webhooks/serverinstallation/status/KxT0TXo7ABGpH5zxHB3JcKknZe1623833285bNTdK7P7MYEy48xlIdJemQxlqLrtgD6O2SCUtMGy2TiDxyemfVIzZ7rF8xq0QrRb/wjJBIt5dhHfjLqfqeVPkNA0KVAw1EwZgjM5NlVmSJeh1olj2yWBQgEqDSdCbIbg4Ju8yviM4k4dJkgj8jgca5UoX5ag0Qbsjkzsno3BN7ughUIyV0UC1euuaZTzbvAqf -d '{"status": "err", "message": "'"$message"'"}'
-    exit 1
-fi
-
-# end services checker
-
-# Checking open port
+# checking port for agent
 send_state "start"
 #check_port
 
@@ -992,6 +835,7 @@ install_composer
 send_state "tweak"
 register_path
 
+#################################################################
 # Systemd Service
 send_state "systemd"
 system_service
