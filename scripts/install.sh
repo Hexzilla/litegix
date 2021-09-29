@@ -13,7 +13,7 @@ sleep 2
 OS_NAME=$(lsb_release -si)
 OS_VERSION=$(lsb_release -sr)
 OS_CODE_NAME=$(lsb_release -sc)
-INSTALL_PACKAGE="litegix-agent curl git wget mariadb-server expect redis-server fail2ban python-setuptools openssl perl zip unzip net-tools vim nano bc unattended-upgrades postfix nodejs libaugeas0 build-essential augeas-tools passwd acl memcached beanstalkd make jq augeas-lenses firewalld "
+INSTALL_PACKAGE="litegix-agent curl git wget expect redis-server fail2ban python-setuptools openssl perl zip unzip net-tools vim nano bc unattended-upgrades postfix nodejs libaugeas0 build-essential augeas-tools passwd acl memcached beanstalkd make jq augeas-lenses firewalld "
 
 function send_state {
   status=$1
@@ -34,7 +34,7 @@ function replace_true_whole_line {
 }
 
 function get_random_string {
-    head /dev/urandom | tr -dc _A-Za-z0-9 | head -c55
+    head /dev/urandom | tr -dc _A-Za-z0-9 | head -c$1
 }
 
 function check_installed_services {
@@ -82,6 +82,7 @@ function bootstrap_server {
 }
 
 function bootstrap_installer {
+    #https://downloads.mariadb.org/mariadb/repositories/#distro=Ubuntu&distro_release=focal--ubuntu_focal&mirror=truenetwork&version=10.6
     echo "bootstrap_installer"
     rm -f /etc/apt/apt.conf.d/50unattended-upgrades.ucf-dist
 
@@ -90,8 +91,6 @@ function bootstrap_installer {
     # Install Key
     # Litegix
     # wget -qO - https://release.runcloud.io/runcloud.key | apt-key add -
-    # MariaDB
-    # apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xF1656F24C74CD1D8
 
     # Install Litegix Source List
     # echo "deb [arch=amd64] https://release.runcloud.io/ $OS_CODE_NAME main" > /etc/apt/sources.list.d/runcloud.list
@@ -101,26 +100,15 @@ function bootstrap_installer {
 
     echo "bootstrap_installer_add_repository"
     if [[ "$OS_CODE_NAME" == 'xenial' ]]; then
-        add-apt-repository 'deb [arch=amd64] http://nyc2.mirrors.digitalocean.com/mariadb/repo/10.4/ubuntu xenial main'
-        add-apt-repository 'deb [arch=amd64] http://sfo1.mirrors.digitalocean.com/mariadb/repo/10.4/ubuntu xenial main'
-
         echo "bootstrap_installer_add_packages"
         PIPEXEC="pip"
         INSTALL_PACKAGE+="libmysqlclient20 python-pip php55 php55-essentials php56 php56-essentials php70 php70-essentials php71 php71-essentials php72 php72-essentials php73 php73-essentials php74 php74-essentials php80 php80-essentials"
 
     elif [[ "$OS_CODE_NAME" == 'bionic' ]]; then
-        add-apt-repository 'deb [arch=amd64] http://nyc2.mirrors.digitalocean.com/mariadb/repo/10.4/ubuntu bionic main'
-        add-apt-repository 'deb [arch=amd64] http://sfo1.mirrors.digitalocean.com/mariadb/repo/10.4/ubuntu bionic main'
-
-        echo "bootstrap_installer_add_packages"
         PIPEXEC="pip"
         INSTALL_PACKAGE+="libmysqlclient20 python-pip php70 php70-essentials php71 php71-essentials php72 php72-essentials php73 php73-essentials php74 php74-essentials php80 php80-essentials"
 
     elif [[ "$OS_CODE_NAME" == 'focal' ]]; then
-        add-apt-repository 'deb [arch=amd64] http://nyc2.mirrors.digitalocean.com/mariadb/repo/10.4/ubuntu focal main'
-        add-apt-repository 'deb [arch=amd64] http://sfo1.mirrors.digitalocean.com/mariadb/repo/10.4/ubuntu focal main'
-
-        echo "bootstrap_installer_add_packages"
         PIPEXEC="pip3"
         INSTALL_PACKAGE+="libmysqlclient21 python3-pip php72 php72-essentials php73 php73-essentials php74 php74-essentials php80 php80-essentials dirmngr gnupg libmagic-dev"
     fi
@@ -355,7 +343,7 @@ function download_nginx_modules {
 }
 
 function install_nginx {
-    LITEGIX_PACKAGES="/usr/lib/litegix/packages"
+    LITEGIX_PACKAGES="/litegix/packages"
     rm -rf $LITEGIX_PACKAGES
     mkdir -p $LITEGIX_PACKAGES
     cd $LITEGIX_PACKAGES
@@ -370,11 +358,11 @@ function install_nginx {
     tar -xzf $modname
     rm $modname
 
-    NGINX_ROOT="/usr/lib/litegix/nginx"
+    NGINX_ROOT="/litegix/nginx"
     NGINX_MODULES="$NGINX_ROOT/modules"
 
     # Download 3rd Part Modules
-    rm -rf $NGINX_PATH
+    rm -rf $NGINX_ROOT
     mkdir -p $NGINX_MODULES
     cd $NGINX_MODULES
     download_nginx_modules
@@ -427,7 +415,7 @@ EOF
         --add-module=$NGINX_MODULES/ngx_brotli-1.0.0rc \
         --add-module=$NGINX_MODULES/ngx_cache_purge-2.3 \
         --add-module=$NGINX_MODULES/ModSecurity-nginx-1.0.2 \
-        --with-ld-opt='-Wl,-rpath,/usr/lib/litegix/packages/luajit/lib -Wl,-Bsymbolic-functions -fPIE -pie -Wl,-z,relro -Wl,-z,now -fPIC' \
+        --with-ld-opt='-Wl,-rpath,/litegix/packages/luajit/lib -Wl,-Bsymbolic-functions -fPIE -pie -Wl,-z,relro -Wl,-z,now -fPIC' \
         --sbin-path=/usr/local/sbin/litegix/nginx \
         --conf-path=/etc/litegix/nginx/nginx.conf \
         --error-log-path=/var/log/litegix/nginx/error.log \
@@ -476,27 +464,27 @@ function install_openlitespeed {
     wget -O /etc/apt/trusted.gpg.d/lst_repo.gpg http://rpms.litespeedtech.com/debian/lst_repo.gpg
     apt-get -y update
     
-    OLS_VERSION=1.7.14
-    TEMPDIR="/tmp/litegix"
-    mkdir -p $TEMPDIR
-    cd $TEMPDIR
-    wget -O openlitespeed-${OLS_VERSION}.tgz --no-check-certificate https://openlitespeed.org/packages/openlitespeed-${OLS_VERSION}.tgz
-    tar -zxvf openlitespeed-${OLS_VERSION}.tgz
+    ols_version=1.7.14
+    tempdir="/litegix/tmp"
+    mkdir -p $tempdir
+    cd $tempdir
+    wget -O openlitespeed-${ols_version}.tgz --no-check-certificate https://openlitespeed.org/packages/openlitespeed-${ols_version}.tgz
+    tar -zxvf openlitespeed-${ols_version}.tgz
     chown -R root.root /tmp/openlitespeed
     chmod -R 777 /tmp/openlitespeed
-    cd $TEMPDIR/openlitespeed
+    cd $tempdir/openlitespeed
     bash install.sh
 
-    rm -rf $TEMPDIR/openlitespeed
-    rm -f $TEMPDIR/openlitespeed-${OLS_VERSION}.tgz
+    rm -rf $tempdir/openlitespeed
+    rm -f $tempdir/openlitespeed-${ols_version}.tgz
 }
 
 function install_mysql {
-    MYSQLDIR="/usr/lib/litegix/mysql"
+    MYSQLDIR="/litegix/mysql"
     rm -rf $MYSQLDIR
     mkdir -p $MYSQLDIR
 
-    ROOTPASS=$(get_random_string)
+    ROOTPASS=$(get_random_string 32)
 
     # Install MySQL
     echo debconf mysql-server/root_password password $ROOTPASS | debconf-set-selections
@@ -548,15 +536,20 @@ EOF
 }
 
 function install_mariadb {
-    mkdir -p /tmp/lens
-    curl -4 $LITEGIX_URL/files/lenses/augeas-mysql.aug --create-dirs -o /tmp/lens/mysql.aug 
+    apt-get install software-properties-common apt-transport-https -y
+    apt-key adv --fetch-keys 'https://mariadb.org/mariadb_release_signing_key.asc'
+    add-apt-repository "deb [arch=amd64] https://mirror.truenetwork.ru/mariadb/repo/10.6/ubuntu $OS_CODE_NAME main"
+    add-apt-repository "deb [arch=amd64] http://sfo1.mirrors.digitalocean.com/mariadb/repo/10.6/ubuntu $OS_CODE_NAME main"
 
-    ROOTPASS=$(get_random_string)
+    sudo apt update
+    sudo apt install mariadb-server
 
-    # Start mariadb untuk initialize
+    ROOTPASS=$(get_random_string 32)
+
+    # Start mariadb
     systemctl start mysql
 
-    SECURE_MYSQL=$(expect -c "
+    CONFIG_MARIADB=$(expect -c "
 set timeout 5
 spawn mysql_secure_installation
 
@@ -589,28 +582,7 @@ send \"y\r\"
 
 expect eof
 ")
-    echo "$SECURE_MYSQL"
-
-
-#     /usr/bin/augtool -I /tmp/lens/ <<EOF
-# set /files/etc/mysql/my.cnf/target[ . = "client" ]/user root
-# set /files/etc/mysql/my.cnf/target[ . = "client" ]/password $ROOTPASS
-# save
-# EOF
-
-/usr/bin/augtool -I /tmp/lens/ <<EOF
-set /files/etc/mysql/my.cnf/target[ . = "client" ]/user root
-set /files/etc/mysql/my.cnf/target[ . = "client" ]/password $ROOTPASS
-set /files/etc/mysql/my.cnf/target[ . = "mysqld" ]/bind-address 0.0.0.0
-set /files/etc/mysql/conf.d/mariadb.cnf/target[ . = "mysqld" ]/innodb_file_per_table 1
-set /files/etc/mysql/conf.d/mariadb.cnf/target[ . = "mysqld" ]/max_connections 15554
-set /files/etc/mysql/conf.d/mariadb.cnf/target[ . = "mysqld" ]/query_cache_size 80M
-set /files/etc/mysql/conf.d/mariadb.cnf/target[ . = "mysqld" ]/query_cache_type 1
-set /files/etc/mysql/conf.d/mariadb.cnf/target[ . = "mysqld" ]/query_cache_limit 2M
-set /files/etc/mysql/conf.d/mariadb.cnf/target[ . = "mysqld" ]/query_cache_min_res_unit 2k
-set /files/etc/mysql/conf.d/mariadb.cnf/target[ . = "mysqld" ]/thread_cache_size 60
-save
-EOF
+    echo "$CONFIG_MARIADB"
 
 echo "[client]
 user=root
@@ -622,7 +594,7 @@ password=$ROOTPASS
 
 function install_webapp {
     USER="litegix"
-    LITEGIX_PASSWORD=$(get_random_string)
+    LITEGIX_PASSWORD=$(get_random_string 64)
     HOMEDIR="/home/$USER/"
     groupadd users-lg
     adduser --disabled-password --gecos "" $USER
@@ -712,7 +684,6 @@ function install_composer {
     php composer-setup.php
     php -r "unlink('composer-setup.php');"
     mv composer.phar /usr/sbin/composer
-
 }
 
 function register_path {
