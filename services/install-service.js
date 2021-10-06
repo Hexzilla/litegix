@@ -43,13 +43,19 @@ module.exports = {
     const token = decryptToken(encryptedToken);
     console.log("InstallScript, Token:", token);
 
-    const filePath = path.join(__dirname, "../scripts/install.sh");
-    let text = await readFile(filePath, "utf8");
-    text = text
-      .replace('LITEGIX_TOKEN=""', `LITEGIX_TOKEN=\"${encryptedToken}\"`)
-      .replace('LITEGIX_URL=""', `LITEGIX_URL=\"${process.env.SERVER_URL}\"`);
+    const server = Server.findById(token.serverId);
+    if (!server) {
+      throw Error("Invalid Token");
+    }
 
-    return text;
+    const filePath = path.join(__dirname, "../scripts/install.sh");
+    const text = await readFile(filePath, "utf8");
+    return text
+      .replace('LITEGIX_TOKEN=""', `LITEGIX_TOKEN=\"${encryptedToken}\"`)
+      .replace('LITEGIX_URL=""', `LITEGIX_URL=\"${process.env.SERVER_URL}\"`)
+      .replace('SERVERID=""', `SERVERID=\"${server.securityId}\"`)
+      .replace('SERVERKEY=""', `SERVERKEY=\"${server.securityKey}\"`)
+      .replace('WEBSERVER=""', `WEBSERVER=\"${server.webserver}\"`);
   },
 
   getInstallState: async function (server) {

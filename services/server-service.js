@@ -13,9 +13,6 @@ const config = require("./config");
 const crypto = require("./crypto");
 const { exception } = require("console");
 
-const defaultScript =
-  "export DEBIAN_FRONTEND=noninteractive; echo 'Acquire::ForceIPv4 \"true\";' | tee /etc/apt/apt.conf.d/99force-ipv4; apt-get update; apt-get install curl netcat-openbsd -y; curl -4 --silent --location http://localhost:3000/servers/config/script/USER_INFO | bash -; export DEBIAN_FRONTEND=newt";
-
 const getSummary = async function (req, res, next) {
   console.log("getSummary", req.server);
   let server = req.server;
@@ -205,6 +202,8 @@ module.exports = {
     const server = new Server(data);
     server.connected = false;
     server.userId = userId;
+    server.securityId = "";
+    server.securityKey = "";
     await server.save();
 
     return {

@@ -23,6 +23,8 @@ var ServerSchema = new mongoose.Schema(
     },
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     useremail: { type: String, required: [false, "must email formating"] },
+    securityId: String,
+    securityKey: String,
     SSHConfig: {
       Passwordless_Login_Only: { type: Boolean },
       Prevent_root_login: { type: Boolean },
