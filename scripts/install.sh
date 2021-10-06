@@ -713,8 +713,8 @@ function system_service {
     systemctl enable mysql
     systemctl restart mysql
 
-    #systemctl enable litegix-agent
-    #systemctl start litegix-agent
+    systemctl enable litegix-agent
+    systemctl start litegix-agent
 }
 
 locale-gen en_US en_US.UTF-8
