@@ -55,7 +55,8 @@ module.exports = {
       .replace('LITEGIX_URL=""', `LITEGIX_URL=\"${process.env.SERVER_URL}\"`)
       .replace('SERVERID=""', `SERVERID=\"${server.securityId}\"`)
       .replace('SERVERKEY=""', `SERVERKEY=\"${server.securityKey}\"`)
-      .replace('WEBSERVER=""', `WEBSERVER=\"${server.webserver}\"`);
+      .replace('WEBSERVER=""', `WEBSERVER=\"${server.webserver}\"`)
+      .replace('DATABASE=""', `DATABASE=\"${server.database}\"`);
   },
 
   getInstallState: async function (server) {
