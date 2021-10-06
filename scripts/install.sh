@@ -7,6 +7,11 @@ INSTALL_STATE_URL="$LITEGIX_URL/api/installation/status/$LITEGIX_TOKEN"
 SUPPORTED_VERSIONS="16.04 18.04 20.04"
 PHP_CLI_VERSION="php74"
 
+SERVERID=""
+SERVERKEY=""
+ENVIRONMENT="production"
+WEBSERVER=""
+
 echo "INSTALL_STATE_URL: $INSTALL_STATE_URL"
 sleep 2
 
@@ -612,11 +617,21 @@ v03VfaTd1dUF1HmcqJSl/DYeeBVYjT8GtAKWI5JrvCKDIPvOB98xMysCAQI=
 
 function install_agent {
     echo "install_agent"
-    TEMP_DIR="/litegix/tmp"
-    mkdir -p $TEMP_DIR
-    cd $TEMP_DIR
+    TEMPDIR="/litegix/tmp"
+    mkdir -p $TEMPDIR
+    cd $TEMPDIR
     wget -O litegix-agent_1.0-1_amd64.deb https://doc-0k-74-docs.googleusercontent.com/docs/securesc/dchraritvco2gqh5fkiakh0o9af2bngi/sdredjlqvl1fimdgqth6oc3beqlbv4ch/1633506450000/09288438470173069690/09288438470173069690/1kV1CqfVfuqafEhZS0ovgHH_6duEJc1Hx?e=download&authuser=0&nonce=l0ahb5mi8mh00&user=09288438470173069690&hash=n2u2feln64u5r5ovepgfdo9ephorob00
     dpkg -i litegix-agent_1.0-1_amd64.deb
+
+    AGENTDIR="/litegix/litegix-agent"
+    cp $AGENTDIR/config.example.json $AGENTDIR/config.json
+    sed -i "s/{SERVERID}/$SERVERID/g" $AGENTDIR/config.json
+    sed -i "s/{SERVERKEY}/$SERVERKEY/g" $AGENTDIR/config.json
+    sed -i "s/{ENVIRONMENT}/$ENVIRONMENT/g" $AGENTDIR/config.json
+    sed -i "s/{WEBSERVER}/$WEBSERVER/g" $AGENTDIR/config.json
+
+    chmod 600 $AGENTDIR/config.json
+    mkdir -p $AGENTDIR/ssl/
 }
 
 function setup_firewall {
