@@ -13,7 +13,7 @@ sleep 2
 OS_NAME=$(lsb_release -si)
 OS_VERSION=$(lsb_release -sr)
 OS_CODE_NAME=$(lsb_release -sc)
-INSTALL_PACKAGE="litegix-agent curl git wget expect redis-server fail2ban python-setuptools openssl perl zip unzip net-tools vim nano bc unattended-upgrades postfix nodejs libaugeas0 build-essential augeas-tools passwd acl memcached beanstalkd make jq augeas-lenses firewalld "
+INSTALL_PACKAGE="curl git wget expect redis-server fail2ban python-setuptools openssl perl zip unzip net-tools vim nano bc unattended-upgrades postfix nodejs libaugeas0 build-essential augeas-tools passwd acl memcached beanstalkd make jq augeas-lenses firewalld "
 
 function send_state {
   status=$1
@@ -76,29 +76,14 @@ function fix_auto_update() {
     echo "APT::Periodic::Unattended-Upgrade \"1\";" >> $AUTO_UPDATE_FILE_20
 }
 
-function bootstrap_server {
-    echo "bootstrap_server"
+function bootstrap {
+    echo "bootstrap"
     apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y
-}
-
-function bootstrap_installer {
-    #https://downloads.mariadb.org/mariadb/repositories/#distro=Ubuntu&distro_release=focal--ubuntu_focal&mirror=truenetwork&version=10.6
-    echo "bootstrap_installer"
-    rm -f /etc/apt/apt.conf.d/50unattended-upgrades.ucf-dist
-
     apt-get install software-properties-common apt-transport-https -y
-
-    # Install Key
-    # Litegix
-    # wget -qO - https://release.runcloud.io/runcloud.key | apt-key add -
-
-    # Install Litegix Source List
-    # echo "deb [arch=amd64] https://release.runcloud.io/ $OS_CODE_NAME main" > /etc/apt/sources.list.d/runcloud.list
-
-    # LTS version nodejs
+    
+    # install nodejs
     curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
 
-    echo "bootstrap_installer_add_repository"
     if [[ "$OS_CODE_NAME" == 'xenial' ]]; then
         echo "bootstrap_installer_add_packages"
         PIPEXEC="pip"
@@ -112,13 +97,6 @@ function bootstrap_installer {
         PIPEXEC="pip3"
         INSTALL_PACKAGE+="libmysqlclient21 python3-pip php72 php72-essentials php73 php73-essentials php74 php74-essentials php80 php80-essentials dirmngr gnupg libmagic-dev"
     fi
-
-    echo "INSTALL_PACKAGE; $INSTALL_PACKAGE"
-
-    # APT PINNING
-    echo "Package: *
-Pin: release o=MariaDB
-Pin-Priority: 900" > /etc/apt/preferences
 }
 
 function enable_swap {
@@ -464,19 +442,19 @@ function install_openlitespeed {
     wget -O /etc/apt/trusted.gpg.d/lst_repo.gpg http://rpms.litespeedtech.com/debian/lst_repo.gpg
     apt-get -y update
     
-    ols_version=1.7.14
-    tempdir="/litegix/tmp"
-    mkdir -p $tempdir
-    cd $tempdir
-    wget -O openlitespeed-${ols_version}.tgz --no-check-certificate https://openlitespeed.org/packages/openlitespeed-${ols_version}.tgz
-    tar -zxvf openlitespeed-${ols_version}.tgz
+    OLS_VERSION=1.7.14
+    TEMP_DIR="/litegix/tmp"
+    mkdir -p $TEMP_DIR
+    cd $TEMP_DIR
+    wget -O openlitespeed-${OLS_VERSION}.tgz --no-check-certificate https://openlitespeed.org/packages/openlitespeed-${OLS_VERSION}.tgz
+    tar -zxvf openlitespeed-${OLS_VERSION}.tgz
     chown -R root.root /tmp/openlitespeed
     chmod -R 777 /tmp/openlitespeed
-    cd $tempdir/openlitespeed
+    cd $TEMP_DIR/openlitespeed
     bash install.sh
 
-    rm -rf $tempdir/openlitespeed
-    rm -f $tempdir/openlitespeed-${ols_version}.tgz
+    rm -rf $TEMP_DIR/openlitespeed
+    rm -f $TEMP_DIR/openlitespeed-${OLS_VERSION}.tgz
 }
 
 function install_mysql {
@@ -536,6 +514,7 @@ EOF
 }
 
 function install_mariadb {
+    #https://downloads.mariadb.org/mariadb/repositories/#distro=Ubuntu&distro_release=focal--ubuntu_focal&mirror=truenetwork&version=10.6
     apt-get install software-properties-common apt-transport-https -y
     apt-key adv --fetch-keys 'https://mariadb.org/mariadb_release_signing_key.asc'
     add-apt-repository "deb [arch=amd64] https://mirror.truenetwork.ru/mariadb/repo/10.6/ubuntu $OS_CODE_NAME main"
@@ -633,6 +612,11 @@ v03VfaTd1dUF1HmcqJSl/DYeeBVYjT8GtAKWI5JrvCKDIPvOB98xMysCAQI=
 
 function install_agent {
     echo "install_agent"
+    TEMP_DIR="/litegix/tmp"
+    mkdir -p $TEMP_DIR
+    cd $TEMP_DIR
+    wget -O litegix-agent_1.0-1_amd64.deb https://doc-0k-74-docs.googleusercontent.com/docs/securesc/dchraritvco2gqh5fkiakh0o9af2bngi/sdredjlqvl1fimdgqth6oc3beqlbv4ch/1633506450000/09288438470173069690/09288438470173069690/1kV1CqfVfuqafEhZS0ovgHH_6duEJc1Hx?e=download&authuser=0&nonce=l0ahb5mi8mh00&user=09288438470173069690&hash=n2u2feln64u5r5ovepgfdo9ephorob00
+    dpkg -i litegix-agent_1.0-1_amd64.deb
 }
 
 function setup_firewall {
@@ -676,7 +660,7 @@ function setup_firewall {
 }
 
 function install_composer {
-    ln -s /Litegix/Packages/$PHP_CLI_VERSION/bin/php /usr/bin/php
+    ln -s /litegix/packages/$PHP_CLI_VERSION/bin/php /usr/bin/php
 
     source /etc/profile.d/litegixpath.sh
     # php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
@@ -688,7 +672,7 @@ function install_composer {
 
 function register_path {
     echo "#!/bin/sh
-export PATH=/Litegix/Packages/apache2-rc/bin:\$PATH" > /etc/profile.d/litegixpath.sh
+export PATH=/litegix/packages/apache2-rc/bin:\$PATH" > /etc/profile.d/litegixpath.sh
 
     echo fs.inotify.max_user_watches=524288 | tee -a /etc/sysctl.conf && sysctl -p
     echo net.core.somaxconn = 65536 | tee -a /etc/sysctl.conf && sysctl -p
@@ -748,11 +732,8 @@ send_state "start"
 
 # Bootstrap the server
 send_state "config"
-bootstrap_server
-
-# Bootstrap the installer
 send_state "update"
-bootstrap_installer
+bootstrap
 
 # Enabling Swap if Not Enabled
 send_state "swap"

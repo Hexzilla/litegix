@@ -139,13 +139,13 @@ module.exports = {
       };
     }
 
-    // errors = await agent.createSystemUser(data)
-    // if (errors) {
-    //   return res.status(422).json({
-    //     success: false,
-    //     errors: errors
-    //   })
-    // }
+    const response = await agent.createSystemUser(data);
+    if (!response.success) {
+      return res.status(422).json({
+        success: false,
+        errors: errors,
+      });
+    }
 
     const user = new SystemUser(data);
     user.serverId = server.id;
