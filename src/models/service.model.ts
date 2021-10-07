@@ -31,4 +31,4 @@ var ServiceSchema = new Schema<Service>(
   }
 )
 
-model<Service>('Service', ServiceSchema)
+export default model<Service>('Service', ServiceSchema)

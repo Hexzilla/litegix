@@ -1,6 +1,6 @@
 import { Request } from 'express'
 import jwt from 'express-jwt'
-var secret = require('../config').secret
+import secret from '../config'
 
 function getTokenFromHeader(req: Request) {
   if (
@@ -18,11 +18,13 @@ function getTokenFromHeader(req: Request) {
 export default {
   required: jwt({
     secret: secret,
+    algorithms: ['RS256'],
     userProperty: 'payload',
     getToken: getTokenFromHeader,
   }),
   optional: jwt({
     secret: secret,
+    algorithms: [],
     userProperty: 'payload',
     credentialsRequired: false,
     getToken: getTokenFromHeader,

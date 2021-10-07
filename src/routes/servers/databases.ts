@@ -1,8 +1,8 @@
 import { body } from 'express-validator'
-import { Router, Request, Response, NextFunction } from 'express'
+import { Router, Request, Response } from 'express'
 import auth from '../auth'
 import validate from 'routes/validate'
-import database from 'services/database.service'
+import * as database from 'services/database.service'
 const router = Router()
 
 router.get('/', auth.required, async function (req: Request, res: Response) {
@@ -61,20 +61,20 @@ router.delete(
   }
 )
 
-router.get('/:databaseId/grant', auth.required, database.getUngrantedDBuser)
+// router.get('/:databaseId/grant', auth.required, database.getUngrantedDBuser)
 
-router.post(
-  '/:databaseId/grant',
-  auth.required,
-  body('dbuserId').isString(),
-  database.grantDBuser
-)
+// router.post(
+//   '/:databaseId/grant',
+//   auth.required,
+//   body('dbuserId').isString(),
+//   database.grantDBuser
+// )
 
-router.delete(
-  '/:databaseId/grant/:dbuserId',
-  auth.required,
-  database.revokeDBuser
-)
+// router.delete(
+//   '/:databaseId/grant/:dbuserId',
+//   auth.required,
+//   database.revokeDBuser
+// )
 
 router.get(
   '/users',
@@ -122,12 +122,12 @@ router.post(
   }
 )
 
-router.put(
-  '/users/:dbuserId/password',
-  auth.required,
-  body('password').isString(),
-  database.changePassword
-)
+// router.put(
+//   '/users/:dbuserId/password',
+//   auth.required,
+//   body('password').isString(),
+//   database.changePassword
+// )
 
 router.delete(
   '/users/:userId',

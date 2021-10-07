@@ -7,7 +7,7 @@ export interface PaymentHistory extends Document {
 const PaymentHistorySchema = new Schema<PaymentHistory>(
   {
     user: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'User',
       required: [true, "can't be blank"],
     },
@@ -28,4 +28,4 @@ const PaymentHistorySchema = new Schema<PaymentHistory>(
   }
 )
 
-model<PaymentHistory>('Paymenthistory', PaymentHistorySchema)
+export default model<PaymentHistory>('Paymenthistory', PaymentHistorySchema)

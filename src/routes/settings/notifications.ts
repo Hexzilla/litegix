@@ -1,6 +1,6 @@
 import { body } from 'express-validator'
 import { model } from 'mongoose'
-import { Router, Request, Response, NextFunction } from 'express'
+import { Router, Request, Response } from 'express'
 import { Channel } from 'models/channel.model'
 import auth from 'routes/auth'
 import validate from 'routes/validate'

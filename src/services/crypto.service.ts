@@ -1,4 +1,4 @@
-const CryptoJS = require('crypto-js')
+import CryptoJS from 'crypto-js'
 
 const SecretKey = 'xJpNWjRRIqCc7rdxVdms01lcHzdrH6s9'
 

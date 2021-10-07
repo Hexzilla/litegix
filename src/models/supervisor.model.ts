@@ -42,4 +42,4 @@ var SupervisorSchema = new Schema<Supervisor>(
   }
 )
 
-model<Supervisor>('Supervisor', SupervisorSchema)
+export default model<Supervisor>('Supervisor', SupervisorSchema)

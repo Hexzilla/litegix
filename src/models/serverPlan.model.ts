@@ -23,7 +23,7 @@ var ServerPlanSchema = new Schema<ServerPlan>(
       required: [true, "can't be blank"],
     },
     server: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'Server',
     },
   },
@@ -32,4 +32,4 @@ var ServerPlanSchema = new Schema<ServerPlan>(
   }
 )
 
-model<ServerPlan>('ServerPlan', ServerPlanSchema)
+export default model<ServerPlan>('ServerPlan', ServerPlanSchema)

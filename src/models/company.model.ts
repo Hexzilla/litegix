@@ -1,5 +1,5 @@
 import { Document, Schema, model } from 'mongoose'
-import uniqueValidator from 'mongoose-unique-validator'
+//import uniqueValidator from 'mongoose-unique-validator'
 import { User } from './user.model'
 
 export interface Company extends Document {
@@ -38,6 +38,6 @@ const CompanySchema = new Schema<Company>(
   }
 )
 
-CompanySchema.plugin(uniqueValidator, { message: 'is already taken' })
+//CompanySchema.plugin(uniqueValidator, { message: 'is already taken' })
 
-model<Company>('Company', CompanySchema)
+export default model<Company>('Company', CompanySchema)

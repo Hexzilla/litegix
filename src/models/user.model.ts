@@ -1,10 +1,15 @@
 import { Document, Schema, model } from 'mongoose'
-import uniqueValidator from 'mongoose-unique-validator'
+//import uniqueValidator from 'mongoose-unique-validator'
 import crypto from 'crypto'
 import jwt from 'jsonwebtoken'
 import secret from 'config'
 import { Company } from './company.model'
 
+export interface APIKeys {
+  enableAccess: boolean
+  apiKey: string
+  secretKey: string
+}
 export interface Newsletters {
   subscription: boolean
   announchment: boolean
@@ -24,6 +29,7 @@ export interface User extends Document {
   loginNotification: boolean
   company: Company
   newsletters: Newsletters
+  apiKeys: APIKeys
   generateJWT(): string
   setPassword(password: string): void
   validPassword(password: string): boolean
@@ -77,7 +83,7 @@ const UserSchema = new Schema<User>(
   { timestamps: true }
 )
 
-UserSchema.plugin(uniqueValidator, { message: 'is already taken.' })
+//UserSchema.plugin(uniqueValidator, { message: 'is already taken.' })
 
 UserSchema.methods.setPassword = function (password) {
   this.salt = crypto.randomBytes(16).toString('hex')
@@ -134,4 +140,4 @@ UserSchema.methods.toProfileJSON = function () {
   }
 }
 
-model<User>('User', UserSchema)
+export default model<User>('User', UserSchema)

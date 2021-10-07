@@ -15,7 +15,7 @@ router.get('/', auth.required, async function (req: Request, res: Response) {
   }
 })
 
-router.get('/vault', auth.required, systemService.getVaultedSSHKeys)
+//router.get('/vault', auth.required, systemService.getVaultedSSHKeys)
 
 router.get(
   '/create',

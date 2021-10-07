@@ -1,37 +1,16 @@
-const valiator = require('express-validator')
-const mongoose = require('mongoose')
-const User = mongoose.model('User')
-const IPAddress = mongoose.model('IPAddress')
-const passport = require('passport')
-const randomstring = require('randomstring')
-const { required } = require('../routes/auth')
+import { Request, Response, NextFunction } from 'express'
+//import randomstring from 'randomstring'
+// import { model } from 'mongoose'
+import { User } from 'models'
+import passport from 'passport'
+// const UserModel = model<User>('User')
+// const IPAddressModel = model<IPAddress>('IPAddress')
 
-const getUser = async function (req) {
-  try {
-    const reject = (errors) => {
-      return { errors: errors }
-    }
-
-    const errors = valiator.validationResult(req)
-    if (!errors.isEmpty()) {
-      return reject(errors.array())
-    }
-
-    const user = await User.findById(req.payload.id)
-    if (!user) {
-      return reject({ message: "User isn't exists" })
-    }
-    return { user: user }
-  } catch (errors) {
-    return { errors: errors }
-  }
-}
-
-const login = function (req, res, next) {
+export function login(req: Request, res: Response, next: NextFunction) {
   passport.authenticate(
     'login',
     { session: false },
-    function (err, user, info) {
+    function (err: any, user: User, info: any) {
       if (err) {
         return next(err)
       }
@@ -40,31 +19,20 @@ const login = function (req, res, next) {
         return res.status(422).json(info)
       }
 
-      ;(async () => {
-        var isCheck = await checkIpAdress(req, user)
-
-        if (!isCheck) {
-          return res.status(422).json(info)
-        }
-        console.log('ischeck = ' + isCheck)
-        user.token = user.generateJWT()
-        return res.json(user.toAuthJSON())
-      })()
+      return res.json(user.toAuthJSON())
     }
   )(req, res, next)
 }
 
-const logout = function (req, res, next) {
+export function logout(req: Request, res: Response, next: NextFunction) {
   return res.json({ success: true })
 }
 
-const signup = function (req, res, next) {
-  console.log('this is sign up')
+export function signup(req: Request, res: Response, next: NextFunction) {
   passport.authenticate(
-    //passport.js : passport.use("signup",
     'signup',
     { session: false },
-    function (err, user) {
+    function (err: any, user: User) {
       if (err) {
         return next(err)
       }
@@ -74,7 +42,7 @@ const signup = function (req, res, next) {
   )(req, res, next)
 }
 
-const changePassword = async function (req: Request, res: Response) {
+/*export async function changePassword(req: Request, res: Response) {
   try {
     let { user, errors } = await getUser(req)
     if (errors) {
@@ -102,17 +70,9 @@ const changePassword = async function (req: Request, res: Response) {
   }
 }
 
-const deleteAccount = async function (req: Request, res: Response) {}
+export async function deleteAccount(req: Request, res: Response) {}*/
 
-const generateApiKey = function () {
-  return randomstring.generate(44)
-}
-
-const generateApiSecret = function () {
-  return randomstring.generate(64)
-}
-
-const checkIpAdress = async function (req, user, res) {
+/*export async function checkIpAdress(req, user, res) {
   let ipEqual = false
   const whitelist = await IPAddress.find({ userId: user._id })
   whitelist.forEach((val) => {
@@ -150,6 +110,7 @@ const checkIpAdress = async function (req, user, res) {
   }
   return true
 }
+
 const addIpAddress = function (req, userId) {
   try {
     existIp = IPAddress.find({ Address: req.connection.remoteAddress })
@@ -208,10 +169,10 @@ const sendMail = function (req) {
   //     console.log(info);
   //   }
   // });
-}
+}*/
 
 // const moment = required("moment")
-const userVerify = async function (req, res, next) {
+/*const userVerify = async function (req, res, next) {
   // userId/:verifyCode
   const user = new User()
   let result = await User.findById({ _id: req.params.userId })
@@ -239,15 +200,4 @@ const userVerify = async function (req, res, next) {
       message: 'time out verify!',
     })
   }
-}
-
-export default {
-  getUser,
-  login,
-  signup,
-  logout,
-  changePassword,
-  deleteAccount,
-  checkIpAdress,
-  userVerify,
-}
+}*/

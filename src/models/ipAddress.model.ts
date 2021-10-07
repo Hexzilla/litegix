@@ -1,9 +1,10 @@
 import { Document, Schema, model } from 'mongoose'
-
+import { User } from './user.model'
 export interface IPAddress extends Document {
   index: number
   packageName: string
   price: number
+  user: User
 }
 
 const IPAddressSchema = new Schema<IPAddress>(
@@ -15,7 +16,7 @@ const IPAddressSchema = new Schema<IPAddress>(
     },
     desc: String,
     user: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'User',
     },
   },
@@ -30,4 +31,4 @@ const IPAddressSchema = new Schema<IPAddress>(
   }
 )
 
-model<IPAddress>('IPAddress', IPAddressSchema)
+export default model<IPAddress>('IPAddress', IPAddressSchema)

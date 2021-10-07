@@ -32,4 +32,4 @@ const BackupPlanSchema = new Schema<BackupPlan>(
   }
 )
 
-model<BackupPlan>('Backupplan', BackupPlanSchema)
+export default model<BackupPlan>('Backupplan', BackupPlanSchema)

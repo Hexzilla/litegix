@@ -41,4 +41,4 @@ const DatabaseSchema = new Schema<Database>(
   }
 )
 
-model<Database>('Database', DatabaseSchema)
+export default model<Database>('Database', DatabaseSchema)

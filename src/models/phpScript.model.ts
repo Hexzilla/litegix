@@ -10,7 +10,7 @@ export interface PHPScript extends Document {
 var PHPScriptSchema = new Schema<PHPScript>(
   {
     application: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'Application',
     },
     name: {
@@ -27,4 +27,4 @@ var PHPScriptSchema = new Schema<PHPScript>(
   }
 )
 
-model<PHPScript>('PHPScript', PHPScriptSchema)
+export default model<PHPScript>('PHPScript', PHPScriptSchema)

@@ -27,4 +27,4 @@ var SubscriptionSchema = new Schema<Subscription>(
   }
 )
 
-model<Subscription>('Subscription', SubscriptionSchema)
+export default model<Subscription>('Subscription', SubscriptionSchema)

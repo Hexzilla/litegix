@@ -35,4 +35,4 @@ const SSHKeySchema = new Schema<SSHKey>(
   }
 )
 
-model<SSHKey>('SSHKey', SSHKeySchema)
+export default model<SSHKey>('SSHKey', SSHKeySchema)

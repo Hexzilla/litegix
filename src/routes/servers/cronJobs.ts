@@ -1,5 +1,5 @@
 import { body } from 'express-validator'
-import { Router, Request, Response, NextFunction } from 'express'
+import { Router, Request, Response } from 'express'
 import validate from 'routes/validate'
 import auth from '../auth'
 import cronJob from 'services/cron.service'

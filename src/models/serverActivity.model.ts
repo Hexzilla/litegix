@@ -44,4 +44,4 @@ const ServerActivitySchema = new Schema<ServerActivity>(
   }
 )
 
-model<ServerActivity>('ServerActivity', ServerActivitySchema)
+export default model<ServerActivity>('ServerActivity', ServerActivitySchema)

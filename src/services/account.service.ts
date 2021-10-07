@@ -1,8 +1,9 @@
-const mongoose = require('mongoose')
-const User = mongoose.model('User')
-const IPAddress = mongoose.model('IPAddress')
-const randomstring = require('randomstring')
-const activity = require('./activity-service')
+import randomstring from 'randomstring'
+import { model } from 'mongoose'
+import { User, IPAddress } from 'models'
+import * as activity from 'services/activity.service'
+const UserModel = model<User>('User')
+const IPAddressModel = model<IPAddress>('IPAddress')
 
 const generateApiKey = function () {
   return randomstring.generate(44)
@@ -13,8 +14,8 @@ const generateApiSecret = function () {
 }
 
 export default {
-  getApiKeys: async function (userId) {
-    const user = await User.findById(userId)
+  getApiKeys: async function (userId: string) {
+    const user = await UserModel.findById(userId)
     if (!user) {
       return {
         success: false,
@@ -23,7 +24,7 @@ export default {
     }
 
     user.apiKeys = user.apiKeys || {}
-    if (!user.apiKeys.key || !user.apiKeys.secret) {
+    if (!user.apiKeys.apiKey || !user.apiKeys.secretKey) {
       user.apiKeys.enableAccess = false
       user.apiKeys.apiKey = generateApiKey()
       user.apiKeys.secretKey = generateApiSecret()
@@ -36,8 +37,8 @@ export default {
     }
   },
 
-  createApiKey: async function (userId) {
-    const user = await User.findById(userId)
+  createApiKey: async function (userId: string) {
+    const user = await UserModel.findById(userId)
     if (!user) {
       return {
         success: false,
@@ -54,8 +55,8 @@ export default {
     }
   },
 
-  createSecretKey: async function (userId) {
-    const user = await User.findById(userId)
+  createSecretKey: async function (userId: string) {
+    const user = await UserModel.findById(userId)
     if (!user) {
       return {
         success: false,
@@ -72,8 +73,8 @@ export default {
     }
   },
 
-  enableAccess: async function (userId, data) {
-    const user = await User.findById(userId)
+  enableAccess: async function (userId: string, data: any) {
+    const user = await UserModel.findById(userId)
     if (!user) {
       return {
         success: false,
@@ -94,17 +95,24 @@ export default {
     }
   },
 
-  getAllowedIPAddresses: async function (userId) {
-    const addresses = await IPAddress.find({ userId })
+  getAllowedIPAddresses: async function (userId: string) {
+    const addresses = await IPAddressModel.find({ userId })
     return {
       success: true,
       data: { addresses },
     }
   },
 
-  addAllowedIPAddress: async function (userId, data) {
-    const addr = new IPAddress(data)
-    addr.userId = userId
+  addAllowedIPAddress: async function (userId: string, data: any) {
+    const user = await UserModel.findById(userId)
+    if (!user) {
+      return {
+        success: false,
+        message: 'Invalid User',
+      }
+    }
+    const addr = new IPAddressModel(data)
+    addr.user = user
 
     const saved = await addr.save()
     console.log(saved)

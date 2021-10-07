@@ -19,4 +19,4 @@ var CredittopupSchema = new Schema<Credittopup>(
   }
 )
 
-model<Credittopup>('Credittopup', CredittopupSchema)
+export default model<Credittopup>('Credittopup', CredittopupSchema)

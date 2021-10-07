@@ -2,7 +2,7 @@ import { body } from 'express-validator'
 import { Router, Request, Response } from 'express'
 import auth from '../auth'
 import validate from 'routes/validate'
-import profile from 'services/profile.service'
+import * as profile from 'services/profile.service'
 const router = Router()
 
 router.post('/', auth.required, async function (req: Request, res: Response) {

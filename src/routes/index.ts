@@ -1,18 +1,18 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { body } from 'express-validator'
-import api from './api'
-import settings from './settings'
-import servers from './servers'
-import subscriptions from './subscriptions'
-import payment from './payment'
-import authService from 'services/auth.service'
+// import api from './api'
+// import settings from './settings'
+// import servers from './servers'
+// import subscriptions from './subscriptions'
+// import payment from './payment'
+import * as authService from 'services/auth.service'
 
 const router = Router()
-router.use('/api', api)
-router.use('/settings', settings)
-router.use('/servers', servers)
-router.use('/subscriptions', subscriptions)
-router.use('/payment', payment)
+// router.use('/api', api)
+// router.use('/settings', settings)
+// router.use('/servers', servers)
+// router.use('/subscriptions', subscriptions)
+// router.use('/payment', payment)
 
 router.post(
   '/login',
@@ -32,7 +32,7 @@ router.post(
 router.get('/logout', authService.logout)
 
 // request user verify
-router.post('/verify/:userId/:verifyCode', authService.userVerify)
+//router.post('/verify/:userId/:verifyCode', authService.userVerify)
 
 router.use(function (
   err: any,

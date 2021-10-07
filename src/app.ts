@@ -7,9 +7,8 @@ import favicon from 'serve-favicon'
 import session from 'express-session'
 import useragent from 'express-useragent'
 import errorhandler from 'errorhandler'
-import mongoose, { connect } from 'mongoose'
-import bluebird from 'bluebird'
-import routes from './routes'
+import { connect } from 'mongoose'
+import routes from 'routes'
 
 require('dotenv').config()
 const isProduction = process.env.NODE_ENV === 'production'
@@ -47,12 +46,6 @@ if (!isProduction) {
   app.use(errorhandler())
 }
 
-mongoose.Promise = bluebird
-mongoose.set('useNewUrlParser', true)
-mongoose.set('useFindAndModify', false)
-mongoose.set('useCreateIndex', true)
-mongoose.set('useUnifiedTopology', true)
-
 const mongourl: string = process.env.MONGODB_URI || ''
 connect(mongourl, {
   useNewUrlParser: true,
@@ -61,9 +54,8 @@ connect(mongourl, {
   console.log('mongodb connected!')
 })
 
-require('models')
-require('config/passport')
-
+import 'models'
+import 'config/passport'
 //require('./migrations/country')()
 //require('./migrations/credittopup')()
 
@@ -118,5 +110,5 @@ process.on('uncaughtException', (err) => {
 
 // finally, let's start our server...
 app.listen(process.env.PORT || 3000, () => {
-  console.log('Server is listening')
+  console.log('Server is listening...')
 })

@@ -54,4 +54,4 @@ const ChannelSchema = new Schema<Channel>(
   }
 )
 
-model<Channel>('Channel', ChannelSchema)
+export default model<Channel>('Channel', ChannelSchema)

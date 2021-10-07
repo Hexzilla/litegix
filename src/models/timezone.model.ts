@@ -13,4 +13,4 @@ var TimezoneSchema = new Schema<Timezone>(
   { timestamps: false }
 )
 
-model<Timezone>('Timezone', TimezoneSchema)
+export default model<Timezone>('Timezone', TimezoneSchema)

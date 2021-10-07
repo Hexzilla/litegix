@@ -27,4 +27,4 @@ const ActivityLogSchema = new Schema<ActivityLog>(
   }
 )
 
-model<ActivityLog>('ActivityLog', ActivityLogSchema)
+export default model<ActivityLog>('ActivityLog', ActivityLogSchema)

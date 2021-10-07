@@ -1,22 +1,21 @@
-const valiator = require('express-validator')
-const { getServer } = require('./server-service')
-const mongoose = require('mongoose')
-const CronJob = mongoose.model('CronJob')
-const Supervisor = mongoose.model('Supervisor')
-const activity = require('./activity-service')
+import { model } from 'mongoose'
+import { Server, CronJob, Supervisor } from 'models'
+import * as activity from 'services/activity.service'
+const CronJobModel = model<CronJob>('CronJob')
+const SupervisorModel = model<Supervisor>('Supervisor')
 
-const rebuildJob = async function (req: Request, res: Response) {
-  try {
-    const cronjob = await CronJob.findById(req.params.jobId)
-    return res.json({
-      success: true,
-      data: { cronjob },
-    })
-  } catch (e) {
-    console.error(e)
-    return res.status(501).json({ success: false })
-  }
-}
+// const rebuildJob = async function (req: Request, res: Response) {
+//   try {
+//     const cronjob = await CronJobModel.findById(req.params.jobId)
+//     return res.json({
+//       success: true,
+//       data: { cronjob },
+//     })
+//   } catch (e) {
+//     console.error(e)
+//     return res.status(501).json({ success: false })
+//   }
+// }
 
 const getVendorBinaries = function () {
   return [
@@ -43,23 +42,23 @@ const getPredefinedSettings = function () {
 }
 
 export default {
-  getCronJobs: async function (server) {
-    const cronJobs = await CronJob.find({ serverId: server.id })
+  getCronJobs: async function (server: Server) {
+    const cronJobs = await CronJobModel.find({ serverId: server.id })
     return {
       success: true,
       data: { cronJobs },
     }
   },
 
-  getCronJob: async function (jobId) {
-    const cronjob = await CronJob.findById(jobId)
+  getCronJob: async function (jobId: string) {
+    const cronjob = await CronJobModel.findById(jobId)
     return {
       success: true,
       data: { cronjob },
     }
   },
 
-  createCronJob: async function (server) {
+  createCronJob: async function (server: Server) {
     return {
       success: true,
       vendor_binaries: getVendorBinaries(),
@@ -67,8 +66,8 @@ export default {
     }
   },
 
-  storeCronJob: async function (server, data) {
-    const exists = await CronJob.findOne({
+  storeCronJob: async function (server: Server, data: any) {
+    const exists = await CronJobModel.findOne({
       serverId: server.id,
       label: data.label,
     })
@@ -95,8 +94,8 @@ export default {
       data.dayOfWeek,
     ].join(' ')
 
-    const cronJob = new CronJob(data)
-    cronJob.serverId = server.id
+    const cronJob = new CronJobModel(data)
+    cronJob.server = server.id
     await cronJob.save()
 
     const message = `Added new Cron Job ${data.label}`
@@ -107,8 +106,8 @@ export default {
       data: { cronJob },
     }
   },
-  removeCronJob: async function (jobId) {
-    const cronJob = await CronJob.findById(jobId)
+  removeCronJob: async function (jobId: string) {
+    const cronJob = await CronJobModel.findById(jobId)
     if (!cronJob) {
       return {
         success: false,
@@ -134,15 +133,15 @@ export default {
     }
   },
 
-  getSupervisorJobs: async function (server) {
-    const supervisors = await Supervisor.find({ serverId: server.id })
+  getSupervisorJobs: async function (server: Server) {
+    const supervisors = await SupervisorModel.find({ serverId: server.id })
     return {
       success: true,
       data: { supervisors },
     }
   },
 
-  createSupervisorJob: async function (server) {
+  createSupervisorJob: async function (server: Server) {
     return {
       success: true,
       vendor_binaries: getVendorBinaries(),
@@ -150,8 +149,8 @@ export default {
     }
   },
 
-  storeSupervisorJob: async function (server, data) {
-    const exists = await Supervisor.findOne({
+  storeSupervisorJob: async function (server: Server, data: any) {
+    const exists = await SupervisorModel.findOne({
       serverId: server.id,
       name: data.name,
     })
@@ -170,8 +169,8 @@ export default {
       };
     }*/
 
-    const supervisor = new Supervisor(data)
-    supervisor.serverId = server.id
+    const supervisor = new SupervisorModel(data)
+    supervisor.server = server.id
     await supervisor.save()
 
     const message = `Added new Supervisor Job ${data.name}`
@@ -183,8 +182,8 @@ export default {
     }
   },
 
-  deleteSupervisorJob: async function (jobId) {
-    const supervisor = await Supervisor.findById(jobId)
+  deleteSupervisorJob: async function (jobId: string) {
+    const supervisor = await SupervisorModel.findById(jobId)
     if (!supervisor) {
       return {
         success: false,

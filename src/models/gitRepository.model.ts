@@ -33,4 +33,4 @@ const GitRepositorySchema = new Schema<GitRepository>(
   }
 )
 
-model<GitRepository>('GitRepository', GitRepositorySchema)
+export default model<GitRepository>('GitRepository', GitRepositorySchema)

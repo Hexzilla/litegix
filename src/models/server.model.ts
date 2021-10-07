@@ -1,6 +1,5 @@
 import { Document, Schema, model } from 'mongoose'
 import { User } from './user.model'
-const Mail = require('nodemailer/lib/mailer')
 
 export interface SystemStatus {
   kernelVersion: string
@@ -12,6 +11,12 @@ export interface SystemStatus {
   diskFree: number
   loadAvg: number
   uptime: string
+}
+
+export interface Installation {
+  status: string
+  message: string
+  progress: number
 }
 
 export interface Server extends Document {
@@ -26,6 +31,7 @@ export interface Server extends Document {
   userEmail: string
   securityId: string
   securityKey: string
+  installation: Installation
   user: User
   toSummaryJSON(): JSON
 }
@@ -90,4 +96,4 @@ ServerSchema.methods.toSummaryJSON = function () {
   return this.system
 }
 
-model<Server>('Server', ServerSchema)
+export default model<Server>('Server', ServerSchema)

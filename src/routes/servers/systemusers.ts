@@ -1,5 +1,5 @@
 import { body } from 'express-validator'
-import { Router, Request, Response, NextFunction } from 'express'
+import { Router, Request, Response } from 'express'
 import auth from '../auth'
 import validate from 'routes/validate'
 import * as systemService from 'services/system.service'
@@ -47,13 +47,13 @@ router.post(
   }
 )
 
-router.post(
-  '/changepassword',
-  auth.required,
-  body('id').isString(),
-  body('password').isLength({ min: 8 }).trim().escape(),
-  systemService.changeSystemUserPassword
-)
+// router.post(
+//   '/changepassword',
+//   auth.required,
+//   body('id').isString(),
+//   body('password').isLength({ min: 8 }).trim().escape(),
+//   systemService.changeSystemUserPassword
+// )
 
 router.delete(
   '/:userId',

@@ -63,4 +63,4 @@ var ApplicationSchema = new Schema<Application>(
   }
 )
 
-model<Application>('Application', ApplicationSchema)
+export default model<Application>('Application', ApplicationSchema)

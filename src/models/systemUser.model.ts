@@ -13,7 +13,7 @@ export interface SystemUser extends Document {
 const SystemUserSchema = new Schema<SystemUser>(
   {
     server: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'Server',
     },
     name: { type: String, required: [true, "can't be blank"] },
@@ -40,4 +40,4 @@ SystemUserSchema.methods.toDeploymentKeyJson = function () {
   }
 }
 
-model<SystemUser>('SystemUser', SystemUserSchema)
+export default model<SystemUser>('SystemUser', SystemUserSchema)

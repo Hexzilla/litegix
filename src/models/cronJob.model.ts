@@ -54,4 +54,4 @@ const CronJobSchema = new Schema<CronJob>(
   }
 )
 
-model<CronJob>('CronJob', CronJobSchema)
+export default model<CronJob>('CronJob', CronJobSchema)

@@ -1,7 +1,8 @@
-import { Request } from 'express'
 import passport from 'passport'
 import { Strategy as LocalStrategy } from 'passport-local'
-import { findUserByEmail, createUser, verifyPassword } from 'models/user'
+import { model } from 'mongoose'
+import { User } from 'models'
+const UserModel = model<User>('User')
 
 passport.use(
   'signup',
@@ -11,18 +12,18 @@ passport.use(
       passwordField: 'password',
       passReqToCallback: true,
     },
-    async (req: Request, email: string, password: string, done) => {
-      console.log('passport signup', email, password)
+    async (req, email, password, done) => {
+      console.log('this is passport signup')
       try {
-        let user = await findUserByEmail(email)
-        if (user) {
+        const find = await UserModel.findOne({ email: req.body.email })
+
+        if (find) {
           return done(null, null)
         }
-        user = await createUser({
-          email,
-          name: req.body.name,
-          password,
-        })
+        const username = req.body.name
+        const user = await UserModel.create({ username, email })
+        user.setPassword(password)
+        user.save()
         return done(null, user)
       } catch (error) {
         done(error)
@@ -38,12 +39,21 @@ passport.use(
       usernameField: 'email',
       passwordField: 'password',
     },
-    async (email: string, password: string, done) => {
-      const user = await findUserByEmail(email)
-      if (!user || !verifyPassword(user, password)) {
-        return done('Email or password is invalid')
-      }
-      return done(null, user)
+    function (email, password, done) {
+      UserModel.findOne({ email: email })
+        .then((user: User | null) => {
+          if (!user || !user.validPassword(password)) {
+            return done(
+              {
+                errors: { message: 'Email or password is invalid' },
+              },
+              null
+            )
+          }
+
+          return done(null, user)
+        })
+        .catch(done)
     }
   )
 )

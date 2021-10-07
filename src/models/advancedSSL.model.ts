@@ -1,13 +1,13 @@
 import { Document, Schema, model } from 'mongoose'
-import { IApplication } from './application.model'
-import { IDomain } from './domain.model'
+import { Application } from './application.model'
+import { Domain } from './domain.model'
 
 export interface AdvancedSSL extends Document {
   method: string
   enableHttp: boolean
   enableHsts: boolean
-  application: IApplication
-  domain: IDomain
+  application: Application
+  domain: Domain
 }
 
 const AdvancedSSLSchema = new Schema<AdvancedSSL>(
@@ -48,11 +48,11 @@ const AdvancedSSLSchema = new Schema<AdvancedSSL>(
     state: String,
     country: String,
     application: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'Application',
     },
     domain: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'Domains',
     },
   },
@@ -61,4 +61,4 @@ const AdvancedSSLSchema = new Schema<AdvancedSSL>(
   }
 )
 
-model<AdvancedSSL>('AdvancedSSL', AdvancedSSLSchema)
+export default model<AdvancedSSL>('AdvancedSSL', AdvancedSSLSchema)

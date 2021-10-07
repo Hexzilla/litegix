@@ -1,18 +1,19 @@
 import { body } from 'express-validator'
 import { model } from 'mongoose'
 import { Router, Request, Response, NextFunction } from 'express'
+import { User } from 'models'
 import auth from 'routes/auth'
-import authService from 'services/auth.service'
+import * as authService from 'services/auth.service'
 
 const router = Router()
-const User = model('User')
+const UserModel = model<User>('User')
 
 router.get(
   '/user',
   auth.required,
   function (req: Request, res: Response, next: NextFunction) {
-    User.findById(req.payload.id)
-      .then(function (user) {
+    UserModel.findById(req.payload.id)
+      .then((user: User | null) => {
         if (!user) {
           return res.sendStatus(401)
         }
@@ -27,7 +28,7 @@ router.put(
   '/user',
   auth.required,
   function (req: Request, res: Response, next: NextFunction) {
-    User.findById(req.payload.id)
+    UserModel.findById(req.payload.id)
       .then(function (user) {
         if (!user) {
           return res.sendStatus(401)

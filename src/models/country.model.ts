@@ -16,4 +16,4 @@ var CountrySchema = new Schema<Country>(
   { timestamps: false }
 )
 
-model<Country>('Country', CountrySchema)
+export default model<Country>('Country', CountrySchema)

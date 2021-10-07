@@ -29,4 +29,4 @@ const DomainSchema = new Schema<Domain>(
   }
 )
 
-model<Domain>('Domains', DomainSchema)
+export default model<Domain>('Domains', DomainSchema)

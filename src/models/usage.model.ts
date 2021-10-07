@@ -12,7 +12,7 @@ export interface Usage extends Document {
 var UsageSchema = new Schema<Usage>(
   {
     server: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'Server',
     },
     memory: String,
@@ -25,4 +25,4 @@ var UsageSchema = new Schema<Usage>(
   }
 )
 
-model<Usage>('Usage', UsageSchema)
+export default model<Usage>('Usage', UsageSchema)

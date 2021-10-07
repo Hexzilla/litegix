@@ -33,4 +33,4 @@ const DatabaseUserSchema = new Schema<DatabaseUser>(
   }
 )
 
-model<DatabaseUser>('DatabaseUser', DatabaseUserSchema)
+export default model<DatabaseUser>('DatabaseUser', DatabaseUserSchema)

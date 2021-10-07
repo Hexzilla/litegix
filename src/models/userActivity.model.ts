@@ -29,4 +29,4 @@ const UserActivitySchema = new Schema<UserActivity>(
   }
 )
 
-model<UserActivity>('UserActivity', UserActivitySchema)
+export default model<UserActivity>('UserActivity', UserActivitySchema)

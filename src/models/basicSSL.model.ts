@@ -42,4 +42,4 @@ const BasicSSLSchema = new Schema<BasicSSL>(
   }
 )
 
-model<BasicSSL>('BasicSSL', BasicSSLSchema)
+export default model<BasicSSL>('BasicSSL', BasicSSLSchema)
