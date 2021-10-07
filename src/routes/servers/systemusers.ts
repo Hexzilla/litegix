@@ -2,12 +2,12 @@ import { body } from 'express-validator'
 import { Router, Request, Response, NextFunction } from 'express'
 import auth from '../auth'
 import validate from 'routes/validate'
-import system from 'services/system.service'
+import * as systemService from 'services/system.service'
 const router = Router()
 
 router.get('/', auth.required, async function (req: Request, res: Response) {
   try {
-    const response = await system.getSystemUsers(req.server)
+    const response = await systemService.getSystemUsers(req.server)
     return res.json(response)
   } catch (e) {
     console.error(e)
@@ -21,7 +21,7 @@ router.get(
   async function (req: Request, res: Response) {
     try {
       const userId = req.params.userId
-      const response = await system.getSystemUserById(req.server, userId)
+      const response = await systemService.getSystemUserById(req.server, userId)
       return res.json(response)
     } catch (e) {
       console.error(e)
@@ -38,7 +38,7 @@ router.post(
   validate,
   async function (req: Request, res: Response) {
     try {
-      const response = await system.storeSystemUser(req.server, req.body)
+      const response = await systemService.storeSystemUser(req.server, req.body)
       return res.json(response)
     } catch (e) {
       console.error(e)
@@ -52,7 +52,7 @@ router.post(
   auth.required,
   body('id').isString(),
   body('password').isLength({ min: 8 }).trim().escape(),
-  system.changeSystemUserPassword
+  systemService.changeSystemUserPassword
 )
 
 router.delete(
@@ -61,7 +61,7 @@ router.delete(
   async function (req: Request, res: Response) {
     try {
       const userId = req.params.userId
-      const response = await system.deleteSystemUser(req.server, userId)
+      const response = await systemService.deleteSystemUser(req.server, userId)
       return res.json(response)
     } catch (e) {
       console.error(e)

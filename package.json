@@ -66,6 +66,7 @@
     "@types/passport": "^1.0.7",
     "@types/passport-local": "^1.0.34",
     "@types/serve-favicon": "^2.5.3",
+    "@types/uuid": "^8.3.1",
     "newman": "^5.2.4",
     "nodemon": "^2.0.7",
     "prettier": "^2.3.2",

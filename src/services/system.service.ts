@@ -1,24 +1,319 @@
-const valiator = require('express-validator')
-const uuid = require('uuid')
+import { model } from 'mongoose'
+import uuid from 'uuid'
+import { Server, Service, SystemUser, SSHKey, CronJob } from 'models'
+import { createServerActivityLogInfo } from 'services/activity.service'
+const ServiceModel = model<Service>('Service')
+const SystemUserModel = model<SystemUser>('SystemUser')
+const SSHKeyModel = model<SSHKey>('SSHKey')
+const CronJobModel = model<SSHKey>('CronJob')
 const { getServer } = require('./server-service')
 const { getUser } = require('./auth')
-const mongoose = require('mongoose')
-const Service = mongoose.model('Service')
-const SystemUser = mongoose.model('SystemUser')
-const SSHKey = mongoose.model('SSHKey')
-const ServerSSHKey = mongoose.model('ServerSSHKey')
-const CronJob = mongoose.model('CronJob')
-const agent = require('./agent')
-const activity = require('./activity-service')
+// const SSHKey = mongoose.model('SSHKey')
+// const ServerSSHKey = mongoose.model('ServerSSHKey')
+// const CronJob = mongoose.model('CronJob')
+// const agent = require('./agent')
 
-const changeSystemUserPassword = async function (req: Request, res: Response) {
+export async function getSystemUsers(server: Server) {
+  const users = await SystemUserModel.find({ server: server.id })
+  return {
+    success: true,
+    data: { users: users.map((it) => it.getJson()) },
+  }
+}
+
+export async function getSystemUserById(server: Server, userId: string) {
+  const users = await SystemUserModel.findById(userId)
+  return {
+    success: true,
+    data: { users: users },
+  }
+}
+
+export async function createSystemUser(server: Server, data: any) {}
+
+export async function storeSystemUser(server: Server, data: any) {
+  const exists = await SystemUserModel.findOne({
+    server: server.id,
+    name: data.name,
+  })
+  if (exists) {
+    return {
+      success: false,
+      errors: { message: 'Name has already been taken.' },
+    }
+  }
+
+  /*const response = await agentService.createSystemUser(data)
+  if (!response.success) {
+    return {
+      success: false,
+      errors: response.errors,
+    }
+  }*/
+
+  const user = new SystemUserModel(data)
+  user.server = server
+  await user.save()
+
+  const message = `Added new system user ${user.name} with password`
+  await createServerActivityLogInfo(server.id, message)
+
+  return {
+    success: true,
+    data: { user: user },
+  }
+}
+
+export async function deleteSystemUser(server: Server, userId: string) {
+  const user = await SystemUserModel.findById(userId)
+  if (!user) {
+    return {
+      success: false,
+      errors: { message: "It doesn't exists" },
+    }
+  }
+
+  // errors = await agent.deleteSystemUser(user.name)
+  // if (errors) {
+  //   return { success: false, errors: errors }
+  // }
+
+  await user.remove()
+
+  const message = `Deleted system user ${user.name}`
+  await createServerActivityLogInfo(server, message)
+
+  return {
+    success: true,
+    data: { id: userId },
+  }
+}
+
+export async function getServerSSHKeys(server: Server) {
+  const sshKeys = await SSHKeyModel.find({ server: server.id })
+
+  return {
+    success: true,
+    data: {
+      sshKeys: sshKeys,
+    },
+  }
+}
+
+export async function createServerSSHKey(server: Server) {
+  const systemUsers = await SystemUserModel.find({
+    server: server.id,
+  })
+  return {
+    success: true,
+    data: {
+      systemusers: systemUsers.map((it) => it.getJson()),
+    },
+  }
+}
+
+export async function storeServerSSHKey(server: Server, data: any) {
+  const exists = await SSHKeyModel.find({
+    server: server.id,
+    label: data.label,
+  })
+  if (exists && exists.length > 0) {
+    return {
+      success: false,
+      errors: { message: 'Label is duplicated' },
+    }
+  }
+
+  /*errors = await agent.createSSHKey(data)
+  if (errors) {
+    return res.status(422).json({
+      success: false,
+      errors: errors
+    })
+  }*/
+
+  const sshkey = new SSHKeyModel(data)
+  sshkey.server = server.id
+  await sshkey.save()
+
+  const message = `Added new SSH key ${data.label} with user ${data.userId}`
+  await createServerActivityLogInfo(server.id, message)
+
+  return {
+    success: true,
+    data: { sshkey: sshkey },
+  }
+}
+
+export async function deleteServerSSHKey(server: Server, keyId: string) {
+  const result = await SSHKeyModel.deleteOne({
+    id: keyId,
+  })
+
+  return {
+    success: true,
+    data: { id: keyId },
+  }
+}
+
+export async function getDeploymentKeys(server: Server) {
+  const users = await SystemUserModel.find({ serverId: server.id })
+  return {
+    success: true,
+    data: {
+      keys: users.map((it) => it.toDeploymentKeyJson()),
+    },
+  }
+}
+
+export async function storeDeploymentKey(server: Server, userId: string) {
+  const user = await SystemUserModel.findById(userId)
+  if (!user) {
+    return {
+      success: false,
+      errors: { userId: "doesn't exists." },
+    }
+  }
+
+  const deploymentKey = `TEST_PUBLIC_KEY_${userId}_${uuid.v4()}`
+
+  // errors = await agent.storeDeploymentKey(userId, deploymentKey)
+  // if (errors) {
+  //   return { success: false, errors: errors }
+  // }
+
+  user.deploymentKey = deploymentKey
+  await user.save()
+
+  const message = `Created new deployment key for system user ${user.name}`
+  await createServerActivityLogInfo(server.id, message)
+
+  return {
+    success: true,
+    data: { key: deploymentKey },
+  }
+}
+
+export async function getCronJobList(server: Server) {
+  const cronjobs = await CronJobModel.find({ serverId: server.id })
+  return {
+    success: true,
+    data: { cronjobs },
+  }
+}
+
+export async function getCronJobById(jobId: string) {
+  const cronjob = await CronJobModel.findById(jobId)
+  return {
+    success: true,
+    data: { cronjob },
+  }
+}
+
+export async function storeCronJob(server: Server, data: any) {
+  const exists = await CronJobModel.findOne({
+    serverId: server.id,
+    label: data.label,
+  })
+  if (exists) {
+    return {
+      success: false,
+      errors: { label: 'has already been taken.' },
+    }
+  }
+
+  // errors = await agent.createCronJob(data)
+  // if (errors) {
+  //   return { success: false, errors: errors })
+  // }
+
+  data.time = [
+    data.minute,
+    data.hour,
+    data.dayOfMonth,
+    data.month,
+    data.dayOfWeek,
+  ].join(' ')
+  console.log(data)
+
+  const cronjob = new CronJobModel(data)
+  cronjob.server = server.id
+  await cronjob.save()
+
+  const message = `Added new Cron Job ${data.label}`
+  await createServerActivityLogInfo(server.id, message)
+
+  return {
+    success: true,
+    message: 'It has been successfully created.',
+  }
+}
+
+export async function getPhpVersions(server: Server) {
+  return {
+    success: true,
+    data: {
+      phpVersion: '7.2',
+      versions: ['7.2', '7.4', '8.0'],
+    },
+  }
+}
+
+export async function getSystemServices(server: Server) {
+  //const services = await Service.find({ serverId: server.id });
+  const services = [
+    {
+      symbol: 'media/svg/misc/015-telegram.svg',
+      service: 'Beanstalk',
+      version: '1.11-1',
+      processor_usage: '40%',
+      memory_usage: '80MB',
+      status: true,
+      action: '',
+    },
+    {
+      symbol: 'media/svg/misc/006-plurk.svg',
+      service: 'Httpd/Apache',
+      version: '2.4-3.3',
+      processor_usage: '-',
+      memory_usage: '-',
+      status: false,
+      action: 'ReactJs, HTML',
+    },
+    {
+      symbol: 'media/svg/misc/003-puzzle.svg',
+      service: 'MariaDB',
+      version: '1.456-maria-focal',
+      processor_usage: '-',
+      memory_usage: '-',
+      status: true,
+      action: 'Laravel, Metronic',
+    },
+    {
+      symbol: 'media/svg/misc/005-bebo.svg',
+      service: 'Memcached',
+      version: '1.525-2ubuntu0.1',
+      processor_usage: '45%',
+      memory_usage: '8GB',
+      status: false,
+      action: 'AngularJS, C#',
+    },
+  ]
+  console.log('getSystemServices', services)
+  return {
+    success: true,
+    data: { services },
+  }
+}
+
+export async function changeSystemUserPassword(req: Request, res: Response) {
   try {
     let errors = valiator.validationResult(req)
     if (!errors.isEmpty()) {
       return res.status(422).json({ success: false, errors: errors.array() })
     }
 
-    await SystemUser.findByIdAndUpdate(
+    await SystemUserModel.findByIdAndUpdate(
       req.body.id,
       { $set: { password: req.body.password } },
       { upsert: true },
@@ -38,7 +333,7 @@ const changeSystemUserPassword = async function (req: Request, res: Response) {
     )
 
     let server = req.server
-    let user = await SystemUser.findById(req.body.id)
+    let user = await SystemUserModel.findById(req.body.id)
     if (!user) {
       return res.status(422).json({
         success: false,
@@ -55,7 +350,7 @@ const changeSystemUserPassword = async function (req: Request, res: Response) {
     // }
 
     const message = `The password for system user ${user.name} is changed`
-    await activity.createServerActivityLogInfo(server.id, message)
+    await createServerActivityLogInfo(server.id, message)
 
     res.json({
       success: true,
@@ -67,7 +362,7 @@ const changeSystemUserPassword = async function (req: Request, res: Response) {
   }
 }
 
-const getVaultedSSHKeys = async function (req: Request, res: Response) {
+export async function getVaultedSSHKeys(req: Request, res: Response) {
   try {
     const sshKeys = await SSHKey.find({ userId: req.payload.id })
 
@@ -86,7 +381,7 @@ const getVaultedSSHKeys = async function (req: Request, res: Response) {
   }
 }
 
-const deleteVaultedSSHKey = async function (req: Request, res: Response) {
+export async function deleteVaultedSSHKey(req: Request, res: Response) {
   try {
     await SSHKey.deleteOne({
       userId: req.payload.id,
@@ -103,308 +398,4 @@ const deleteVaultedSSHKey = async function (req: Request, res: Response) {
       errors: error,
     })
   }
-}
-
-export default {
-  getSystemUsers: async function (server) {
-    const users = await SystemUser.find({ serverId: server.id })
-    return {
-      success: true,
-      data: { users: users.map((it) => it.getJson()) },
-    }
-  },
-
-  getSystemUserById: async function (server, userId) {
-    const users = await SystemUser.find({
-      serverId: server.id,
-      _id: userId,
-    })
-    return {
-      success: true,
-      data: { users: users },
-    }
-  },
-
-  createSystemUser: async function (server, data) {},
-
-  storeSystemUser: async function (server, data) {
-    const exists = await SystemUser.findOne({
-      serverId: server.id,
-      name: data.name,
-    })
-    if (exists) {
-      return {
-        success: false,
-        errors: { message: 'Name has already been taken.' },
-      }
-    }
-
-    const response = await agent.createSystemUser(data)
-    if (!response.success) {
-      return res.status(422).json({
-        success: false,
-        errors: errors,
-      })
-    }
-
-    const user = new SystemUser(data)
-    user.serverId = server.id
-    await user.save()
-
-    const message = `Added new system user ${user.name} with password`
-    await activity.createServerActivityLogInfo(server.id, message)
-
-    return {
-      success: true,
-      data: { user: user },
-    }
-  },
-
-  changeSystemUserPassword,
-
-  deleteSystemUser: async function (server, userId) {
-    const user = await SystemUser.findById(userId)
-    if (!user) {
-      return {
-        success: false,
-        errors: { message: "It doesn't exists" },
-      }
-    }
-
-    // errors = await agent.deleteSystemUser(user.name)
-    // if (errors) {
-    //   return { success: false, errors: errors }
-    // }
-
-    await user.remove()
-
-    const message = `Deleted system user ${user.name}`
-    await activity.createServerActivityLogInfo(server.id, message)
-
-    return {
-      success: true,
-      data: { id: userId },
-    }
-  },
-
-  getServerSSHKeys: async function (server) {
-    const sshKeys = await ServerSSHKey.find({ serverId: server.id })
-
-    return {
-      success: true,
-      data: {
-        sshKeys: sshKeys,
-        // sshKeys: sshKeys.map(it => it.name)
-      },
-    }
-  },
-
-  getVaultedSSHKeys,
-
-  createServerSSHKey: async function (server) {
-    const systemusers = await SystemUser.find({
-      serverId: server.id,
-    })
-    return {
-      success: true,
-      data: {
-        systemusers: systemusers.map((it) => it.getJson()),
-      },
-    }
-  },
-
-  storeServerSSHKey: async function (server, data) {
-    const exists = await ServerSSHKey.find({
-      serverId: server.id,
-      label: data.label,
-    })
-    if (exists && exists.length > 0) {
-      return {
-        success: false,
-        errors: { message: 'Label is duplicated' },
-      }
-    }
-
-    /*errors = await agent.createSSHKey(data)
-    if (errors) {
-      return res.status(422).json({
-        success: false,
-        errors: errors
-      })
-    }*/
-
-    const sshkey = new ServerSSHKey(data)
-    sshkey.serverId = server.id
-    await sshkey.save()
-
-    const message = `Added new SSH key ${data.label} with user ${data.userId}`
-    await activity.createServerActivityLogInfo(server.id, message)
-
-    return {
-      success: true,
-      data: { sshkey: sshkey },
-    }
-  },
-
-  deleteServerSSHKey: async function (server, keyId) {
-    const result = await SSHKey.deleteOne({
-      serverId: server.id,
-      id: req.params.keyId,
-    })
-
-    return {
-      success: true,
-      data: { id: keyId },
-    }
-  },
-
-  deleteVaultedSSHKey,
-
-  getDeploymentKeys: async function (server) {
-    const users = await SystemUser.find({ serverId: server.id })
-    return {
-      success: true,
-      data: { keys: users.map((it) => it.toDeploymentKeyJson()) },
-    }
-  },
-
-  storeDeploymentKey: async function (server, userId) {
-    const user = await SystemUser.findById(userId)
-    if (!user) {
-      return {
-        success: false,
-        errors: { userId: "doesn't exists." },
-      }
-    }
-
-    const deploymentKey = `TEST_PUBLIC_KEY_${userId}_${uuid.v4()}`
-
-    // errors = await agent.storeDeploymentKey(userId, deploymentKey)
-    // if (errors) {
-    //   return { success: false, errors: errors }
-    // }
-
-    user.deploymentKey = deploymentKey
-    await user.save()
-
-    const message = `Created new deployment key for system user ${user.name}`
-    await activity.createServerActivityLogInfo(server.id, message)
-
-    return {
-      success: true,
-      data: { key: deploymentKey },
-    }
-  },
-
-  getCronJobList: async function (server) {
-    const cronjobs = await CronJob.find({ serverId: server.id })
-    return {
-      success: true,
-      data: { cronjobs },
-    }
-  },
-
-  getCronJobById: async function (jobId) {
-    const cronjob = await CronJob.findById(jobId)
-    return {
-      success: true,
-      data: { cronjob },
-    }
-  },
-
-  storeCronJob: async function (server, data) {
-    const exists = await CronJob.findOne({
-      serverId: server.id,
-      label: data.label,
-    })
-    if (exists) {
-      return {
-        success: false,
-        errors: { label: 'has already been taken.' },
-      }
-    }
-
-    // errors = await agent.createCronJob(data)
-    // if (errors) {
-    //   return { success: false, errors: errors })
-    // }
-
-    data.time = [
-      data.minute,
-      data.hour,
-      data.dayOfMonth,
-      data.month,
-      data.dayOfWeek,
-    ].join(' ')
-    console.log(data)
-
-    const cronjob = new CronJob(data)
-    cronjob.serverId = server.id
-    await cronjob.save()
-
-    const message = `Added new Cron Job ${data.label}`
-    await activity.createServerActivityLogInfo(server.id, message)
-
-    return {
-      success: true,
-      message: 'It has been successfully created.',
-    }
-  },
-
-  getPhpVersions: async function (server) {
-    return {
-      success: true,
-      data: {
-        phpVersion: '7.2',
-        versions: ['7.2', '7.4', '8.0'],
-      },
-    }
-  },
-
-  getSystemServices: async function (server) {
-    //const services = await Service.find({ serverId: server.id });
-    const services = [
-      {
-        symbol: 'media/svg/misc/015-telegram.svg',
-        service: 'Beanstalk',
-        version: '1.11-1',
-        processor_usage: '40%',
-        memory_usage: '80MB',
-        status: true,
-        action: '',
-      },
-      {
-        symbol: 'media/svg/misc/006-plurk.svg',
-        service: 'Httpd/Apache',
-        version: '2.4-3.3',
-        processor_usage: '-',
-        memory_usage: '-',
-        status: false,
-        action: 'ReactJs, HTML',
-      },
-      {
-        symbol: 'media/svg/misc/003-puzzle.svg',
-        service: 'MariaDB',
-        version: '1.456-maria-focal',
-        processor_usage: '-',
-        memory_usage: '-',
-        status: true,
-        action: 'Laravel, Metronic',
-      },
-      {
-        symbol: 'media/svg/misc/005-bebo.svg',
-        service: 'Memcached',
-        version: '1.525-2ubuntu0.1',
-        processor_usage: '45%',
-        memory_usage: '8GB',
-        status: false,
-        action: 'AngularJS, C#',
-      },
-    ]
-    console.log('getSystemServices', services)
-    return {
-      success: true,
-      data: { services },
-    }
-  },
 }

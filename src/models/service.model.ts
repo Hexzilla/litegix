@@ -1,16 +1,34 @@
-var mongoose = require('mongoose')
+import { Document, Schema, model } from 'mongoose'
+import { Server } from './server.model'
 
-var ServiceSchema = new Schema(
+export interface Service extends Document {
+  name: string
+  cpuUsage: number
+  memoryUsage: number
+  status: string
+  server: Server
+}
+
+var ServiceSchema = new Schema<Service>(
   {
-    serverId: { type: mongoose.Schema.Types.ObjectId, ref: 'Server' },
-    name: { type: String, required: [true, "can't be blank"] },
+    server: {
+      type: Schema.Types.ObjectId,
+      ref: 'Server',
+    },
+    name: {
+      type: String,
+      required: [true, "can't be blank"],
+    },
     cpuUsage: Number,
     memoryUsage: Number,
-    status: { type: String, required: [true, "can't be blank"] },
+    status: {
+      type: String,
+      required: [true, "can't be blank"],
+    },
   },
   {
     timestamps: false,
   }
 )
 
-mongoose.model('Service', ServiceSchema)
+model<Service>('Service', ServiceSchema)

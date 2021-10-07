@@ -1,13 +1,13 @@
 import { body } from 'express-validator'
-import { Router, Request, Response, NextFunction } from 'express'
+import { Router, Request, Response } from 'express'
 import validate from 'routes/validate'
 import auth from '../auth'
-import system from 'services/system.service'
+import * as systemService from 'services/system.service'
 const router = Router()
 
 router.get('/', auth.required, async function (req: Request, res: Response) {
   try {
-    const response = await system.getServerSSHKeys(req.server)
+    const response = await systemService.getServerSSHKeys(req.server)
     return res.json(response)
   } catch (e) {
     console.error(e)
@@ -15,14 +15,14 @@ router.get('/', auth.required, async function (req: Request, res: Response) {
   }
 })
 
-router.get('/vault', auth.required, system.getVaultedSSHKeys)
+router.get('/vault', auth.required, systemService.getVaultedSSHKeys)
 
 router.get(
   '/create',
   auth.required,
   async function (req: Request, res: Response) {
     try {
-      const response = await system.createServerSSHKey(req.server)
+      const response = await systemService.createServerSSHKey(req.server)
       return res.json(response)
     } catch (e) {
       console.error(e)
@@ -40,7 +40,10 @@ router.post(
   validate,
   async function (req: Request, res: Response) {
     try {
-      const response = await system.storeServerSSHKey(req.server, req.body)
+      const response = await systemService.storeServerSSHKey(
+        req.server,
+        req.body
+      )
       return res.json(response)
     } catch (e) {
       console.error(e)
@@ -55,7 +58,7 @@ router.delete(
   async function (req: Request, res: Response) {
     try {
       const keyId = req.params.keyId
-      const response = await system.deleteServerSSHKey(req.server, keyId)
+      const response = await systemService.deleteServerSSHKey(req.server, keyId)
       return res.json(response)
     } catch (e) {
       console.error(e)

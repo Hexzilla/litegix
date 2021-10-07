@@ -1,18 +1,38 @@
-var mongoose = require('mongoose')
+import { Document, Schema, model } from 'mongoose'
+import { User } from './user.model'
+import { Server } from './server.model'
 
-var SSHKeySchema = new Schema(
+export interface SSHKey extends Document {
+  label: string
+  publicKey: string
+  user: User
+  server: Server
+}
+
+const SSHKeySchema = new Schema<SSHKey>(
   {
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
+    user: {
+      type: Schema.Types.ObjectId,
       ref: 'User',
       required: [true, "can't be blank"],
     },
-    name: { type: String, required: [true, "can't be blank"] },
-    publicKey: { type: String, required: [true, "can't be blank"] },
+    server: {
+      type: Schema.Types.ObjectId,
+      ref: 'Server',
+      required: [true, "can't be blank"],
+    },
+    label: {
+      type: String,
+      required: [true, "can't be blank"],
+    },
+    publicKey: {
+      type: String,
+      required: [true, "can't be blank"],
+    },
   },
   {
     timestamps: true,
   }
 )
 
-mongoose.model('SSHKey', SSHKeySchema)
+model<SSHKey>('SSHKey', SSHKeySchema)

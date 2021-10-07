@@ -1,26 +1,35 @@
-var mongoose = require('mongoose')
+import { Document, Schema, model } from 'mongoose'
+import { Server } from './server.model'
 
-var ServerplanSchema = new Schema(
+export interface ServerPlan extends Document {
+  index: number
+  packageName: string
+  price: number
+  server: Server
+}
+
+var ServerPlanSchema = new Schema<ServerPlan>(
   {
-    // userId: { type: mongoose.Schema.Types.ObjectId,
-    //             ref: "User",
-    //             required: [true, "can't be blank"] },
-    index: { type: Number, required: [true, "can't be blank"] },
-    packagename: { type: String, required: [true, "can't be blank"] },
-    price: { type: Number, required: [true, "can't be blank"] },
+    index: {
+      type: Number,
+      required: [true, "can't be blank"],
+    },
+    packageName: {
+      type: String,
+      required: [true, "can't be blank"],
+    },
+    price: {
+      type: Number,
+      required: [true, "can't be blank"],
+    },
+    server: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Server',
+    },
   },
   {
     timestamps: true,
   }
 )
 
-ServerplanSchema.methods.toJSON = function () {
-  return {
-    id: this._id,
-    index: this.index,
-    packagename: this.packagename,
-    price: this.price,
-  }
-}
-
-mongoose.model('Serverplan', ServerplanSchema)
+model<ServerPlan>('ServerPlan', ServerPlanSchema)

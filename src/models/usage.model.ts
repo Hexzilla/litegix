@@ -1,8 +1,20 @@
-var mongoose = require('mongoose')
+import { Document, Schema, model } from 'mongoose'
+import { Server } from './server.model'
 
-var UsageSchema = new Schema(
+export interface Usage extends Document {
+  memory: string
+  cpu: string
+  disk: string
+  loadavg: string
+  server: Server
+}
+
+var UsageSchema = new Schema<Usage>(
   {
-    serverId: { type: mongoose.Schema.Types.ObjectId, ref: 'Server' },
+    server: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Server',
+    },
     memory: String,
     cpu: String,
     disk: String,
@@ -13,4 +25,4 @@ var UsageSchema = new Schema(
   }
 )
 
-mongoose.model('Usage', UsageSchema)
+model<Usage>('Usage', UsageSchema)

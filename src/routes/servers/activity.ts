@@ -1,11 +1,11 @@
 import { Router, Request, Response } from 'express'
 import auth from '../auth'
-import activity from 'services/activity.service'
+import * as activityService from 'services/activity.service'
 const router = Router()
 
 router.get('/', auth.required, async function (req: Request, res: Response) {
   try {
-    const response = await activity.getServerActivityLogs(req.server)
+    const response = await activityService.getServerActivityLogs(req.server)
     return res.json(response)
   } catch (e) {
     console.error(e)
