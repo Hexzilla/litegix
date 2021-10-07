@@ -7,7 +7,8 @@ import favicon from 'serve-favicon'
 import session from 'express-session'
 import useragent from 'express-useragent'
 import errorhandler from 'errorhandler'
-import { connect } from 'mongoose'
+import mongoose, { connect } from 'mongoose'
+import bluebird from 'bluebird'
 import routes from './routes'
 
 require('dotenv').config()
@@ -46,6 +47,7 @@ if (!isProduction) {
   app.use(errorhandler())
 }
 
+mongoose.Promise = bluebird
 mongoose.set('useNewUrlParser', true)
 mongoose.set('useFindAndModify', false)
 mongoose.set('useCreateIndex', true)

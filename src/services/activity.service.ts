@@ -1,14 +1,17 @@
-const mongoose = require('mongoose')
-const ServerActivity = mongoose.model('ServerActivity')
-const UserActivity = mongoose.model('UserActivity')
-const { getServer } = require('./server-service')
-const agent = require('./agent')
-const moment = require('moment')
+import { model } from 'mongoose'
+import moment from 'moment'
+import { User, Server, ServerActivity, UserActivity } from 'models'
+const ServerActivityModel = model<ServerActivity>('ServerActivity')
+const UserActivityModel = model<UserActivity>('UserActivity')
 
-const createServerActivityLogInfo = async function (serverId, message, level) {
+export async function createServerActivityLogInfo(
+  server: Server,
+  message: string,
+  level: number = 1
+) {
   try {
-    const activity = new ServerActivity({
-      serverId: serverId,
+    const activity = new ServerActivityModel({
+      server: server,
       category: 1,
       level: 1,
       message: message,
@@ -16,14 +19,18 @@ const createServerActivityLogInfo = async function (serverId, message, level) {
     })
     await activity.save()
   } catch (error) {
-    return { errors: errors }
+    return { errors: error }
   }
 }
 
-const createUserActivityLogInfo = async function (userId, message, level) {
+export async function createUserActivityLogInfo(
+  user: User,
+  message: string,
+  level: number = 1
+) {
   try {
-    const activity = new UserActivity({
-      userId: userId,
+    const activity = new UserActivityModel({
+      user: user,
       category: 1,
       level: 1,
       message: message,
@@ -31,25 +38,22 @@ const createUserActivityLogInfo = async function (userId, message, level) {
     })
     await activity.save()
   } catch (error) {
-    return { errors: errors }
+    return { errors: error }
   }
 }
 
-export default {
-  getAccountActivityLogs: async function (userId) {
-    const activities = await UserActivity.find({ userId })
-    return {
-      success: true,
-      data: { activities },
-    }
-  },
-  getServerActivityLogs: async function (server) {
-    const activities = await ServerActivity.find({ serverId: server.id })
-    return {
-      success: true,
-      data: { activities },
-    }
-  },
-  createServerActivityLogInfo,
-  createUserActivityLogInfo,
+export async function getServerActivityLogs(server: Server) {
+  const activities = await ServerActivityModel.find({ serverId: server.id })
+  return {
+    success: true,
+    data: { activities },
+  }
+}
+
+export async function getAccountActivityLogs(userId: string) {
+  const activities = await UserActivityModel.find({ userId })
+  return {
+    success: true,
+    data: { activities },
+  }
 }

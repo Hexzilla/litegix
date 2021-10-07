@@ -5,6 +5,13 @@ import jwt from 'jsonwebtoken'
 import secret from 'config'
 import { Company } from './company.model'
 
+export interface Newsletters {
+  subscription: boolean
+  announchment: boolean
+  blog: boolean
+  events: boolean
+}
+
 export interface User extends Document {
   username: string
   email: string
@@ -16,10 +23,12 @@ export interface User extends Document {
   ip_enable: boolean
   loginNotification: boolean
   company: Company
+  newsletters: Newsletters
   generateJWT(): string
   setPassword(password: string): void
   validPassword(password: string): boolean
   toAuthJSON(): JSON
+  toProfileJSON(): JSON
 }
 
 const UserSchema = new Schema<User>(

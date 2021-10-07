@@ -1,5 +1,5 @@
 import { Document, Schema, model } from 'mongoose'
-import Server from './server.model'
+import { Server } from './server.model'
 
 export interface ActivityLog extends Document {
   label: string
@@ -9,9 +9,18 @@ export interface ActivityLog extends Document {
 
 const ActivityLogSchema = new Schema<ActivityLog>(
   {
-    label: { type: String, required: [true, "can't be blank"] },
-    log: { type: String, required: [true, "can't be blank"] },
-    server: { type: Schema.Types.ObjectId, ref: 'Server' },
+    label: {
+      type: String,
+      required: [true, "can't be blank"],
+    },
+    log: {
+      type: String,
+      required: [true, "can't be blank"],
+    },
+    server: {
+      type: Schema.Types.ObjectId,
+      ref: 'Server',
+    },
   },
   {
     timestamps: true,

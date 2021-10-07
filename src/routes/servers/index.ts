@@ -1,35 +1,54 @@
 import { Router, Request, Response, NextFunction } from 'express'
-var mongoose = require('mongoose')
-var Server = mongoose.model('Server')
+import { model } from 'mongoose'
+import { Server } from 'models/server.model'
+import servers from './servers'
+import installation from './installation'
+import webapps from './webapps'
+import databases from './databases'
+import systemusers from './systemusers'
+import credentials from './credentials'
+import deployKey from './deployKey'
+import cronJobs from './cronJobs'
+import supervisors from './supervisors'
+import notifications from './notifications'
+import services from './services'
+import securities from './securities'
+import settings from './settings'
+import activity from './activity'
+import server from './server'
+const Server = model<Server>('Server')
+const router = Router()
 
 // Preload server on routes with ':serverId'
-router.param('serverId', function (req, res, next, serverId) {
-  Server.findById(serverId)
-    .then(function (server) {
-      if (!server) {
-        return res.sendStatus(404)
-      }
+router.param(
+  'serverId',
+  function (req: Request, res: Response, next: NextFunction, serverId: string) {
+    Server.findById(serverId)
+      .then(function (server) {
+        if (!server) {
+          return res.sendStatus(404)
+        }
+        req.server = server
+        return next()
+      })
+      .catch(next)
+  }
+)
 
-      req.server = server
-      return next()
-    })
-    .catch(next)
-})
-
-router.use('/', require('./servers'))
-router.use('/:serverId/installation', require('./installation'))
-router.use('/:serverId/webapps', require('./webapps'))
-router.use('/:serverId/databases', require('./databases'))
-router.use('/:serverId/systemusers', require('./systemusers'))
-router.use('/:serverId/sshcredentials', require('./credentials'))
-router.use('/:serverId/deploykeys', require('./deploy-key'))
-router.use('/:serverId/cronjobs', require('./cron-jobs'))
-router.use('/:serverId/supervisors', require('./supervisors'))
-router.use('/:serverId/notifications', require('./notifications'))
-router.use('/:serverId/services', require('./services'))
-router.use('/:serverId/securities', require('./securities'))
-router.use('/:serverId/settings', require('./settings'))
-router.use('/:serverId/activities', require('./activity'))
-router.use('/:serverId', require('./server'))
+router.use('/', servers)
+router.use('/:serverId/installation', installation)
+router.use('/:serverId/webapps', webapps)
+router.use('/:serverId/databases', databases)
+router.use('/:serverId/systemusers', systemusers)
+router.use('/:serverId/sshcredentials', credentials)
+router.use('/:serverId/deploykeys', deployKey)
+router.use('/:serverId/cronjobs', cronJobs)
+router.use('/:serverId/supervisors', supervisors)
+router.use('/:serverId/notifications', notifications)
+router.use('/:serverId/services', services)
+router.use('/:serverId/securities', securities)
+router.use('/:serverId/settings', settings)
+router.use('/:serverId/activities', activity)
+router.use('/:serverId', server)
 
 export default router

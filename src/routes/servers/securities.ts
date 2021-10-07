@@ -1,7 +1,7 @@
 import { body } from 'express-validator'
 import { Router, Request, Response, NextFunction } from 'express'
 import auth from '../auth'
-import securities from 'services/securities.service'
+import securities from 'services/security.service'
 const router = Router()
 
 // get firewalls list

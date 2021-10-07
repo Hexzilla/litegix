@@ -96,7 +96,7 @@ router.get(
   async function (req: Request, res: Response) {
     try {
       const dbuserId = req.params.dbuserId
-      const response = await database.getDatabaseUser(req.server, dbuserId)
+      const response = await database.getDatabaseUser(dbuserId)
       return res.json(response)
     } catch (e) {
       console.error(e)

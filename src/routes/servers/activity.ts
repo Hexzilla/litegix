@@ -1,4 +1,4 @@
-import { Router, Request, Response, NextFunction } from 'express'
+import { Router, Request, Response } from 'express'
 import auth from '../auth'
 import activity from 'services/activity.service'
 const router = Router()

@@ -1,8 +1,8 @@
-var mongoose = require("mongoose");
+var mongoose = require('mongoose')
 
-var SupervisorSchema = new mongoose.Schema(
+var SupervisorSchema = new Schema(
   {
-    serverId: { type: mongoose.Schema.Types.ObjectId, ref: "Server" },
+    serverId: { type: mongoose.Schema.Types.ObjectId, ref: 'Server' },
     name: { type: String, required: [true, "can't be blank"] },
     userName: { type: String, required: [true, "can't be blank"] },
     numprocs: { type: Number, required: [true, "can't be blank"] },
@@ -15,7 +15,7 @@ var SupervisorSchema = new mongoose.Schema(
   {
     timestamps: true,
   }
-);
+)
 
 SupervisorSchema.methods.toJSON = function () {
   return {
@@ -28,7 +28,7 @@ SupervisorSchema.methods.toJSON = function () {
     autoStart: this.autoStart,
     autoRestart: this.autoRestart,
     directory: this.directory,
-  };
-};
+  }
+}
 
-mongoose.model("Supervisor", SupervisorSchema);
+mongoose.model('Supervisor', SupervisorSchema)

@@ -2,21 +2,20 @@ import { body } from 'express-validator'
 import { model } from 'mongoose'
 import { Router, Request, Response, NextFunction } from 'express'
 import { Channel } from 'models/channel.model'
-import auth from '../auth'
-import notification from 'services/notification.service'
-
+import auth from 'routes/auth'
+import validate from 'routes/validate'
+import * as notification from 'services/notification.service'
+const ChannelModel = model<Channel>('Channel')
 const router = Router()
-const Channel = model<Channel>('Channel')
 
 // Preload server on routes with ':channelId'
-router.param('channelId', function (req, res, next, channelId) {
-  Channel.findById(channelId)
-    .then(function (item) {
-      if (!item) {
+router.param('channelId', function (req, res, next, channelId: string) {
+  ChannelModel.findById(channelId)
+    .then(function (channel) {
+      if (!channel) {
         return res.sendStatus(404)
       }
-
-      req.notification = item
+      req.channel = channel
       return next()
     })
     .catch(next)
@@ -41,10 +40,10 @@ router.get(
 router.post(
   '/newsletters/subscribe',
   auth.required,
+  validate,
   async function (req: Request, res: Response) {
     try {
-      const userId = req.payload.id
-      const response = await notification.subscribe(userId, req.body)
+      const response = await notification.subscribe(req.payload.id, req.body)
       return res.json(response)
     } catch (e) {
       console.error(e)
@@ -53,14 +52,35 @@ router.post(
   }
 )
 
-router.post('/newsletters/unsubscribe', auth.required, notification.unsubscribe)
+router.post(
+  '/newsletters/unsubscribe',
+  auth.required,
+  async function (req: Request, res: Response) {
+    try {
+      const response = await notification.unsubscribe(req.payload.id)
+      return res.json(response)
+    } catch (e) {
+      console.error(e)
+      return res.status(501).json({ success: false })
+    }
+  }
+)
 
 router.get(
   '/channels/store',
   auth.required,
   body('channel').isString(),
   body('name').isString(),
-  notification.storeChannel
+  validate,
+  async function (req: Request, res: Response) {
+    try {
+      const response = await notification.storeChannel(req.payload.id, req.body)
+      return res.json(response)
+    } catch (e) {
+      console.error(e)
+      return res.status(501).json({ success: false })
+    }
+  }
 )
 
 router.post(
@@ -68,17 +88,53 @@ router.post(
   auth.required,
   body('channel').isString(),
   body('name').isString(),
-  notification.updateChannel
+  validate,
+  async function (req: Request, res: Response) {
+    try {
+      const response = await notification.updateChannel(
+        req.payload.id,
+        req.channel,
+        req.body
+      )
+      return res.json(response)
+    } catch (e) {
+      console.error(e)
+      return res.status(501).json({ success: false })
+    }
+  }
 )
 
-router.get('/channels/:channelId', auth.required, notification.getChannel)
+router.get(
+  '/channels/:channelId',
+  auth.required,
+  async function (req: Request, res: Response) {
+    return res.json({
+      success: true,
+      data: {
+        channel: req.channel,
+      },
+    })
+  }
+)
 
 router.post(
   '/channels/:channelId/healthsetting',
   auth.required,
   body('load').isNumeric().isInt({ min: 1, max: 255 }),
   body('memory').isNumeric().isInt({ min: 1, max: 99 }),
-  notification.channelHealthsetting
+  validate,
+  async function (req: Request, res: Response) {
+    try {
+      const response = await notification.channelHealthSetting(
+        req.channel,
+        req.body
+      )
+      return res.json(response)
+    } catch (e) {
+      console.error(e)
+      return res.status(501).json({ success: false })
+    }
+  }
 )
 
 export default router
