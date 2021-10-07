@@ -1,5 +1,4 @@
 import { Document, Schema, model } from 'mongoose'
-//import uniqueValidator from 'mongoose-unique-validator'
 import crypto from 'crypto'
 import jwt from 'jsonwebtoken'
 import secret from 'config'
@@ -82,8 +81,6 @@ const UserSchema = new Schema<User>(
   },
   { timestamps: true }
 )
-
-//UserSchema.plugin(uniqueValidator, { message: 'is already taken.' })
 
 UserSchema.methods.setPassword = function (password) {
   this.salt = crypto.randomBytes(16).toString('hex')

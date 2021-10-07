@@ -12,22 +12,27 @@ passport.use(
       passwordField: 'password',
       passReqToCallback: true,
     },
-    async (req, email, password, done) => {
-      console.log('this is passport signup')
-      try {
-        const find = await UserModel.findOne({ email: req.body.email })
-
-        if (find) {
-          return done(null, null)
-        }
-        const username = req.body.name
-        const user = await UserModel.create({ username, email })
-        user.setPassword(password)
-        user.save()
-        return done(null, user)
-      } catch (error) {
-        done(error)
-      }
+    function (req, email, password, done) {
+      console.log('signup0')
+      UserModel.findOne({ email: req.body.email })
+        .then((exists) => {
+          if (exists) {
+            throw Error('Email is already token')
+          }
+          const username = req.body.name
+          return UserModel.create({ username, email })
+        })
+        .then((user) => {
+          if (!user) {
+            throw Error('Failed to create user')
+          }
+          user.setPassword(password)
+          return user.save()
+        })
+        .then((user) => {
+          return done(null, user)
+        })
+        .catch(done)
     }
   )
 )

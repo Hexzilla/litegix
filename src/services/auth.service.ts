@@ -12,7 +12,7 @@ export function login(req: Request, res: Response, next: NextFunction) {
     { session: false },
     function (err: any, user: User, info: any) {
       if (err) {
-        return next(err)
+        return res.status(422).json({ success: false, message: err.message })
       }
 
       if (!user) {
@@ -34,7 +34,7 @@ export function signup(req: Request, res: Response, next: NextFunction) {
     { session: false },
     function (err: any, user: User) {
       if (err) {
-        return next(err)
+        return res.status(422).json({ success: false, message: err.message })
       }
       if (!user) return res.json({ success: false })
       return res.json({ success: true })

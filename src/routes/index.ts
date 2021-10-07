@@ -8,6 +8,10 @@ import { body } from 'express-validator'
 import * as authService from 'services/auth.service'
 
 const router = Router()
+router.get('/', (req: Request, res: Response) => {
+  res.send('Litegix')
+})
+
 // router.use('/api', api)
 // router.use('/settings', settings)
 // router.use('/servers', servers)
