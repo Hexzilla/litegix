@@ -18,13 +18,13 @@ function getTokenFromHeader(req: Request) {
 export default {
   required: jwt({
     secret: secret,
-    algorithms: ['RS256'],
+    algorithms: ['HS256'],
     userProperty: 'payload',
     getToken: getTokenFromHeader,
   }),
   optional: jwt({
     secret: secret,
-    algorithms: [],
+    algorithms: ['HS256'],
     userProperty: 'payload',
     credentialsRequired: false,
     getToken: getTokenFromHeader,

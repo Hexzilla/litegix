@@ -86,7 +86,7 @@ export async function updateCompany(userId: string, data: any) {
   return {
     success: true,
     data: {
-      company: user.company.toJSON(),
+      company: user.company.id,
     },
   }
 }

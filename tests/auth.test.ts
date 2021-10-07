@@ -1,11 +1,11 @@
 import chai from 'chai'
 import chaiHttp from 'chai-http'
-import server from '../../src/app'
+import server from '../src/app'
 
 chai.use(chaiHttp)
 chai.should()
 
-describe('login', () => {
+describe('authentication', () => {
   it('it should success to signup', (done) => {
     chai
       .request(server)

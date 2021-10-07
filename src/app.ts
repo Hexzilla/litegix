@@ -8,6 +8,8 @@ import session from 'express-session'
 import useragent from 'express-useragent'
 import errorhandler from 'errorhandler'
 import { connect } from 'mongoose'
+import 'models'
+import 'config/passport'
 import routes from 'routes'
 
 require('dotenv').config()
@@ -54,8 +56,6 @@ connect(mongourl, {
   console.log('mongodb connected!')
 })
 
-import 'models'
-import 'config/passport'
 //require('./migrations/country')()
 //require('./migrations/credittopup')()
 

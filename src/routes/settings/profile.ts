@@ -5,7 +5,7 @@ import validate from 'routes/validate'
 import * as profile from 'services/profile.service'
 const router = Router()
 
-router.post('/', auth.required, async function (req: Request, res: Response) {
+router.get('/', auth.required, async function (req: Request, res: Response) {
   try {
     const userId = req.payload.id
     const response = await profile.getProfile(userId)
@@ -18,7 +18,7 @@ router.post('/', auth.required, async function (req: Request, res: Response) {
 
 // Upate user profile
 router.post(
-  '/update',
+  '/',
   auth.required,
   body('email').isEmail(),
   body('name').isLength({ min: 3, max: 20 }).trim().escape(),
@@ -39,7 +39,7 @@ router.post(
 
 // Update company info
 router.post(
-  '/updatecompany',
+  '/company',
   auth.required,
   body('name').isLength({ min: 3, max: 100 }).trim().escape(), //.isFQDN()
   body('address1').notEmpty(),

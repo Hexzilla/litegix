@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { body } from 'express-validator'
 // import api from './api'
-// import settings from './settings'
+import settings from './settings'
 // import servers from './servers'
 // import subscriptions from './subscriptions'
 // import payment from './payment'
@@ -13,7 +13,7 @@ router.get('/', (req: Request, res: Response) => {
 })
 
 // router.use('/api', api)
-// router.use('/settings', settings)
+router.use('/settings', settings)
 // router.use('/servers', servers)
 // router.use('/subscriptions', subscriptions)
 // router.use('/payment', payment)

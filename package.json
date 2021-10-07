@@ -5,8 +5,8 @@
   "main": "index.js",
   "license": "ISC",
   "scripts": {
-    "serve": "nodemon ./src/app.ts",
-    "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register 'tests/**/*.ts'",
+    "start": "nodemon ./src/app.ts",
+    "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register 'tests/*.ts'",
     "build": "tsc --project ./",
     "tslint": "tslint --project tsconfig.json",
     "prettier:base": "prettier --parser typescript --single-quote",
