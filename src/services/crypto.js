@@ -1,12 +1,12 @@
-const CryptoJS = require("crypto-js");
+const CryptoJS = require('crypto-js')
 
-const SecretKey = "xJpNWjRRIqCc7rdxVdms01lcHzdrH6s9";
+const SecretKey = 'xJpNWjRRIqCc7rdxVdms01lcHzdrH6s9'
 
-module.exports = {
+export default {
   encrypt: (text) => {
-    return CryptoJS.AES.encrypt(text, SecretKey).toString();
+    return CryptoJS.AES.encrypt(text, SecretKey).toString()
   },
   decrypt: (hash) => {
-    return CryptoJS.AES.decrypt(hash, SecretKey).toString(CryptoJS.enc.Utf8);
+    return CryptoJS.AES.decrypt(hash, SecretKey).toString(CryptoJS.enc.Utf8)
   },
-};
+}

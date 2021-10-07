@@ -1,9 +1,9 @@
-const mongoose = require("mongoose");
-const ServerActivity = mongoose.model("ServerActivity");
-const UserActivity = mongoose.model("UserActivity");
-const { getServer } = require("./server-service");
-const agent = require("./agent");
-const moment = require("moment");
+const mongoose = require('mongoose')
+const ServerActivity = mongoose.model('ServerActivity')
+const UserActivity = mongoose.model('UserActivity')
+const { getServer } = require('./server-service')
+const agent = require('./agent')
+const moment = require('moment')
 
 const createServerActivityLogInfo = async function (serverId, message, level) {
   try {
@@ -13,12 +13,12 @@ const createServerActivityLogInfo = async function (serverId, message, level) {
       level: 1,
       message: message,
       date: moment(),
-    });
-    await activity.save();
+    })
+    await activity.save()
   } catch (error) {
-    return { errors: errors };
+    return { errors: errors }
   }
-};
+}
 
 const createUserActivityLogInfo = async function (userId, message, level) {
   try {
@@ -28,28 +28,28 @@ const createUserActivityLogInfo = async function (userId, message, level) {
       level: 1,
       message: message,
       date: moment(),
-    });
-    await activity.save();
+    })
+    await activity.save()
   } catch (error) {
-    return { errors: errors };
+    return { errors: errors }
   }
-};
+}
 
-module.exports = {
+export default {
   getAccountActivityLogs: async function (userId) {
-    const activities = await UserActivity.find({ userId });
+    const activities = await UserActivity.find({ userId })
     return {
       success: true,
       data: { activities },
-    };
+    }
   },
   getServerActivityLogs: async function (server) {
-    const activities = await ServerActivity.find({ serverId: server.id });
+    const activities = await ServerActivity.find({ serverId: server.id })
     return {
       success: true,
       data: { activities },
-    };
+    }
   },
   createServerActivityLogInfo,
   createUserActivityLogInfo,
-};
+}

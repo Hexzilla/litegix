@@ -1,14 +1,17 @@
-const { body } = require('express-validator')
-const router = require("express").Router()
-const auth = require("../auth")
-const application = require("../../services/webapp")
+import { body } from 'express-validator'
+import { Router, Request, Response, NextFunction } from 'express'
+const auth = require('../auth')
+const application = require('../../services/webapp')
 
-router.post("/", 
-  auth.required, 
+router.post(
+  '/',
+  auth.required,
   body('serverId').isString(),
-  application.getWebApplications)
+  application.getWebApplications
+)
 
-router.post("/create", 
+router.post(
+  '/create',
   auth.required,
   body('serverId').isString(),
   body('name').isString(),
@@ -17,9 +20,11 @@ router.post("/create",
   body('phpVersion').isString(),
   body('stack').isString(),
   body('sslMethod').isString(),
-  application.createWebApplication)
+  application.createWebApplication
+)
 
-router.post("/store/custom",
+router.post(
+  '/store/custom',
   auth.required,
   body('serverId').isString(),
   body('name').isString(),
@@ -47,10 +52,11 @@ router.post("/store/custom",
   body('timezone').isString(),
   body('disableFunctions').isString(),
   body('maxExecutionTime').isNumeric(),*/
-  application.storeCustomWebApplication)
+  application.storeCustomWebApplication
+)
 
-
-router.post("/store/wordpress",
+router.post(
+  '/store/wordpress',
   auth.required,
   body('serverId').isString(),
   body('name').isString(),
@@ -78,12 +84,15 @@ router.post("/store/wordpress",
   body('timezone').isString(),
   body('disableFunctions').isString(),
   body('maxExecutionTime').isNumeric(),*/
-  application.storeWordpressWebApplication)
+  application.storeWordpressWebApplication
+)
 
-router.delete("/",
-  auth.required, 
+router.delete(
+  '/',
+  auth.required,
   body('serverId').isString(),
   body('name').isString(),
-  application.deleteWebApplication)
+  application.deleteWebApplication
+)
 
-module.exports = router
+export default router

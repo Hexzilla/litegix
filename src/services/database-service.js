@@ -1,21 +1,21 @@
-const valiator = require("express-validator");
-const { getServer } = require("./server-service");
-const mongoose = require("mongoose");
-mongoose.Promise = require("bluebird");
-const Database = mongoose.model("Database");
-const DatabaseUser = mongoose.model("DatabaseUser");
-const agent = require("./agent");
-const activity = require("./activity-service");
+const valiator = require('express-validator')
+const { getServer } = require('./server-service')
+const mongoose = require('mongoose')
+mongoose.Promise = require('bluebird')
+const Database = mongoose.model('Database')
+const DatabaseUser = mongoose.model('DatabaseUser')
+const agent = require('./agent')
+const activity = require('./activity-service')
 
-module.exports = {
+export default {
   getDatabases: async function (server) {
     const databases = await Database.find({ serverId: server.id }).populate(
-      "users"
-    );
+      'users'
+    )
     return {
       success: true,
       data: { databases: databases.map((it) => it.toJSON()) },
-    };
+    }
   },
 
   createDatabase: async function () {},
@@ -24,12 +24,12 @@ module.exports = {
     const exists = await Database.findOne({
       serverId: server.id,
       name: data.name,
-    });
+    })
     if (exists) {
       return {
         success: false,
-        errors: { message: "Database name has already been taken." },
-      };
+        errors: { message: 'Database name has already been taken.' },
+      }
     }
 
     /*errors = await agent.createDatabase(server.address, data)
@@ -40,38 +40,38 @@ module.exports = {
       })
     }*/
 
-    const options = { ...data };
+    const options = { ...data }
     if (data.userId) {
-      const user = await DatabaseUser.findById(data.userId);
+      const user = await DatabaseUser.findById(data.userId)
       if (!user) {
         return {
           success: false,
-          errors: { message: "Invalid User." },
-        };
+          errors: { message: 'Invalid User.' },
+        }
       }
-      options.users = [data.userId];
+      options.users = [data.userId]
     }
-    const database = new Database(options);
-    database.serverId = server.id;
-    await database.save();
+    const database = new Database(options)
+    database.serverId = server.id
+    await database.save()
 
-    const message = `Added new database ${data.name} with collation ${data.collation}`;
-    await activity.createServerActivityLogInfo(server.id, message);
+    const message = `Added new database ${data.name} with collation ${data.collation}`
+    await activity.createServerActivityLogInfo(server.id, message)
 
     return {
       success: true,
-      message: "It has been successfully created.",
+      message: 'It has been successfully created.',
       database: database,
-    };
+    }
   },
 
   deleteDatabase: async function (server, databaseId) {
-    const database = await Database.findById(databaseId);
+    const database = await Database.findById(databaseId)
     if (!database) {
       return {
         success: false,
         errors: { message: "It doesn't exists" },
-      };
+      }
     }
 
     /*errors = await agent.deleteDatabase(database.name)
@@ -79,173 +79,173 @@ module.exports = {
       return res.status(422).json({ success: false, errors: errors })
     }*/
 
-    await database.remove();
+    await database.remove()
 
-    const message = `Deleted database ${database.name}`;
-    await activity.createServerActivityLogInfo(server.id, message);
+    const message = `Deleted database ${database.name}`
+    await activity.createServerActivityLogInfo(server.id, message)
 
     return {
       success: true,
       data: { id: databaseId },
-    };
+    }
   },
 
-  getUngrantedDBuser: async function (req, res) {
+  getUngrantedDBuser: async function (req: Request, res: Response) {
     try {
-      let errors = valiator.validationResult(req);
+      let errors = valiator.validationResult(req)
       if (!errors.isEmpty()) {
-        return res.status(422).json({ success: false, errors: errors.array() });
+        return res.status(422).json({ success: false, errors: errors.array() })
       }
 
-      let server = req.server;
-      const database = await Database.findById(req.params.databaseId);
+      let server = req.server
+      const database = await Database.findById(req.params.databaseId)
       if (!database) {
         return res.status(422).json({
           success: false,
           errors: { message: "Database doesn't exists" },
-        });
+        })
       }
 
       const ungrantedusers = await DatabaseUser.find({
         _id: { $nin: database.users },
-      });
+      })
 
       return res.json({
         success: true,
         data: { ungrantedusers },
-      });
+      })
     } catch (e) {
-      console.error(e);
-      return res.status(501).json({ success: false });
+      console.error(e)
+      return res.status(501).json({ success: false })
     }
   },
 
-  grantDBuser: async function (req, res) {
+  grantDBuser: async function (req: Request, res: Response) {
     try {
-      let errors = valiator.validationResult(req);
+      let errors = valiator.validationResult(req)
       if (!errors.isEmpty()) {
-        return res.status(422).json({ success: false, errors: errors.array() });
+        return res.status(422).json({ success: false, errors: errors.array() })
       }
 
-      const database = await Database.findById(req.params.databaseId);
+      const database = await Database.findById(req.params.databaseId)
       if (!database) {
         return res.status(422).json({
           success: false,
           errors: { message: "Database doesn't exists" },
-        });
+        })
       }
 
-      const dbuser = await DatabaseUser.findById(req.body.dbuserId);
+      const dbuser = await DatabaseUser.findById(req.body.dbuserId)
       if (!dbuser) {
         return res.status(422).json({
           success: false,
           errors: { message: "user doesn't exists" },
-        });
+        })
       }
 
       if (database.users.includes(req.body.dbuserId)) {
         return res.status(422).json({
           success: false,
-          errors: { message: "user already granted in database" },
-        });
+          errors: { message: 'user already granted in database' },
+        })
       }
 
-      database.users.push(req.body.dbuserId);
-      await database.save();
+      database.users.push(req.body.dbuserId)
+      await database.save()
 
       return res.json({
         success: true,
-        message: "It has been successfully granted.",
-      });
+        message: 'It has been successfully granted.',
+      })
     } catch (e) {
-      console.error(e);
-      return res.status(501).json({ success: false });
+      console.error(e)
+      return res.status(501).json({ success: false })
     }
   },
 
-  revokeDBuser: async function (req, res) {
+  revokeDBuser: async function (req: Request, res: Response) {
     try {
-      let errors = valiator.validationResult(req);
+      let errors = valiator.validationResult(req)
       if (!errors.isEmpty()) {
-        return res.status(422).json({ success: false, errors: errors.array() });
+        return res.status(422).json({ success: false, errors: errors.array() })
       }
 
-      const database = await Database.findById(req.params.databaseId);
+      const database = await Database.findById(req.params.databaseId)
       if (!database) {
         return res.status(422).json({
           success: false,
           errors: { message: "Database doesn't exists" },
-        });
+        })
       }
 
-      const dbuser = await DatabaseUser.findById(req.params.dbuserId);
+      const dbuser = await DatabaseUser.findById(req.params.dbuserId)
       if (!dbuser) {
         return res.status(422).json({
           success: false,
           errors: { message: "user doesn't exists" },
-        });
+        })
       }
 
-      let gIndex = database.users.indexOf(req.params.dbuserId);
+      let gIndex = database.users.indexOf(req.params.dbuserId)
       if (gIndex < 0) {
         return res.status(422).json({
           success: false,
-          errors: { message: "user not granted in database" },
-        });
+          errors: { message: 'user not granted in database' },
+        })
       }
 
-      database.users.splice(gIndex, 1);
-      await database.save();
+      database.users.splice(gIndex, 1)
+      await database.save()
 
       return res.json({
         success: true,
-        message: "It has been successfully granted.",
-      });
+        message: 'It has been successfully granted.',
+      })
     } catch (e) {
-      console.error(e);
-      return res.status(501).json({ success: false });
+      console.error(e)
+      return res.status(501).json({ success: false })
     }
   },
 
   getDatabaseUser: async function (server, userId) {
-    const user = await DatabaseUser.findById(userId);
+    const user = await DatabaseUser.findById(userId)
     if (!user) {
       return {
         success: false,
         errors: { message: "User doesn't exists" },
-      };
+      }
     }
     return {
       success: true,
       data: { dbuser: user },
-    };
+    }
   },
 
   getDatabaseUserList: async function (server) {
-    const users = await DatabaseUser.find({ serverId: server.id });
+    const users = await DatabaseUser.find({ serverId: server.id })
     return {
       success: true,
       data: { dbusers: users },
-    };
+    }
   },
 
-  createDatabaseUser: async function (req, res) {
+  createDatabaseUser: async function (req: Request, res: Response) {
     return res.json({
       success: true,
       data: {},
-    });
+    })
   },
 
   storeDatabaseUser: async function (server, data) {
     const exists = await DatabaseUser.findOne({
       serverId: server.id,
       name: data.name,
-    });
+    })
     if (exists) {
       return {
         success: false,
-        errors: { message: "Database User name has already been taken." },
-      };
+        errors: { message: 'Database User name has already been taken.' },
+      }
     }
 
     /*errors = await agent.createDatabaseUser(data);
@@ -256,26 +256,26 @@ module.exports = {
       });
     }*/
 
-    const user = new DatabaseUser(data);
-    user.serverId = server.id;
-    await user.save();
+    const user = new DatabaseUser(data)
+    user.serverId = server.id
+    await user.save()
 
-    const message = `Added new database user ${data.name} with password`;
-    await activity.createServerActivityLogInfo(server.id, message);
+    const message = `Added new database user ${data.name} with password`
+    await activity.createServerActivityLogInfo(server.id, message)
 
     return {
       success: true,
-      message: "It has been successfully created.",
-    };
+      message: 'It has been successfully created.',
+    }
   },
 
   deleteDatabaseUser: async function (server, userId) {
-    const user = await DatabaseUser.findById(userId);
+    const user = await DatabaseUser.findById(userId)
     if (!user) {
       return {
         success: false,
         errors: { message: "It doesn't exists" },
-      };
+      }
     }
 
     /*errors = await agent.deleteDatabaseUser(user.name);
@@ -283,45 +283,45 @@ module.exports = {
       return res.status(422).json({ success: false, errors: errors });
     }*/
 
-    await user.remove();
+    await user.remove()
 
-    const message = `Deleted database user ${user.name}`;
-    await activity.createServerActivityLogInfo(server.id, message);
+    const message = `Deleted database user ${user.name}`
+    await activity.createServerActivityLogInfo(server.id, message)
 
     return {
       success: true,
       data: { id: userId, name: user.name },
-    };
+    }
   },
 
-  changePassword: async function (req, res) {
+  changePassword: async function (req: Request, res: Response) {
     try {
-      let errors = valiator.validationResult(req);
+      let errors = valiator.validationResult(req)
       if (!errors.isEmpty()) {
-        return res.status(422).json({ success: false, errors: errors.array() });
+        return res.status(422).json({ success: false, errors: errors.array() })
       }
 
-      let user = await DatabaseUser.findById(req.params.dbuserId);
+      let user = await DatabaseUser.findById(req.params.dbuserId)
       if (!user) {
         return res.status(422).json({
           success: false,
           errors: { message: "It doesn't exists" },
-        });
+        })
       }
 
-      user.password = req.body.password;
-      await user.save();
+      user.password = req.body.password
+      await user.save()
 
-      const message = `successfully password changed for ${user.name}`;
-      await activity.createServerActivityLogInfo(req.params.serverId, message);
+      const message = `successfully password changed for ${user.name}`
+      await activity.createServerActivityLogInfo(req.params.serverId, message)
 
       res.json({
         success: true,
-        message: "It has been successfully changed.",
-      });
+        message: 'It has been successfully changed.',
+      })
     } catch (e) {
-      console.error(e);
-      return res.status(501).json({ success: false });
+      console.error(e)
+      return res.status(501).json({ success: false })
     }
   },
-};
+}

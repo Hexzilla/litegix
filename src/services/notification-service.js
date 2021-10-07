@@ -1,54 +1,54 @@
-const valiator = require("express-validator");
-const mongoose = require("mongoose");
-const User = mongoose.model("User");
-const Channel = mongoose.model("Channel");
-const agent = require("./agent");
-const activity = require("./activity-service");
+const valiator = require('express-validator')
+const mongoose = require('mongoose')
+const User = mongoose.model('User')
+const Channel = mongoose.model('Channel')
+const agent = require('./agent')
+const activity = require('./activity-service')
 
-const unsubscribe = async function (req, res) {
+const unsubscribe = async function (req: Request, res: Response) {
   try {
-    const user = await User.findById(req.payload.id);
+    const user = await User.findById(req.payload.id)
     if (!user) {
       return res.status(501).json({
         success: false,
-        message: "Invalid User",
-      });
+        message: 'Invalid User',
+      })
     }
 
     if (user.newsletters) {
-      user.newsletters.subscription = false;
+      user.newsletters.subscription = false
     }
-    await user.save();
+    await user.save()
 
-    const message = `Unsubscribe from newsletter`;
-    await activity.createUserActivityLogInfo(user.id, message, "high");
+    const message = `Unsubscribe from newsletter`
+    await activity.createUserActivityLogInfo(user.id, message, 'high')
 
     res.json({
       success: true,
-      message: "It has been successfully updated.",
-    });
+      message: 'It has been successfully updated.',
+    })
   } catch (e) {
-    console.error(e);
-    return res.status(501).json({ success: false });
+    console.error(e)
+    return res.status(501).json({ success: false })
   }
-};
+}
 
-const storeChannel = async function (req, res) {
+const storeChannel = async function (req: Request, res: Response) {
   try {
-    let errors = valiator.validationResult(req);
+    let errors = valiator.validationResult(req)
     if (!errors.isEmpty()) {
-      return res.status(422).json({ success: false, errors: errors.array() });
+      return res.status(422).json({ success: false, errors: errors.array() })
     }
 
-    const user = await User.findById(req.payload.id);
+    const user = await User.findById(req.payload.id)
     if (!user) {
       return res.status(501).json({
         success: false,
-        message: "Invalid User",
-      });
+        message: 'Invalid User',
+      })
     }
 
-    const channelpost = req.body.channel;
+    const channelpost = req.body.channel
     // if (channelpost !== "email" && channelpost !== "slack") {
     //   return res.status(422).json({
     //     success: false,
@@ -60,48 +60,48 @@ const storeChannel = async function (req, res) {
       userId: req.payload.id,
       channel: req.body.channel,
       name: req.body.name,
-    };
-    let channel = await Channel.findOne(query);
+    }
+    let channel = await Channel.findOne(query)
     if (channel) {
       return res.status(422).json({
         success: false,
-        errors: { name: "has already been taken." },
-      });
+        errors: { name: 'has already been taken.' },
+      })
     }
 
-    channel = new Channel(req.body);
-    channel.userId = req.payload.id;
-    await channel.save();
+    channel = new Channel(req.body)
+    channel.userId = req.payload.id
+    await channel.save()
 
-    const message = `Added Notification Channel ${req.body.name} (${req.body.service})`;
-    await activity.createUserActivityLogInfo(user.id, message, "high");
+    const message = `Added Notification Channel ${req.body.name} (${req.body.service})`
+    await activity.createUserActivityLogInfo(user.id, message, 'high')
 
     res.json({
       success: true,
-      message: "It has been successfully created.",
-    });
+      message: 'It has been successfully created.',
+    })
   } catch (e) {
-    console.error(e);
-    return res.status(501).json({ success: false });
+    console.error(e)
+    return res.status(501).json({ success: false })
   }
-};
+}
 
-const updateChannel = async function (req, res) {
+const updateChannel = async function (req: Request, res: Response) {
   try {
-    let errors = valiator.validationResult(req);
+    let errors = valiator.validationResult(req)
     if (!errors.isEmpty()) {
-      return res.status(422).json({ success: false, errors: errors.array() });
+      return res.status(422).json({ success: false, errors: errors.array() })
     }
 
-    const user = await User.findById(req.payload.id);
+    const user = await User.findById(req.payload.id)
     if (!user) {
       return res.status(501).json({
         success: false,
-        message: "Invalid User",
-      });
+        message: 'Invalid User',
+      })
     }
 
-    let item = req.notification;
+    let item = req.notification
 
     if (item.service != req.body.service) {
       return res.status(422).json({
@@ -109,48 +109,48 @@ const updateChannel = async function (req, res) {
         errors: {
           service: "cann't change service.",
         },
-      });
+      })
     }
 
-    item.service = req.body.service;
-    item.name = req.body.name;
-    item.content = req.body.content;
-    await item.save();
+    item.service = req.body.service
+    item.name = req.body.name
+    item.content = req.body.content
+    await item.save()
 
-    const message = `Update Notification Channel ${req.body.name} (${req.body.service})`;
-    await activity.createUserActivityLogInfo(user.id, message, "high");
+    const message = `Update Notification Channel ${req.body.name} (${req.body.service})`
+    await activity.createUserActivityLogInfo(user.id, message, 'high')
 
     res.json({
       success: true,
-      message: "It has been successfully updated.",
-    });
+      message: 'It has been successfully updated.',
+    })
   } catch (e) {
-    console.error(e);
-    return res.status(501).json({ success: false });
+    console.error(e)
+    return res.status(501).json({ success: false })
   }
-};
+}
 
-const channelHealthsetting = async function (req, res) {
+const channelHealthsetting = async function (req: Request, res: Response) {
   try {
-    let errors = valiator.validationResult(req);
+    let errors = valiator.validationResult(req)
     if (!errors.isEmpty()) {
-      return res.status(422).json({ success: false, errors: errors.array() });
+      return res.status(422).json({ success: false, errors: errors.array() })
     }
-    let channelItem = req.notification;
+    let channelItem = req.notification
 
     if (req.body.load !== undefined) {
-      channelItem.load = req.body.load;
+      channelItem.load = req.body.load
     }
     if (req.body.memory !== undefined) {
-      channelItem.memory = req.body.memory;
+      channelItem.memory = req.body.memory
     }
     if (req.body.load !== undefined || req.body.memory !== undefined) {
-      const user = await User.findById(req.payload.id);
-      channelItem.save();
+      const user = await User.findById(req.payload.id)
+      channelItem.save()
       const message =
         `Update Server Health Notification Setting for Channel ${channelItem.name} (${channelItem.service}) : ` +
-        ` Load=${channelItem.load},  Memory=${channelItem.memory}.`;
-      await activity.createUserActivityLogInfo(user.id, message, "high");
+        ` Load=${channelItem.load},  Memory=${channelItem.memory}.`
+      await activity.createUserActivityLogInfo(user.id, message, 'high')
     }
 
     res.json({
@@ -159,37 +159,37 @@ const channelHealthsetting = async function (req, res) {
         load: channelItem.load,
         memory: channelItem.memory,
       },
-    });
+    })
   } catch (e) {
-    console.error(e);
-    return res.status(501).json({ success: false });
+    console.error(e)
+    return res.status(501).json({ success: false })
   }
-};
+}
 
-const getChannel = async function (req, res) {
+const getChannel = async function (req: Request, res: Response) {
   try {
-    const channel = await Channel.findById(req.params.channelId);
+    const channel = await Channel.findById(req.params.channelId)
     // console.log( req.params.channelId)
     // console.log( channel.load)
     return res.json({
       success: true,
       data: channel.toJSON(),
-    });
+    })
   } catch (e) {
-    console.error(e);
-    return res.status(501).json({ success: false });
+    console.error(e)
+    return res.status(501).json({ success: false })
   }
-};
-module.exports = {
+}
+export default {
   getNotifications: async function (userId) {
-    const user = await User.findById(userId);
+    const user = await User.findById(userId)
     if (!user) {
       return {
         success: false,
         errors: { userId: "doesn't exists." },
-      };
+      }
     }
-    const channels = await Channel.find({ userId });
+    const channels = await Channel.find({ userId })
 
     return {
       success: true,
@@ -197,15 +197,15 @@ module.exports = {
         newsletters: user.newsletters,
         channels: channels.map((it) => it.toJSON()),
       },
-    };
+    }
   },
   subscribe: async function (userId, data) {
-    const user = await User.findById(userId);
+    const user = await User.findById(userId)
     if (!user) {
       return {
         success: false,
         errors: { userId: "doesn't exists." },
-      };
+      }
     }
 
     user.newsletters = {
@@ -213,22 +213,22 @@ module.exports = {
       announchment: data.announchment,
       blog: data.blog,
       events: data.events,
-    };
-    await user.save();
+    }
+    await user.save()
 
-    const message = `Subscribe to newsletter`;
-    await activity.createUserActivityLogInfo(user.id, message);
+    const message = `Subscribe to newsletter`
+    await activity.createUserActivityLogInfo(user.id, message)
 
     return {
       success: true,
       data: {
         newsletters: user.newsletters,
       },
-    };
+    }
   },
   unsubscribe,
   storeChannel,
   updateChannel,
   channelHealthsetting,
   getChannel,
-};
+}

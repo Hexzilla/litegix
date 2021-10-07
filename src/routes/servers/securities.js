@@ -1,12 +1,12 @@
-const { body } = require('express-validator')
-const router = require("express").Router()
-const auth = require("../auth")
-const securities = require("../../services/securities")
+import { body } from 'express-validator'
+import { Router, Request, Response, NextFunction } from 'express'
+const auth = require('../auth')
+const securities = require('../../services/securities')
 
 // get firewalls list
 // request : /servers/{serverId}/security/firewalls
 // RESPONSE : json data
-router.get("/firewalls", auth.required, securities.getData)  
+router.get('/firewalls', auth.required, securities.getData)
 
 // get firewalls by id
 // REQUEST : /servers/{serverId}/security/firewalls/{firewallId}
@@ -17,12 +17,12 @@ router.get("/firewalls", auth.required, securities.getData)
 //              "ipAddress": "192.168.43.0\/24",
 //              "firewallAction": "accept",
 //              "created_at": "2019-06-27 10:15:07"
-router.put("/firewalls/:firewallId", auth.required, securities.getByIdData) 
+router.put('/firewalls/:firewallId', auth.required, securities.getByIdData)
 
 // deploy Rule
 // REQUEST : /servers/{serverId}/security/firewalls
 // RESPONSE : null
-router.put("/firewalls", auth.required, securities.deployRule)              
+router.put('/firewalls', auth.required, securities.deployRule)
 
 // delete Rule
 // REQUEST : /servers/{serverId}/security/firewalls/{firewallId}
@@ -33,19 +33,19 @@ router.put("/firewalls", auth.required, securities.deployRule)
 //              "ipAddress": "192.168.43.0\/24",
 //              "firewallAction": "accept",
 //              "created_at": "2019-06-27 10:15:07"
-router.delete("/firewalls/:firewallId", auth.required, securities.deleteRule) 
+router.delete('/firewalls/:firewallId', auth.required, securities.deleteRule)
 
 // create firewalls rule
 //  REQUEST : /servers/{serverId}/security/firewalls
-router.post("/firewalls",                                                   
-    auth.required,
-    body('sec_type').notEmpty(),
-    body('port').isString().notEmpty(),
-    body('protocol').notEmpty(),
-    body('ip_address').notEmpty(),
-    body('action').notEmpty(),
-    securities.firewalls)
+router.post(
+  '/firewalls',
+  auth.required,
+  body('sec_type').notEmpty(),
+  body('port').isString().notEmpty(),
+  body('protocol').notEmpty(),
+  body('ip_address').notEmpty(),
+  body('action').notEmpty(),
+  securities.firewalls
+)
 
-
-
-module.exports = router
+export default router

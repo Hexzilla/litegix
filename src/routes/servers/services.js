@@ -1,16 +1,16 @@
-const { body } = require("express-validator");
-const router = require("express").Router();
-const auth = require("../auth");
-const system = require("../../services/system-service");
+import { body } from 'express-validator'
+import { Router, Request, Response, NextFunction } from 'express'
+const auth = require('../auth')
+const system = require('../../services/system-service')
 
-router.get("/", auth.required, async function (req, res) {
+router.get('/', auth.required, async function (req: Request, res: Response) {
   try {
-    const response = await system.getSystemServices(req, res.server);
-    return res.json(response);
+    const response = await system.getSystemServices(req, res.server)
+    return res.json(response)
   } catch (e) {
-    console.error(e);
-    return res.status(501).json({ success: false });
+    console.error(e)
+    return res.status(501).json({ success: false })
   }
-});
+})
 
-module.exports = router;
+export default router

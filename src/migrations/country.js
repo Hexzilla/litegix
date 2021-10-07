@@ -1,16 +1,13 @@
-var mongoose = require('mongoose');
-const Country = mongoose.model("Country")
+var mongoose = require('mongoose')
+const Country = mongoose.model('Country')
 
-const countries = [
-  'Afghanistan (غانستان)',
-  'Åland Islands (Åland)',
-]
+const countries = ['Afghanistan (غانستان)', 'Åland Islands (Åland)']
 
-module.exports = function() {
+export default function () {
   Country.collection.drop()
-  countries.forEach(name => {
+  countries.forEach((name) => {
     console.log('country', name)
-    const country = new Country({name: name})
+    const country = new Country({ name: name })
     country.save()
-  })  
+  })
 }

@@ -1,27 +1,18 @@
-const { body } = require('express-validator')
-const router = require("express").Router()
-const auth = require("../auth")
-const application = require("../../services/webapps")
+import { body } from 'express-validator'
+import { Router, Request, Response, NextFunction } from 'express'
+const auth = require('../auth')
+const application = require('../../services/webapps')
 
-router.get("/", 
-  auth.required, 
-  application.getWebApplications)
+router.get('/', auth.required, application.getWebApplications)
 
-router.get("/create", 
-  auth.required, 
-  application.webApplication)
+router.get('/create', auth.required, application.webApplication)
 
-router.get("/:id", 
-  auth.required, 
-  application.getWebApplication)
+router.get('/:id', auth.required, application.getWebApplication)
 
-router.get("/:id/settings", 
-  auth.required, 
-  application.getapplicationsettings)
+router.get('/:id/settings', auth.required, application.getapplicationsettings)
 
-
-
-router.post("/custom",
+router.post(
+  '/custom',
   auth.required,
   body('name').isString(),
   body('domainName').isString(),
@@ -29,24 +20,24 @@ router.post("/custom",
   body('phpVersion').isString(),
   body('stack').isString(),
   body('stackMode').isString(),
-  
+
   body('clickjackingProtection').isBoolean(),
   body('xssProtection').isBoolean(),
   body('mimeSniffingProtection').isBoolean(),
   body('processManager').isString(),
-  
+
   body('processManagerMaxChildren').custom((val, { req, loc, path }) => {
-      if (req.body.processManager == "dynamic") {
-          body('processManagerMaxChildren').isNumeric()
-      } else {
-          return true;
-      }
+    if (req.body.processManager == 'dynamic') {
+      body('processManagerMaxChildren').isNumeric()
+    } else {
+      return true
+    }
   }),
   body('processManagerMaxRequests').custom((val, { req, loc, path }) => {
-    if (req.body.processManager == "dynamic") {
-        body('processManagerMaxChildren').isNumeric()
+    if (req.body.processManager == 'dynamic') {
+      body('processManagerMaxChildren').isNumeric()
     } else {
-        return true;
+      return true
     }
   }),
   body('openBasedir').isString(),
@@ -60,23 +51,23 @@ router.post("/custom",
   body('uploadMaxFilesize').isNumeric(),
   body('sessionGcMaxlifetime').isNumeric(),
   body('allowUrlFopen').isBoolean(),
-  application.createWebApplication)
+  application.createWebApplication
+)
 
-router.post("/:id/default", 
-  auth.required, 
-  application.setDefaultApp)
+router.post('/:id/default', auth.required, application.setDefaultApp)
 
-router.delete("/:id/default", 
-  auth.required, 
-  application.removeDefaultApp)
+router.delete('/:id/default', auth.required, application.removeDefaultApp)
 
-router.patch("/:id/settings/php",
-  auth.required, 
+router.patch(
+  '/:id/settings/php',
+  auth.required,
   body('phpVersion').isString(),
-  application.changePHPversion)
+  application.changePHPversion
+)
 
-router.patch("/:id/settings/fpmnginx",
-  auth.required, 
+router.patch(
+  '/:id/settings/fpmnginx',
+  auth.required,
   body('stack').isString(),
   body('stackMode').isString(),
   body('clickjackingProtection').isBoolean(),
@@ -84,17 +75,17 @@ router.patch("/:id/settings/fpmnginx",
   body('mimeSniffingProtection').isBoolean(),
   body('processManager').isString(),
   body('processManagerMaxChildren').custom((val, { req, loc, path }) => {
-    if (req.body.processManager == "dynamic") {
-        body('processManagerMaxChildren').isNumeric()
+    if (req.body.processManager == 'dynamic') {
+      body('processManagerMaxChildren').isNumeric()
     } else {
-        return true;
+      return true
     }
   }),
   body('processManagerMaxRequests').custom((val, { req, loc, path }) => {
-    if (req.body.processManager == "dynamic") {
-        body('processManagerMaxChildren').isNumeric()
+    if (req.body.processManager == 'dynamic') {
+      body('processManagerMaxChildren').isNumeric()
     } else {
-        return true;
+      return true
     }
   }),
   body('openBasedir').isString(),
@@ -108,163 +99,179 @@ router.patch("/:id/settings/fpmnginx",
   body('uploadMaxFilesize').isNumeric(),
   body('sessionGcMaxlifetime').isNumeric(),
   body('allowUrlFopen').isBoolean(),
-  application.updateWebApplication)
+  application.updateWebApplication
+)
 
-router.patch("/:id/rebuild", 
-  auth.required, 
-  application.rebuildApp)
+router.patch('/:id/rebuild', auth.required, application.rebuildApp)
 
-
-router.post("/:id/git", 
-  auth.required, 
+router.post(
+  '/:id/git',
+  auth.required,
   body('provider').isString(), //"custom", "bitbucket", "github", "gitlab", "selfhostedgitlab"
-  body('repository').isString(), 
+  body('repository').isString(),
   body('branch').isString(),
   body('gitUser').custom((val, { req, loc, path }) => {
-      if (req.body.provider == "CUSTOM" || req.body.provider == "SELFHOSTEDGITLAB") {
-          body('processManagerMaxChildren').isString()
-      } else {
-          return true;
-      }
+    if (
+      req.body.provider == 'CUSTOM' ||
+      req.body.provider == 'SELFHOSTEDGITLAB'
+    ) {
+      body('processManagerMaxChildren').isString()
+    } else {
+      return true
+    }
   }),
   body('gitHost').custom((val, { req, loc, path }) => {
-      if (req.body.provider == "CUSTOM" || req.body.provider == "SELFHOSTEDGITLAB") {
-          body('processManagerMaxChildren').isString()
-      } else {
-          return true;
-      }
+    if (
+      req.body.provider == 'CUSTOM' ||
+      req.body.provider == 'SELFHOSTEDGITLAB'
+    ) {
+      body('processManagerMaxChildren').isString()
+    } else {
+      return true
+    }
   }),
-  application.cloningGITrepository)
+  application.cloningGITrepository
+)
 
-router.get("/:id/git", 
-    auth.required, 
-    application.getGITrepository)
+router.get('/:id/git', auth.required, application.getGITrepository)
 
-router.patch("/:webAppId/git/:gitId/branch", 
-  auth.required, 
+router.patch(
+  '/:webAppId/git/:gitId/branch',
+  auth.required,
   body('branch').isString(),
-  application.changeGITbranch)
+  application.changeGITbranch
+)
 
-router.patch("/:webAppId/git/:gitId/script", 
-  auth.required, 
+router.patch(
+  '/:webAppId/git/:gitId/script',
+  auth.required,
   body('autoDeploy').isBoolean(),
-  application.customizeGITscript)
+  application.customizeGITscript
+)
 
-router.put("/:webAppId/git/:gitId/script", 
-  auth.required, 
+router.put(
+  '/:webAppId/git/:gitId/script',
+  auth.required,
   body('autoDeploy').isBoolean(),
-  application.forceDeploymentbyscript)
+  application.forceDeploymentbyscript
+)
 
-router.delete("/:webAppId/git/:gitId", 
-  auth.required, 
-  application.removeGITreository)
+router.delete(
+  '/:webAppId/git/:gitId',
+  auth.required,
+  application.removeGITreository
+)
 
-
-
-router.post("/:webAppId/installer", 
-  auth.required, 
+router.post(
+  '/:webAppId/installer',
+  auth.required,
   body('name').isString(),
-  application.installPHPscript)
+  application.installPHPscript
+)
 
-router.get("/:webAppId/installer", 
-  auth.required, 
-  application.getPHPscript)
+router.get('/:webAppId/installer', auth.required, application.getPHPscript)
 
-router.delete("/:webAppId/installer/:installerId", 
-  auth.required, 
-  application.removePHPscript)
+router.delete(
+  '/:webAppId/installer/:installerId',
+  auth.required,
+  application.removePHPscript
+)
 
-
-
-router.post("/:webAppId/domains", 
-  auth.required, 
+router.post(
+  '/:webAppId/domains',
+  auth.required,
   body('name').isString(),
-  application.addDomainname)
+  application.addDomainname
+)
 
-router.get("/:webAppId/domains", 
-  auth.required, 
-  application.getDomainlist)
+router.get('/:webAppId/domains', auth.required, application.getDomainlist)
 
-router.get("/:webAppId/domains/:domainId", 
-  auth.required, 
-  application.getDomain)
+router.get('/:webAppId/domains/:domainId', auth.required, application.getDomain)
 
-router.delete("/:webAppId/domains/:domainId", 
-  auth.required, 
-  application.removeDomain)
+router.delete(
+  '/:webAppId/domains/:domainId',
+  auth.required,
+  application.removeDomain
+)
 
-
-
-router.post("/:webAppId/ssl", 
-  auth.required, 
+router.post(
+  '/:webAppId/ssl',
+  auth.required,
   body('provider').isString(),
   body('enableHsts').isBoolean(),
   body('enableHttp').isBoolean(),
   body('ssl_protocol_id').isNumeric(),
-  application.installSSL)
+  application.installSSL
+)
 
-router.get("/:webAppId/ssl", 
-  auth.required, 
-  application.getSSL)
+router.get('/:webAppId/ssl', auth.required, application.getSSL)
 
-router.patch("/:webAppId/ssl/:sslId", 
-  auth.required, 
+router.patch(
+  '/:webAppId/ssl/:sslId',
+  auth.required,
   body('enableHsts').isBoolean(),
   body('enableHttp').isBoolean(),
   body('ssl_protocol_id').isNumeric(),
-  application.updateSSL)
+  application.updateSSL
+)
 
-router.put("/:webAppId/ssl/:sslId", 
-  auth.required, 
-  application.redeploySSL)
+router.put('/:webAppId/ssl/:sslId', auth.required, application.redeploySSL)
 
-router.delete("/:webAppId/ssl/:sslId", 
-  auth.required, 
-  application.removeSSL)
+router.delete('/:webAppId/ssl/:sslId', auth.required, application.removeSSL)
 
+router.get(
+  '/:webAppId/ssl/advanced',
+  auth.required,
+  application.getadvancedSSLsetting
+)
 
-
-router.get("/:webAppId/ssl/advanced", 
-  auth.required, 
-  application.getadvancedSSLsetting)
-
-router.post("/:webAppId/ssl/advanced", 
-  auth.required, 
+router.post(
+  '/:webAppId/ssl/advanced',
+  auth.required,
   body('advancedSSL').isBoolean(),
-  application.switchingadvancedSSLsetting)
+  application.switchingadvancedSSLsetting
+)
 
-
-router.post("/:webAppId/domains/:domainId/ssl", 
-  auth.required, 
+router.post(
+  '/:webAppId/domains/:domainId/ssl',
+  auth.required,
   body('provider').isString(),
   body('enableHsts').isBoolean(),
   body('enableHttp').isBoolean(),
-  application.installadvancedSSL)
+  application.installadvancedSSL
+)
 
-router.get("/:webAppId/domains/:domainId/ssl", 
-  auth.required, 
-  application.getadvancedSSL)
+router.get(
+  '/:webAppId/domains/:domainId/ssl',
+  auth.required,
+  application.getadvancedSSL
+)
 
-router.patch("/:webAppId/domains/:domainId/ssl/:sslId", 
-  auth.required, 
+router.patch(
+  '/:webAppId/domains/:domainId/ssl/:sslId',
+  auth.required,
   body('enableHsts').isBoolean(),
   body('enableHttp').isBoolean(),
-  application.updateadvancedSSL)
+  application.updateadvancedSSL
+)
 
-router.put("/:webAppId/domains/:domainId/ssl/:sslId", 
-  auth.required, 
-  application.redeployadvancedSSL)
+router.put(
+  '/:webAppId/domains/:domainId/ssl/:sslId',
+  auth.required,
+  application.redeployadvancedSSL
+)
 
-router.delete("/:webAppId/domains/:domainId/ssl/:sslId", 
-  auth.required, 
-  application.removeadvancedSSL)
+router.delete(
+  '/:webAppId/domains/:domainId/ssl/:sslId',
+  auth.required,
+  application.removeadvancedSSL
+)
 
-router.get("/:webAppId/settings", 
-  auth.required, 
-  application.getapplicationsettings)
-
-
-
+router.get(
+  '/:webAppId/settings',
+  auth.required,
+  application.getapplicationsettings
+)
 
 // router.post("/store/custom",
 //   auth.required,
@@ -296,8 +303,8 @@ router.get("/:webAppId/settings",
 //   body('maxExecutionTime').isNumeric(),*/
 //   application.storeCustomWebApplication)
 
-
-router.post("/store/wordpress",
+router.post(
+  '/store/wordpress',
   auth.required,
   body('serverId').isString(),
   body('name').isString(),
@@ -325,10 +332,9 @@ router.post("/store/wordpress",
   body('timezone').isString(),
   body('disableFunctions').isString(),
   body('maxExecutionTime').isNumeric(),*/
-  application.storeWordpressWebApplication)
+  application.storeWordpressWebApplication
+)
 
-router.delete("/:webAppId",
-  auth.required,
-  application.deleteWebApplication)
+router.delete('/:webAppId', auth.required, application.deleteWebApplication)
 
-module.exports = router
+export default router

@@ -1,16 +1,26 @@
-var mongoose = require("mongoose");
-var uniqueValidator = require("mongoose-unique-validator");
-var crypto = require("crypto");
-var jwt = require("jsonwebtoken");
-var secret = require("../config").secret;
+import { Document, Schema, model } from 'mongoose'
+import uniqueValidator from 'mongoose-unique-validator'
+import crypto from 'crypto'
+import jwt from 'jsonwebtoken'
+import { secret } from 'config'
 
-var UserSchema = new mongoose.Schema(
+interface User extends Document {
+  username: string
+  email: string
+  avatar?: string
+  bio: string
+  image: string
+  hash: string
+  salt: string
+}
+
+const UserSchema = new Schema<User>(
   {
     username: {
       type: String,
       unique: true,
       required: [true, "can't be blank"],
-      match: [/^[a-zA-Z0-9]+$/, "is invalid"],
+      match: [/^[a-zA-Z0-9]+$/, 'is invalid'],
       index: true,
     },
     email: {
@@ -18,7 +28,7 @@ var UserSchema = new mongoose.Schema(
       lowercase: true,
       unique: true,
       required: [true, "can't be blank"],
-      match: [/\S+@\S+\.\S+/, "is invalid"],
+      match: [/\S+@\S+\.\S+/, 'is invalid'],
       index: true,
     },
     ip_enable: { type: Boolean },
@@ -29,8 +39,8 @@ var UserSchema = new mongoose.Schema(
     },
     bio: String,
     image: String,
-    favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: "Article" }],
-    following: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    favorites: [{ type: Schema.Types.ObjectId, ref: 'Article' }],
+    following: [{ type: Schema.Types.ObjectId, ref: 'User' }],
     hash: String,
     salt: String,
     timezone: String,
@@ -47,31 +57,31 @@ var UserSchema = new mongoose.Schema(
       apiKey: String,
       secretKey: String,
     },
-    company: { type: mongoose.Schema.Types.ObjectId, ref: "Company" },
+    company: { type: Schema.Types.ObjectId, ref: 'Company' },
   },
   { timestamps: true }
-);
+)
 
-UserSchema.plugin(uniqueValidator, { message: "is already taken." });
+UserSchema.plugin(uniqueValidator, { message: 'is already taken.' })
 
 UserSchema.methods.validPassword = function (password) {
   var hash = crypto
-    .pbkdf2Sync(password, this.salt, 10000, 512, "sha512")
-    .toString("hex");
-  return this.hash === hash;
-};
+    .pbkdf2Sync(password, this.salt, 10000, 512, 'sha512')
+    .toString('hex')
+  return this.hash === hash
+}
 
 UserSchema.methods.setPassword = function (password) {
-  this.salt = crypto.randomBytes(16).toString("hex");
+  this.salt = crypto.randomBytes(16).toString('hex')
   this.hash = crypto
-    .pbkdf2Sync(password, this.salt, 10000, 512, "sha512")
-    .toString("hex");
-};
+    .pbkdf2Sync(password, this.salt, 10000, 512, 'sha512')
+    .toString('hex')
+}
 
 UserSchema.methods.generateJWT = function () {
-  var today = new Date();
-  var exp = new Date(today);
-  exp.setDate(today.getDate() + 60);
+  var today = new Date()
+  var exp = new Date(today)
+  exp.setDate(today.getDate() + 60)
 
   return jwt.sign(
     {
@@ -80,8 +90,8 @@ UserSchema.methods.generateJWT = function () {
       exp: parseInt(exp.getTime() / 1000),
     },
     secret
-  );
-};
+  )
+}
 
 UserSchema.methods.toAuthJSON = function () {
   return {
@@ -90,8 +100,8 @@ UserSchema.methods.toAuthJSON = function () {
     token: this.generateJWT(),
     bio: this.bio,
     image: this.image,
-  };
-};
+  }
+}
 
 UserSchema.methods.toJSON = function () {
   return {
@@ -99,62 +109,14 @@ UserSchema.methods.toJSON = function () {
     email: this.email,
     timezone: this.timezone,
     loginNotification: this.loginNotification,
-  };
-};
+  }
+}
 
 UserSchema.methods.toProfileJSON = function () {
   return {
     user: this.toJSON(),
     company: this.company ? this.company.toJSON() : {},
-  };
-};
-
-UserSchema.methods.toProfileJSONFor = function (user) {
-  return {
-    username: this.username,
-    bio: this.bio,
-    image:
-      this.image || "https://static.productionready.io/images/smiley-cyrus.jpg",
-    following: user ? user.isFollowing(this._id) : false,
-  };
-};
-
-UserSchema.methods.favorite = function (id) {
-  if (this.favorites.indexOf(id) === -1) {
-    this.favorites.push(id);
   }
+}
 
-  return this.save();
-};
-
-UserSchema.methods.unfavorite = function (id) {
-  this.favorites.remove(id);
-  return this.save();
-};
-
-UserSchema.methods.isFavorite = function (id) {
-  return this.favorites.some(function (favoriteId) {
-    return favoriteId.toString() === id.toString();
-  });
-};
-
-UserSchema.methods.follow = function (id) {
-  if (this.following.indexOf(id) === -1) {
-    this.following.push(id);
-  }
-
-  return this.save();
-};
-
-UserSchema.methods.unfollow = function (id) {
-  this.following.remove(id);
-  return this.save();
-};
-
-UserSchema.methods.isFollowing = function (id) {
-  return this.following.some(function (followId) {
-    return followId.toString() === id.toString();
-  });
-};
-
-mongoose.model("User", UserSchema);
+model('User', UserSchema)

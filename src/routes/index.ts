@@ -34,14 +34,15 @@ router.get('/logout', authService.logout)
 // request user verify
 router.post('/verify/:userId/:verifyCode', authService.userVerify)
 
-router.use(function (err, req: Request, res: Response, next: NextFunction) {
+router.use(function (
+  err: any,
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   if (err.name === 'ValidationError') {
     return res.status(422).json({
-      errors: Object.keys(err.errors).reduce(function (errors, key) {
-        errors[key] = err.errors[key].message
-
-        return errors
-      }, {}),
+      errors: err.array(), //TODO~~~~~~~~~~~
     })
   }
 

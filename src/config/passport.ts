@@ -1,7 +1,7 @@
 import { Request } from 'express'
 import passport from 'passport'
 import { Strategy as LocalStrategy } from 'passport-local'
-import { findUserByEmail, createUser, verifyPassword } from 'models/User'
+import { findUserByEmail, createUser, verifyPassword } from 'models/user'
 
 passport.use(
   'signup',

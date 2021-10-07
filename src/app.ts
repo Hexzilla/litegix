@@ -1,18 +1,14 @@
-import http from 'http'
 import express, { Request, Response, NextFunction } from 'express'
-import bodyParser from 'body-parser'
 import cors from 'cors'
 import methodOverride from 'method-override'
 import morgan from 'morgan'
 import path from 'path'
 import favicon from 'serve-favicon'
 import session from 'express-session'
-import mongoose from 'mongoose'
+import useragent from 'express-useragent'
+import errorhandler from 'errorhandler'
+import { connect } from 'mongoose'
 import routes from './routes'
-
-// methods = require("methods"),
-// errorhandler = require("errorhandler"),
-// useragent = require("express-useragent");
 
 require('dotenv').config()
 const isProduction = process.env.NODE_ENV === 'production'
@@ -36,7 +32,7 @@ app.use(methodOverride())
 app.use(express.static(__dirname + '/public'))
 app.use(favicon(path.join(__dirname, '../public', 'favicon.png')))
 
-const secret = isProduction ? process.env.SECRET : 'litegix.debug'
+const secret = process.env.SECRET || 'litegix.cloud.2021'
 app.use(
   session({
     secret: secret,
@@ -55,12 +51,13 @@ mongoose.set('useFindAndModify', false)
 mongoose.set('useCreateIndex', true)
 mongoose.set('useUnifiedTopology', true)
 
-if (isProduction) {
-  mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true })
-} else {
-  mongoose.connect('mongodb://localhost/litegix', { useNewUrlParser: true })
-  mongoose.set('debug', true)
-}
+const mongourl: string = process.env.MONGODB_URI || ''
+connect(mongourl, {
+  useNewUrlParser: true,
+  useCreateIndex: true,
+}).then(() => {
+  console.log('mongodb connected!')
+})
 
 require('models')
 require('config/passport')
@@ -73,7 +70,6 @@ app.use(routes)
 /// catch 404 and forward to error handler
 app.use(function (req: Request, res: Response, next: NextFunction) {
   var err = new Error('Not Found')
-  err.status = 404
   next(err)
 })
 

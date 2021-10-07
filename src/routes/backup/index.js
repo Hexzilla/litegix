@@ -1,5 +1,5 @@
-const router = require("express").Router()
+import { Router, Request, Response, NextFunction } from 'express'
 
-router.use("/database", require("./database"))
+router.use('/database', require('./database'))
 
-module.exports = router
+export default router

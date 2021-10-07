@@ -1,37 +1,37 @@
-const { body } = require("express-validator");
-const router = require("express").Router();
-const auth = require("../auth");
-const validate = require("../validate");
-const server = require("../../services/server-service");
+import { body } from 'express-validator'
+import { Router, Request, Response, NextFunction } from 'express'
+const auth = require('../auth')
+import validate from 'routes/validate'
+const server = require('../../services/server-service')
 
-router.get("/", auth.required, async function (req, res) {
+router.get('/', auth.required, async function (req: Request, res: Response) {
   try {
-    const response = await server.getServers(req.payload.id);
-    return res.json(response);
+    const response = await server.getServers(req.payload.id)
+    return res.json(response)
   } catch (e) {
-    console.error(e);
-    return res.status(501).json({ success: false });
+    console.error(e)
+    return res.status(501).json({ success: false })
   }
-});
+})
 
 router.post(
-  "/",
+  '/',
   auth.required,
-  body("name").notEmpty(),
-  body("address").isIP(4),
-  body("webserver").notEmpty(),
-  body("database").notEmpty(),
-  body("phpVersion").notEmpty(),
+  body('name').notEmpty(),
+  body('address').isIP(4),
+  body('webserver').notEmpty(),
+  body('database').notEmpty(),
+  body('phpVersion').notEmpty(),
   validate,
-  async function (req, res) {
+  async function (req: Request, res: Response) {
     try {
-      const response = await server.storeServer(req.payload.id, req.body);
-      return res.json(response);
+      const response = await server.storeServer(req.payload.id, req.body)
+      return res.json(response)
     } catch (e) {
-      console.error(e);
-      return res.status(501).json({ success: false });
+      console.error(e)
+      return res.status(501).json({ success: false })
     }
   }
-);
+)
 
-module.exports = router;
+export default router

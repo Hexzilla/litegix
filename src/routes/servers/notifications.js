@@ -1,8 +1,8 @@
-const { body } = require("express-validator");
-const router = require("express").Router();
-const auth = require("../auth");
-const server = require("../../services/server-service");
+import { body } from 'express-validator'
+import { Router, Request, Response, NextFunction } from 'express'
+const auth = require('../auth')
+const server = require('../../services/server-service')
 
-router.get("/", auth.required, server.getServers);
+router.get('/', auth.required, server.getServers)
 
-module.exports = router;
+export default router
