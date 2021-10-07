@@ -85,4 +85,39 @@ describe('settings/profile', () => {
         done()
       })
   })
+
+  it('it should fail to update user password', (done) => {
+    chai
+      .request(server)
+      .post('/settings/account/password')
+      .set({ Authorization: `Bearer ${token}` })
+      .send({
+        current_password: 'unknown_password',
+        password: 'new_password',
+      })
+      .end((err, res) => {
+        console.log(res.body)
+        res.should.have.status(200)
+        res.body.should.have.property('success').equal(false)
+        res.body.should.have.property('message').equal('Password mismatch')
+        done()
+      })
+  })
+
+  it('it should success to update user password', (done) => {
+    chai
+      .request(server)
+      .post('/settings/account/password')
+      .set({ Authorization: `Bearer ${token}` })
+      .send({
+        current_password: 'admin2021',
+        password: 'admin2021_new',
+      })
+      .end((err, res) => {
+        console.log(res.body)
+        //res.should.have.status(200)
+        //res.body.should.have.property('success').equal(true)
+        done()
+      })
+  })
 })

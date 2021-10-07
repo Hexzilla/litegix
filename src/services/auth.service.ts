@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express'
 //import randomstring from 'randomstring'
-// import { model } from 'mongoose'
+import { model } from 'mongoose'
 import { User } from 'models'
 import passport from 'passport'
-// const UserModel = model<User>('User')
+const UserModel = model<User>('User')
 // const IPAddressModel = model<IPAddress>('IPAddress')
 
 export function login(req: Request, res: Response, next: NextFunction) {
@@ -42,34 +42,36 @@ export function signup(req: Request, res: Response, next: NextFunction) {
   )(req, res, next)
 }
 
-/*export async function changePassword(req: Request, res: Response) {
-  try {
-    let { user, errors } = await getUser(req)
-    if (errors) {
-      return res.status(422).json({ success: false, errors: errors })
-    }
-
-    if (!user.validPassword(req.body.current_password)) {
-      return res
-        .status(422)
-        .json({ success: false, errors: { current_password: 'is invalid' } })
-    }
-
-    user.setPassword(req.body.password)
-    await user.save()
-
-    return res.json({
-      success: true,
-      message: 'Your password has been successfully changed',
-    })
-  } catch (error) {
-    return res.status(501).json({
+export async function changePassword(
+  userId: string,
+  currentPassword: string,
+  password: string
+) {
+  const user = await UserModel.findById(userId)
+  if (!user) {
+    return {
       success: false,
-      errors: error,
-    })
+      message: 'Invalid User',
+    }
+  }
+
+  if (!user.validPassword(currentPassword)) {
+    return {
+      success: false,
+      message: 'Password mismatch',
+    }
+  }
+
+  user.setPassword(password)
+  await user.save()
+
+  return {
+    success: true,
+    message: 'Your password has been successfully changed',
   }
 }
 
+/*
 export async function deleteAccount(req: Request, res: Response) {}*/
 
 /*export async function checkIpAdress(req, user, res) {
