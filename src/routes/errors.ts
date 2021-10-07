@@ -5,5 +5,8 @@ export default (error: any) => {
       text: 'duplicated',
     }
   }
-  return {}
+  return {
+    code: 'Unknown',
+    text: error?.message,
+  }
 }

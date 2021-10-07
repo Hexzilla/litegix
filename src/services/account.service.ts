@@ -13,113 +13,100 @@ const generateApiSecret = function () {
   return randomstring.generate(64)
 }
 
-export default {
-  getApiKeys: async function (userId: string) {
-    const user = await UserModel.findById(userId)
-    if (!user) {
-      return {
-        success: false,
-        errors: { userId: "doesn't exists." },
-      }
-    }
+export async function getApiKeys(userId: string) {
+  const user = await UserModel.findById(userId)
+  if (!user) {
+    throw Error('InvalidUser')
+  }
 
-    user.apiKeys = user.apiKeys || {}
-    if (!user.apiKeys.apiKey || !user.apiKeys.secretKey) {
-      user.apiKeys.enableAccess = false
-      user.apiKeys.apiKey = generateApiKey()
-      user.apiKeys.secretKey = generateApiSecret()
-      await user.save()
-    }
-
-    return {
-      success: true,
-      data: { apiKeys: user.apiKeys },
-    }
-  },
-
-  createApiKey: async function (userId: string) {
-    const user = await UserModel.findById(userId)
-    if (!user) {
-      return {
-        success: false,
-        errors: { userId: "doesn't exists." },
-      }
-    }
-
-    user.apiKeys = user.apiKeys || {}
-    ;(user.apiKeys.apiKey = generateApiKey()), await user.save()
-
-    return {
-      success: true,
-      data: { apiKeys: user.apiKeys },
-    }
-  },
-
-  createSecretKey: async function (userId: string) {
-    const user = await UserModel.findById(userId)
-    if (!user) {
-      return {
-        success: false,
-        errors: { userId: "doesn't exists." },
-      }
-    }
-
-    user.apiKeys = user.apiKeys || {}
-    ;(user.apiKeys.secretKey = generateApiSecret()), await user.save()
-
-    return {
-      success: true,
-      data: { apiKeys: user.apiKeys },
-    }
-  },
-
-  enableAccess: async function (userId: string, data: any) {
-    const user = await UserModel.findById(userId)
-    if (!user) {
-      return {
-        success: false,
-        errors: { userId: "doesn't exists." },
-      }
-    }
-    user.apiKeys = user.apiKeys || {}
-    user.apiKeys.enableAccess = data.state
+  user.apiKeys = user.apiKeys || {}
+  if (!user.apiKeys.apiKey || !user.apiKeys.secretKey) {
+    user.apiKeys.enableAccess = false
+    user.apiKeys.apiKey = generateApiKey()
+    user.apiKeys.secretKey = generateApiSecret()
     await user.save()
+  }
 
-    const message =
-      data.state === true ? 'Enable API Access' : 'Disable API Access'
-    await activity.createUserActivityLogInfo(user.id, message)
+  return {
+    success: true,
+    data: { apiKeys: user.apiKeys },
+  }
+}
 
-    return {
-      success: true,
-      data: { apiKeys: user.apiKeys },
-    }
-  },
+export async function createApiKey(userId: string) {
+  const user = await UserModel.findById(userId)
+  if (!user) {
+    throw Error('InvalidUser')
+  }
 
-  getAllowedIPAddresses: async function (userId: string) {
-    const addresses = await IPAddressModel.find({ userId })
-    return {
-      success: true,
-      data: { addresses },
-    }
-  },
+  user.apiKeys = user.apiKeys || {}
+  user.apiKeys.apiKey = generateApiKey()
+  await user.save()
 
-  addAllowedIPAddress: async function (userId: string, data: any) {
-    const user = await UserModel.findById(userId)
-    if (!user) {
-      return {
-        success: false,
-        message: 'Invalid User',
-      }
-    }
-    const addr = new IPAddressModel(data)
-    addr.user = user
+  return {
+    success: true,
+  }
+}
 
-    const saved = await addr.save()
-    console.log(saved)
+export async function createSecretKey(userId: string) {
+  const user = await UserModel.findById(userId)
+  if (!user) {
+    throw Error('InvalidUser')
+  }
 
-    return {
-      success: true,
-      data: { address: data.address },
-    }
-  },
+  user.apiKeys = user.apiKeys || {}
+  user.apiKeys.secretKey = generateApiSecret()
+  await user.save()
+
+  return {
+    success: true,
+  }
+}
+
+export async function enableAccess(userId: string, data: any) {
+  const user = await UserModel.findById(userId)
+  if (!user) {
+    throw Error('InvalidUser')
+  }
+
+  user.apiKeys = user.apiKeys || {}
+  user.apiKeys.enableAccess = data.state
+  await user.save()
+
+  const message =
+    data.state === true ? 'Enable API Access' : 'Disable API Access'
+  await activity.createUserActivityLogInfo(user.id, message)
+
+  return {
+    success: true,
+    data: { enableAccess: data.state },
+  }
+}
+
+export async function getAllowedIPAddresses(userId: string) {
+  const addresses = await IPAddressModel.find({ userId })
+  return {
+    success: true,
+    data: { addresses },
+  }
+}
+
+export async function addAllowedIPAddress(userId: string, data: any) {
+  const user = await UserModel.findById(userId)
+  if (!user) {
+    throw Error('InvalidUser')
+  }
+
+  const addr = new IPAddressModel(data)
+  addr.user = user
+
+  const saved = await addr.save()
+  if (!saved) {
+    throw Error('DBSaveError')
+  }
+
+  return {
+    success: true,
+    data: { address: data.address },
+  }
 }

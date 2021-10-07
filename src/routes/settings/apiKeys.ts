@@ -3,17 +3,20 @@ import { Router, Request, Response } from 'express'
 import auth from 'routes/auth'
 import validate from 'routes/validate'
 import errorMessage from 'routes/errors'
-import account from 'services/account.service'
+import * as accountSvc from 'services/account.service'
 const router = Router()
 
 router.get('/', auth.required, async function (req: Request, res: Response) {
   try {
     const userId = req.payload.id
-    const response = await account.getApiKeys(userId)
+    const response = await accountSvc.getApiKeys(userId)
     return res.json(response)
   } catch (e) {
     console.error(e)
-    return res.status(501).json({ success: false })
+    return res.status(501).json({
+      success: false,
+      errors: errorMessage(e),
+    })
   }
 })
 
@@ -23,11 +26,14 @@ router.put(
   async function (req: Request, res: Response) {
     try {
       const userId = req.payload.id
-      const response = await account.createApiKey(userId)
+      const response = await accountSvc.createApiKey(userId)
       return res.json(response)
     } catch (e) {
       console.error(e)
-      return res.status(501).json({ success: false })
+      return res.status(501).json({
+        success: false,
+        errors: errorMessage(e),
+      })
     }
   }
 )
@@ -38,11 +44,14 @@ router.put(
   async function (req: Request, res: Response) {
     try {
       const userId = req.payload.id
-      const response = await account.createSecretKey(userId)
+      const response = await accountSvc.createSecretKey(userId)
       return res.json(response)
     } catch (e) {
       console.error(e)
-      return res.status(501).json({ success: false })
+      return res.status(501).json({
+        success: false,
+        errors: errorMessage(e),
+      })
     }
   }
 )
@@ -55,11 +64,14 @@ router.post(
   async function (req: Request, res: Response) {
     try {
       const userId = req.payload.id
-      const response = await account.enableAccess(userId, req.body)
+      const response = await accountSvc.enableAccess(userId, req.body)
       return res.json(response)
     } catch (e) {
       console.error(e)
-      return res.status(501).json({ success: false })
+      return res.status(501).json({
+        success: false,
+        errors: errorMessage(e),
+      })
     }
   }
 )
@@ -69,12 +81,14 @@ router.get(
   auth.required,
   async function (req: Request, res: Response) {
     try {
-      const userId = req.payload.id
-      const response = await account.getAllowedIPAddresses(userId)
+      const response = await accountSvc.getAllowedIPAddresses(req.payload.id)
       return res.json(response)
     } catch (e) {
       console.error(e)
-      return res.status(501).json({ success: false })
+      return res.status(501).json({
+        success: false,
+        errors: errorMessage(e),
+      })
     }
   }
 )
@@ -86,8 +100,10 @@ router.post(
   validate,
   async function (req: Request, res: Response) {
     try {
-      const userId = req.payload.id
-      const response = await account.addAllowedIPAddress(userId, req.body)
+      const response = await accountSvc.addAllowedIPAddress(
+        req.payload.id,
+        req.body
+      )
       return res.json(response)
     } catch (e) {
       return res.status(501).json({
