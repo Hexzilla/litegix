@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express'
-import server from 'services/server-service'
-import install from 'services/install-service'
+import server from 'services/server.service'
+import install from 'services/install.service'
 
 const router = Router()
 router.get('/script/:token', async function (req: Request, res: Response) {

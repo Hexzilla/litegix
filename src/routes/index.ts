@@ -5,7 +5,7 @@ import settings from './settings'
 import servers from './servers'
 import subscriptions from './subscriptions'
 import payment from './payment'
-import authService from 'services/auth'
+import authService from 'services/auth.service'
 
 const router = Router()
 router.use('/api', api)

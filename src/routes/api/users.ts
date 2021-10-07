@@ -2,7 +2,7 @@ import { body } from 'express-validator'
 import { model } from 'mongoose'
 import { Router, Request, Response, NextFunction } from 'express'
 import auth from 'routes/auth'
-import authService from 'services/auth'
+import authService from 'services/auth.service'
 
 const router = Router()
 const User = model('User')

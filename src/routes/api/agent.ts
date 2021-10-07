@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { body } from 'express-validator'
 import validate from 'routes/validate'
-import server from 'services/server-service'
+import server from 'services/server.service'
 
 const router = Router()
 router.post(

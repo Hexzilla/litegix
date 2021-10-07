@@ -1,3 +1,3 @@
-export default {
-  secret: process.env.NODE_ENV === 'production' ? process.env.SECRET : 'secret',
-}
+export default process.env.NODE_ENV === 'producton'
+  ? String(process.env.SECRET)
+  : 'secret'
