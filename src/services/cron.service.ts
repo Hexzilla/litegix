@@ -1,6 +1,7 @@
 import { model } from 'mongoose'
 import { Server, CronJob, Supervisor } from 'models'
 import * as activity from 'services/activity.service'
+//import * as agentSvc from 'services/agent.service'
 const CronJobModel = model<CronJob>('CronJob')
 const SupervisorModel = model<Supervisor>('Supervisor')
 
@@ -42,7 +43,7 @@ const getPredefinedSettings = function () {
 }
 
 export async function getCronJobs(server: Server) {
-  const cronJobs = await CronJobModel.find({ serverId: server.id })
+  const cronJobs = await CronJobModel.find({ server })
   return {
     success: true,
     data: { cronJobs },
@@ -67,7 +68,7 @@ export async function createCronJob(server: Server) {
 
 export async function storeCronJob(server: Server, data: any) {
   const exists = await CronJobModel.findOne({
-    serverId: server.id,
+    server,
     label: data.label,
   })
   if (exists) {
@@ -94,11 +95,11 @@ export async function storeCronJob(server: Server, data: any) {
   ].join(' ')
 
   const cronJob = new CronJobModel(data)
-  cronJob.server = server.id
+  cronJob.server = server
   await cronJob.save()
 
   const message = `Added new Cron Job ${data.label}`
-  await activity.createServerActivityLogInfo(server.id, message)
+  await activity.createServerActivityLogInfo(server, message)
 
   return {
     success: true,
@@ -134,7 +135,7 @@ export async function removeCronJob(jobId: string) {
 }
 
 export async function getSupervisorJobs(server: Server) {
-  const supervisors = await SupervisorModel.find({ serverId: server.id })
+  const supervisors = await SupervisorModel.find({ server })
   return {
     success: true,
     data: { supervisors },
@@ -151,7 +152,7 @@ export async function createSupervisorJob(server: Server) {
 
 export async function storeSupervisorJob(server: Server, data: any) {
   const exists = await SupervisorModel.findOne({
-    serverId: server.id,
+    server,
     name: data.name,
   })
   if (exists) {
@@ -170,11 +171,11 @@ export async function storeSupervisorJob(server: Server, data: any) {
   }*/
 
   const supervisor = new SupervisorModel(data)
-  supervisor.server = server.id
+  supervisor.server = server
   await supervisor.save()
 
   const message = `Added new Supervisor Job ${data.name}`
-  await activity.createServerActivityLogInfo(server.id, message)
+  await activity.createServerActivityLogInfo(server, message)
 
   return {
     success: true,
