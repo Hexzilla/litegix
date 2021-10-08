@@ -1,7 +1,7 @@
 import { Document, Schema, model } from 'mongoose'
 import crypto from 'crypto'
 import jwt from 'jsonwebtoken'
-import secret from 'config'
+import secret from '../config'
 import { Company } from './company.model'
 
 export interface APIKeys {

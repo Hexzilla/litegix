@@ -10,7 +10,7 @@ import errorhandler from 'errorhandler'
 import { connect } from 'mongoose'
 import './models'
 import './config/passport'
-import routes from 'routes'
+import routes from './routes'
 
 require('dotenv').config()
 const isProduction = process.env.NODE_ENV === 'production'
