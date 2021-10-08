@@ -2,7 +2,7 @@ import { body } from 'express-validator'
 import { Router, Request, Response } from 'express'
 import validate from 'routes/validate'
 import auth from '../auth'
-import cronJob from 'services/cron.service'
+import * as cronJob from 'services/cron.service'
 const router = Router()
 
 router.get('/', auth.required, async function (req: Request, res: Response) {

@@ -41,171 +41,170 @@ const getPredefinedSettings = function () {
   ]
 }
 
-export default {
-  getCronJobs: async function (server: Server) {
-    const cronJobs = await CronJobModel.find({ serverId: server.id })
+export async function getCronJobs(server: Server) {
+  const cronJobs = await CronJobModel.find({ serverId: server.id })
+  return {
+    success: true,
+    data: { cronJobs },
+  }
+}
+
+export async function getCronJob(jobId: string) {
+  const cronjob = await CronJobModel.findById(jobId)
+  return {
+    success: true,
+    data: { cronjob },
+  }
+}
+
+export async function createCronJob(server: Server) {
+  return {
+    success: true,
+    vendor_binaries: getVendorBinaries(),
+    predefined_settings: getPredefinedSettings(),
+  }
+}
+
+export async function storeCronJob(server: Server, data: any) {
+  const exists = await CronJobModel.findOne({
+    serverId: server.id,
+    label: data.label,
+  })
+  if (exists) {
     return {
-      success: true,
-      data: { cronJobs },
+      success: false,
+      errors: { label: 'has already been taken.' },
     }
-  },
+  }
 
-  getCronJob: async function (jobId: string) {
-    const cronjob = await CronJobModel.findById(jobId)
+  /*const errors = await agent.createCronJob(data)
+  if (errors) {
     return {
-      success: true,
-      data: { cronjob },
+      success: false,
+      errors: errors
     }
-  },
+  }*/
 
-  createCronJob: async function (server: Server) {
+  data.time = [
+    data.minute,
+    data.hour,
+    data.dayOfMonth,
+    data.month,
+    data.dayOfWeek,
+  ].join(' ')
+
+  const cronJob = new CronJobModel(data)
+  cronJob.server = server.id
+  await cronJob.save()
+
+  const message = `Added new Cron Job ${data.label}`
+  await activity.createServerActivityLogInfo(server.id, message)
+
+  return {
+    success: true,
+    data: { cronJob },
+  }
+}
+
+export async function removeCronJob(jobId: string) {
+  const cronJob = await CronJobModel.findById(jobId)
+  if (!cronJob) {
     return {
-      success: true,
-      vendor_binaries: getVendorBinaries(),
-      predefined_settings: getPredefinedSettings(),
+      success: false,
+      errors: {
+        message: "It doesn't exists",
+      },
     }
-  },
+  }
 
-  storeCronJob: async function (server: Server, data: any) {
-    const exists = await CronJobModel.findOne({
-      serverId: server.id,
-      label: data.label,
-    })
-    if (exists) {
-      return {
-        success: false,
-        errors: { label: 'has already been taken.' },
-      }
-    }
-
-    /*const errors = await agent.createCronJob(data)
-    if (errors) {
-      return {
-        success: false,
-        errors: errors
-      }
-    }*/
-
-    data.time = [
-      data.minute,
-      data.hour,
-      data.dayOfMonth,
-      data.month,
-      data.dayOfWeek,
-    ].join(' ')
-
-    const cronJob = new CronJobModel(data)
-    cronJob.server = server.id
-    await cronJob.save()
-
-    const message = `Added new Cron Job ${data.label}`
-    await activity.createServerActivityLogInfo(server.id, message)
-
+  /*const errors = await agent.removeCronJob(req.body);
+  if (errors) {
     return {
-      success: true,
-      data: { cronJob },
-    }
-  },
-  removeCronJob: async function (jobId: string) {
-    const cronJob = await CronJobModel.findById(jobId)
-    if (!cronJob) {
-      return {
-        success: false,
-        errors: {
-          message: "It doesn't exists",
-        },
-      }
-    }
+      success: false,
+      errors: errors,
+    };
+  }*/
 
-    /*const errors = await agent.removeCronJob(req.body);
-    if (errors) {
-      return {
-        success: false,
-        errors: errors,
-      };
-    }*/
+  await cronJob.remove()
 
-    await cronJob.remove()
+  return {
+    success: true,
+    data: { cronJob },
+  }
+}
 
+export async function getSupervisorJobs(server: Server) {
+  const supervisors = await SupervisorModel.find({ serverId: server.id })
+  return {
+    success: true,
+    data: { supervisors },
+  }
+}
+
+export async function createSupervisorJob(server: Server) {
+  return {
+    success: true,
+    vendor_binaries: getVendorBinaries(),
+    predefined_settings: getPredefinedSettings(),
+  }
+}
+
+export async function storeSupervisorJob(server: Server, data: any) {
+  const exists = await SupervisorModel.findOne({
+    serverId: server.id,
+    name: data.name,
+  })
+  if (exists) {
     return {
-      success: true,
-      data: { cronJob },
+      success: false,
+      errors: { name: 'has already been taken.' },
     }
-  },
+  }
 
-  getSupervisorJobs: async function (server: Server) {
-    const supervisors = await SupervisorModel.find({ serverId: server.id })
+  /*errors = await agent.createSupervisorJob(data);
+  if (errors) {
     return {
-      success: true,
-      data: { supervisors },
-    }
-  },
+      success: false,
+      errors: errors,
+    };
+  }*/
 
-  createSupervisorJob: async function (server: Server) {
+  const supervisor = new SupervisorModel(data)
+  supervisor.server = server.id
+  await supervisor.save()
+
+  const message = `Added new Supervisor Job ${data.name}`
+  await activity.createServerActivityLogInfo(server.id, message)
+
+  return {
+    success: true,
+    data: { supervisor },
+  }
+}
+
+export async function deleteSupervisorJob(jobId: string) {
+  const supervisor = await SupervisorModel.findById(jobId)
+  if (!supervisor) {
     return {
-      success: true,
-      vendor_binaries: getVendorBinaries(),
-      predefined_settings: getPredefinedSettings(),
+      success: false,
+      errors: {
+        message: "It doesn't exists",
+      },
     }
-  },
+  }
 
-  storeSupervisorJob: async function (server: Server, data: any) {
-    const exists = await SupervisorModel.findOne({
-      serverId: server.id,
-      name: data.name,
-    })
-    if (exists) {
-      return {
-        success: false,
-        errors: { name: 'has already been taken.' },
-      }
-    }
-
-    /*errors = await agent.createSupervisorJob(data);
-    if (errors) {
-      return {
-        success: false,
-        errors: errors,
-      };
-    }*/
-
-    const supervisor = new SupervisorModel(data)
-    supervisor.server = server.id
-    await supervisor.save()
-
-    const message = `Added new Supervisor Job ${data.name}`
-    await activity.createServerActivityLogInfo(server.id, message)
-
+  /*const errors = await agent.removeSupervisorJob(req.body);
+  if (errors) {
     return {
-      success: true,
-      data: { supervisor },
-    }
-  },
+      success: false,
+      errors: errors,
+    };
+  }*/
 
-  deleteSupervisorJob: async function (jobId: string) {
-    const supervisor = await SupervisorModel.findById(jobId)
-    if (!supervisor) {
-      return {
-        success: false,
-        errors: {
-          message: "It doesn't exists",
-        },
-      }
-    }
+  await supervisor.remove()
 
-    /*const errors = await agent.removeSupervisorJob(req.body);
-    if (errors) {
-      return {
-        success: false,
-        errors: errors,
-      };
-    }*/
-
-    await supervisor.remove()
-
-    return {
-      success: true,
-      data: { supervisor },
-    }
-  },
+  return {
+    success: true,
+    data: { supervisor },
+  }
 }

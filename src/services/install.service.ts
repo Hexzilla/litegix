@@ -44,7 +44,7 @@ export async function getAgentInstallScript(encryptedToken: string) {
     throw Error('Invalid Token')
   }
 
-  const filePath = path.join(__dirname, '../scripts/install.sh')
+  const filePath = path.join(__dirname, '../../scripts/install.sh')
   const text = await readFile(filePath, 'utf8')
   return text
     .replace('LITEGIX_TOKEN=""', `LITEGIX_TOKEN=\"${encryptedToken}\"`)

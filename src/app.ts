@@ -8,8 +8,8 @@ import session from 'express-session'
 import useragent from 'express-useragent'
 import errorhandler from 'errorhandler'
 import { connect } from 'mongoose'
-import 'models'
-import 'config/passport'
+import './models'
+import './config/passport'
 import routes from 'routes'
 
 require('dotenv').config()
