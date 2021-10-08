@@ -1,5 +1,5 @@
-import { body } from 'express-validator'
 import { Router, Request, Response } from 'express'
+import { body } from 'express-validator'
 import auth from 'routes/auth'
 import validate from 'routes/validate'
 import errorMessage from 'routes/errors'

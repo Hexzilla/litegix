@@ -22,23 +22,18 @@ router.param('channelId', function (req, res, next, channelId: string) {
     .catch(next)
 })
 
-router.get(
-  '/',
-  auth.required,
-  auth.required,
-  async function (req: Request, res: Response) {
-    try {
-      const response = await notifySvc.getNotifications(req.payload.id)
-      return res.json(response)
-    } catch (e) {
-      console.error(e)
-      return res.status(501).json({
-        success: false,
-        errors: errorMessage(e),
-      })
-    }
+router.get('/', auth.required, async function (req: Request, res: Response) {
+  try {
+    const response = await notifySvc.getNotifications(req.payload.id)
+    return res.json(response)
+  } catch (e) {
+    console.error(e)
+    return res.status(501).json({
+      success: false,
+      errors: errorMessage(e),
+    })
   }
-)
+})
 
 router.post(
   '/newsletters/subscribe',

@@ -3,7 +3,7 @@ import { model } from 'mongoose'
 import { Server } from 'models/server.model'
 import servers from './servers'
 import installation from './installation'
-import webapps from './webapps'
+//import webapps from './webapps'
 import databases from './databases'
 import systemusers from './systemusers'
 import credentials from './credentials'
@@ -37,7 +37,7 @@ router.param(
 
 router.use('/', servers)
 router.use('/:serverId/installation', installation)
-router.use('/:serverId/webapps', webapps)
+//router.use('/:serverId/webapps', webapps)
 router.use('/:serverId/databases', databases)
 router.use('/:serverId/systemusers', systemusers)
 router.use('/:serverId/sshcredentials', credentials)

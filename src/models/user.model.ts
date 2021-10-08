@@ -24,8 +24,8 @@ export interface User extends Document {
   hash: string
   salt: string
   timezone: string
-  ip_enable: boolean
   loginNotification: boolean
+  ipwhitelisting: boolean
   company: Company
   newsletters: Newsletters
   apiKeys: APIKeys
@@ -53,7 +53,6 @@ const UserSchema = new Schema<User>(
       match: [/\S+@\S+\.\S+/, 'is invalid'],
       index: true,
     },
-    ip_enable: { type: Boolean },
     verify: {
       code: String,
       validat_time: String,
@@ -65,6 +64,7 @@ const UserSchema = new Schema<User>(
     salt: String,
     timezone: String,
     loginNotification: Boolean,
+    ipwhitelisting: Boolean,
 
     newsletters: {
       subscription: Boolean,

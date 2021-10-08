@@ -86,7 +86,7 @@ export async function deleteAccount(req: Request, res: Response) {}*/
   })
   if (!ipEqual) {
     let result = await User.findOne({ _id: user._id })
-    if (result.ip_enable) {
+    if (result.ipEnable) {
       verifyCode = randomstring.generate(16) //makeverify(15);
       var curDate = new Date()
       verify = {
