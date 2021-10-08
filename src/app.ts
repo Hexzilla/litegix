@@ -52,6 +52,7 @@ const mongourl: string = process.env.MONGODB_URI || ''
 connect(mongourl, {
   useNewUrlParser: true,
   useCreateIndex: true,
+  useUnifiedTopology: true,
 }).then(() => {
   console.log('mongodb connected!')
 })

@@ -29,6 +29,7 @@ router.post(
   }
 )
 
+//TODO
 // router.delete('/', auth.required, authService.deleteAccount)
 
 export default router

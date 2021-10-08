@@ -8,58 +8,17 @@ chai.should()
 const token =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxNWU4OGRmOTNlMjI1MjBlMDEyMjUyMyIsInVzZXJuYW1lIjoiYWRtaW4iLCJleHAiOjE2Mzg3NzA3ODQuMjc1LCJpYXQiOjE2MzM1ODY3ODR9.Ajg0FvoARctjeDJMSO6RwC1YFTmPyV-5RxFPGgBIUhY'
 
-describe('settings/apikey', () => {
-  it('it should get apikeys', (done) => {
+describe('settings/notification', () => {
+  it('it should subscribe newsletters', (done) => {
     chai
       .request(server)
-      .get('/settings/apikey')
-      .set({ Authorization: `Bearer ${token}` })
-      .end((err, res) => {
-        console.log(res.body)
-        res.should.have.status(200)
-        res.body.should.have.property('success').equal(true)
-
-        const { apiKeys } = res.body.data
-        apiKeys.should.have.property('enableAccess')
-        apiKeys.should.have.property('apiKey')
-        apiKeys.should.have.property('secretKey')
-        done()
-      })
-  })
-
-  it('it should upate apiKey', (done) => {
-    chai
-      .request(server)
-      .put('/settings/apikey/apiKey')
-      .set({ Authorization: `Bearer ${token}` })
-      .end((err, res) => {
-        console.log(res.body)
-        res.should.have.status(200)
-        res.body.should.have.property('success').equal(true)
-        done()
-      })
-  })
-
-  it('it should upate secretKey', (done) => {
-    chai
-      .request(server)
-      .put('/settings/apikey/secretKey')
-      .set({ Authorization: `Bearer ${token}` })
-      .end((err, res) => {
-        console.log(res.body)
-        res.should.have.status(200)
-        res.body.should.have.property('success').equal(true)
-        done()
-      })
-  })
-
-  it('it should enable accessKey', (done) => {
-    chai
-      .request(server)
-      .post('/settings/apikey/enableaccess')
+      .post('/settings/notifications/newsletters/subscribe')
       .set({ Authorization: `Bearer ${token}` })
       .send({
-        state: true,
+        subscription: true,
+        announchment: true,
+        blog: true,
+        events: false,
       })
       .end((err, res) => {
         console.log(res.body)
@@ -69,13 +28,42 @@ describe('settings/apikey', () => {
       })
   })
 
-  it('it should add allowed IP address', (done) => {
+  it('it should unsbscribe newsletters', (done) => {
     chai
       .request(server)
-      .post('/settings/apikey/ipaddr')
+      .post('/settings/notifications/newsletters/unsubscribe')
+      .set({ Authorization: `Bearer ${token}` })
+      .end((err, res) => {
+        console.log(res.body)
+        res.should.have.status(200)
+        res.body.should.have.property('success').equal(true)
+        done()
+      })
+  })
+
+  it('it should get notifications', (done) => {
+    chai
+      .request(server)
+      .get('/settings/notifications')
+      .set({ Authorization: `Bearer ${token}` })
+      .end((err, res) => {
+        console.log(res.body)
+        res.should.have.status(200)
+        res.body.should.have.property('success').equal(true)
+        res.body.data.should.have.property('newsletters')
+        done()
+      })
+  })
+
+  /*it('it should add channel', (done) => {
+    chai
+      .request(server)
+      .post('/settings/notifications/channels')
       .set({ Authorization: `Bearer ${token}` })
       .send({
-        address: '152.11.22.33',
+        service: 'email',
+        name: 'litegix',
+        content: 'litegix@admin.com',
       })
       .end((err, res) => {
         console.log(res.body)
@@ -83,17 +71,18 @@ describe('settings/apikey', () => {
         res.body.should.have.property('success').equal(true)
         done()
       })
-  })
+  })*/
 
-  it('it should get allowed IP addresses', (done) => {
+  it('it should get channels', (done) => {
     chai
       .request(server)
-      .get('/settings/apikey/ipaddr')
+      .get('/settings/notifications/channels')
       .set({ Authorization: `Bearer ${token}` })
       .end((err, res) => {
         console.log(res.body)
         res.should.have.status(200)
         res.body.should.have.property('success').equal(true)
+        res.body.data.should.have.property('channels')
         done()
       })
   })

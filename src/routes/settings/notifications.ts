@@ -4,11 +4,12 @@ import { Router, Request, Response } from 'express'
 import { Channel } from 'models/channel.model'
 import auth from 'routes/auth'
 import validate from 'routes/validate'
-import * as notification from 'services/notification.service'
+import errorMessage from 'routes/errors'
+import * as notifySvc from 'services/notification.service'
 const ChannelModel = model<Channel>('Channel')
 const router = Router()
 
-// Preload server on routes with ':channelId'
+// Preload channel on routes with ':channelId'
 router.param('channelId', function (req, res, next, channelId: string) {
   ChannelModel.findById(channelId)
     .then(function (channel) {
@@ -27,12 +28,14 @@ router.get(
   auth.required,
   async function (req: Request, res: Response) {
     try {
-      const userId = req.payload.id
-      const response = await notification.getNotifications(userId)
+      const response = await notifySvc.getNotifications(req.payload.id)
       return res.json(response)
     } catch (e) {
       console.error(e)
-      return res.status(501).json({ success: false })
+      return res.status(501).json({
+        success: false,
+        errors: errorMessage(e),
+      })
     }
   }
 )
@@ -40,14 +43,21 @@ router.get(
 router.post(
   '/newsletters/subscribe',
   auth.required,
+  body('subscription').isBoolean(),
+  body('announchment').isBoolean(),
+  body('blog').isBoolean(),
+  body('events').isBoolean(),
   validate,
   async function (req: Request, res: Response) {
     try {
-      const response = await notification.subscribe(req.payload.id, req.body)
+      const response = await notifySvc.subscribe(req.payload.id, req.body)
       return res.json(response)
     } catch (e) {
       console.error(e)
-      return res.status(501).json({ success: false })
+      return res.status(501).json({
+        success: false,
+        errors: errorMessage(e),
+      })
     }
   }
 )
@@ -57,49 +67,74 @@ router.post(
   auth.required,
   async function (req: Request, res: Response) {
     try {
-      const response = await notification.unsubscribe(req.payload.id)
+      const response = await notifySvc.unsubscribe(req.payload.id)
       return res.json(response)
     } catch (e) {
       console.error(e)
-      return res.status(501).json({ success: false })
+      return res.status(501).json({
+        success: false,
+        errors: errorMessage(e),
+      })
     }
   }
 )
 
 router.get(
-  '/channels/store',
+  '/channels',
   auth.required,
-  body('channel').isString(),
-  body('name').isString(),
-  validate,
+  auth.required,
   async function (req: Request, res: Response) {
     try {
-      const response = await notification.storeChannel(req.payload.id, req.body)
+      const response = await notifySvc.getChannels(req.payload.id)
       return res.json(response)
     } catch (e) {
       console.error(e)
-      return res.status(501).json({ success: false })
+      return res.status(501).json({
+        success: false,
+        errors: errorMessage(e),
+      })
     }
   }
 )
 
 router.post(
-  '/channels/:channelId/update',
+  '/channels',
   auth.required,
-  body('channel').isString(),
+  body('service').isString(),
   body('name').isString(),
+  body('content').isString(),
   validate,
   async function (req: Request, res: Response) {
     try {
-      const response = await notification.updateChannel(
-        req.payload.id,
-        req.channel,
-        req.body
-      )
+      const response = await notifySvc.storeChannel(req.payload.id, req.body)
       return res.json(response)
     } catch (e) {
       console.error(e)
-      return res.status(501).json({ success: false })
+      return res.status(501).json({
+        success: false,
+        errors: errorMessage(e),
+      })
+    }
+  }
+)
+
+router.post(
+  '/channels/:channelId',
+  auth.required,
+  body('service').isString(),
+  body('name').isString(),
+  body('content').isString(),
+  validate,
+  async function (req: Request, res: Response) {
+    try {
+      const response = await notifySvc.updateChannel(req.channel, req.body)
+      return res.json(response)
+    } catch (e) {
+      console.error(e)
+      return res.status(501).json({
+        success: false,
+        errors: errorMessage(e),
+      })
     }
   }
 )
@@ -125,14 +160,17 @@ router.post(
   validate,
   async function (req: Request, res: Response) {
     try {
-      const response = await notification.channelHealthSetting(
+      const response = await notifySvc.channelHealthSetting(
         req.channel,
         req.body
       )
       return res.json(response)
     } catch (e) {
       console.error(e)
-      return res.status(501).json({ success: false })
+      return res.status(501).json({
+        success: false,
+        errors: errorMessage(e),
+      })
     }
   }
 )

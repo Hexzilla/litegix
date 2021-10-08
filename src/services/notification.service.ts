@@ -7,102 +7,112 @@ const ChannelModel = model<Channel>('Channel')
 export async function getNotifications(userId: string) {
   const user = await UserModel.findById(userId)
   if (!user) {
-    return {
-      success: false,
-      errors: { userId: "doesn't exists." },
-    }
+    throw Error('InvalidUser')
   }
-  const channels = await ChannelModel.find({ userId })
 
   return {
     success: true,
     data: {
       newsletters: user.newsletters,
-      channels: channels.map((it) => it.toJSON()),
     },
   }
 }
 
-export async function subscribe(userId: string, data: any) {
+export async function subscribe(
+  userId: string,
+  {
+    subscription,
+    announchment,
+    blog,
+    events,
+  }: {
+    subscription: boolean
+    announchment: boolean
+    blog: boolean
+    events: boolean
+  }
+) {
   const user = await UserModel.findById(userId)
   if (!user) {
-    return {
-      success: false,
-      errors: { userId: "doesn't exists." },
-    }
+    throw Error('InvalidUser')
   }
 
   user.newsletters = {
-    subscription: data.subscription,
-    announchment: data.announchment,
-    blog: data.blog,
-    events: data.events,
+    subscription: subscription,
+    announchment: announchment,
+    blog: blog,
+    events: events,
   }
-  await user.save()
+  if (!(await user.save())) {
+    throw Error('DBSaveError')
+  }
 
   const message = `Subscribe to newsletter`
   await createUserActivityLogInfo(user, message)
 
   return {
     success: true,
-    data: {
-      newsletters: user.newsletters,
-    },
+    data: {},
   }
 }
 
 export async function unsubscribe(userId: string) {
   const user = await UserModel.findById(userId)
   if (!user) {
-    return {
-      success: false,
-      errors: { userId: "doesn't exists." },
-    }
+    throw Error('InvalidUser')
   }
   if (user.newsletters) {
     user.newsletters.subscription = false
   }
-  await user.save()
+  if (!(await user.save())) {
+    throw Error('DBSaveError')
+  }
 
   const message = `Unsubscribe from newsletter`
   await createUserActivityLogInfo(user, message, 2)
 
   return {
     success: true,
+    data: {},
+  }
+}
+
+export async function getChannels(userId: any) {
+  const user: any = userId
+  const channels = await ChannelModel.find({ user })
+
+  return {
+    success: true,
     data: {
-      newsletters: user.newsletters,
+      channels: channels,
     },
   }
 }
 
-export async function storeChannel(userId: string, data: any) {
-  const user = await UserModel.findById(userId)
-  if (!user) {
-    return {
-      success: false,
-      errors: { userId: "doesn't exists." },
-    }
-  }
-
-  const query = {
-    userId,
-    channel: data.channel,
-    name: data.name,
-  }
-  const exists = await ChannelModel.findOne(query)
+export async function storeChannel(
+  userId: string,
+  { service, name, content }: { service: string; name: string; content: string }
+) {
+  const user: any = userId
+  const exists = await ChannelModel.findOne({
+    user,
+    service,
+    content,
+  })
   if (exists) {
-    return {
-      success: false,
-      errors: { name: 'has already been taken.' },
-    }
+    throw Error('Already exists')
   }
 
-  const channel = new ChannelModel(data)
-  channel.user = user
+  const channel = new ChannelModel({
+    user,
+    service,
+    name,
+    content,
+  })
   await channel.save()
 
-  const message = `Added Notification Channel ${data.name} (${data.service})`
-  await createUserActivityLogInfo(user, message, 2)
+  const message = `Added Notification Channel ${name} (${service})`
+  await createUserActivityLogInfo(channel.user, message, 2)
 
   return {
     success: true,
@@ -111,34 +121,20 @@ export async function storeChannel(userId: string, data: any) {
 }
 
 export async function updateChannel(
-  userId: string,
   channel: Channel,
-  data: any
+  { service, name, content }: { service: string; name: string; content: string }
 ) {
-  const user = await UserModel.findById(userId)
-  if (!user) {
-    return {
-      success: false,
-      errors: { userId: "doesn't exists." },
-    }
+  if (channel.service != service) {
+    throw Error('InvalidService')
   }
 
-  if (channel.service != data.service) {
-    return {
-      success: false,
-      errors: {
-        service: "service cann't be changed.",
-      },
-    }
-  }
-
-  channel.service = data.service
-  channel.name = data.name
-  channel.content = data.content
+  channel.service = service
+  channel.name = name
+  channel.content = content
   await channel.save()
 
-  const message = `Update Notification Channel ${data.name} (${data.service})`
-  await createUserActivityLogInfo(user, message, 2)
+  const message = `Update Notification Channel ${name} (${service})`
+  await createUserActivityLogInfo(channel.user, message, 2)
 
   return {
     success: true,
@@ -147,7 +143,7 @@ export async function updateChannel(
 }
 
 export async function channelHealthSetting(channel: Channel, data: any) {
-  if (data.load) {
+  /*if (data.load) {
     channel.load = data.load
   }
   if (data.memory) {
@@ -168,5 +164,5 @@ export async function channelHealthSetting(channel: Channel, data: any) {
       load: channel.load,
       memory: channel.memory,
     },
-  }
+  }*/
 }
