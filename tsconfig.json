@@ -80,5 +80,5 @@
   "include": [
       "./src/**/*.ts",
       "./src/**/*.d.ts"
-  ]
+, "src/services/payment.service.ts.bak", "src/services/security.service.ts.bak", "src/services/subscription.service.ts.bak"  ]
 }
