@@ -1,6 +1,7 @@
 import { model } from 'mongoose'
 import { Server, Database, DatabaseUser } from 'models'
-import * as activityService from 'services/activity.service'
+import * as activitySvc from 'services/activity.service'
+import * as agentSvc from 'services/agent.service'
 const DatabaseModel = model<Database>('Database')
 const DatabaseUserModel = model<DatabaseUser>('DatabaseUser')
 
@@ -25,19 +26,13 @@ export async function storeDatabase(
     name: data.name,
   })
   if (exists) {
-    return {
-      success: false,
-      errors: { message: 'Database name has already been taken.' },
-    }
+    throw Error('Database name has already been taken.')
   }
 
-  /*errors = await agent.createDatabase(server.address, data)
-  if (errors) {
-    return res.status(422).json({
-      success: false,
-      errors: errors
-    })
-  }*/
+  const result = await agentSvc.createDatabase(server.address, data)
+  if (!result.success) {
+    throw Error(result.message)
+  }
 
   const options = { ...data, users: [''] }
   if (data.userId) {
@@ -55,7 +50,7 @@ export async function storeDatabase(
   await database.save()
 
   const message = `Added new database ${data.name} with collation ${data.collation}`
-  await activityService.createServerActivityLogInfo(server, message, 1)
+  await activitySvc.createServerActivityLogInfo(server, message, 1)
 
   return {
     success: true,
@@ -67,21 +62,18 @@ export async function storeDatabase(
 export async function deleteDatabase(server: Server, databaseId: string) {
   const database = await DatabaseModel.findById(databaseId)
   if (!database) {
-    return {
-      success: false,
-      errors: { message: "It doesn't exists" },
-    }
+    throw Error("It doesn't exists")
   }
 
-  /*errors = await agent.deleteDatabase(database.name)
-  if (errors) {
-    return res.status(422).json({ success: false, errors: errors })
-  }*/
+  const result = await agentSvc.deleteDatabase(server.address, database.name)
+  if (!result.success) {
+    throw Error(result.message)
+  }
 
   await database.remove()
 
   const message = `Deleted database ${database.name}`
-  await activityService.createServerActivityLogInfo(server, message, 1)
+  await activitySvc.createServerActivityLogInfo(server, message, 1)
 
   return {
     success: true,
@@ -244,26 +236,20 @@ export async function storeDatabaseUser(
     name: data.name,
   })
   if (exists) {
-    return {
-      success: false,
-      errors: { message: 'Database User name has already been taken.' },
-    }
+    throw Error('Database User name has already been taken.')
   }
 
-  /*errors = await agent.createDatabaseUser(data);
-  if (errors) {
-    return res.status(422).json({
-      success: false,
-      errors: errors,
-    });
-  }*/
+  const result = await agentSvc.createDatabaseUser(server.address, data)
+  if (!result.success) {
+    throw Error(result.message)
+  }
 
   const databaseUser = new DatabaseUserModel(data)
   databaseUser.server = server
   await databaseUser.save()
 
   const message = `Added new database user ${data.name} with password`
-  await activityService.createServerActivityLogInfo(server, message)
+  await activitySvc.createServerActivityLogInfo(server, message)
 
   return {
     success: true,
@@ -277,21 +263,18 @@ export async function deleteDatabaseUser(
 ) {
   const user = await DatabaseUserModel.findById(databaseUserId)
   if (!user) {
-    return {
-      success: false,
-      errors: { message: "It doesn't exists" },
-    }
+    throw Error("It doesn't exists")
   }
 
-  /*errors = await agent.deleteDatabaseUser(user.name);
-  if (errors) {
-    return res.status(422).json({ success: false, errors: errors });
-  }*/
+  const result = await agentSvc.deleteDatabaseUser(server.address, user.name)
+  if (!result.success) {
+    throw Error(result.message)
+  }
 
   await user.remove()
 
   const message = `Deleted database user ${user.name}`
-  await activityService.createServerActivityLogInfo(server, message)
+  await activitySvc.createServerActivityLogInfo(server, message)
 
   return {
     success: true,

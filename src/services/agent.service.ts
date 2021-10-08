@@ -1,86 +1,102 @@
-const axios = require('axios')
+import axios from 'axios'
 
-const diskClean = async function () {
+export async function diskClean(address: string) {
   try {
-    const response = await axios.get(`http://${address}/disk/clean`)
-    return null
+    const response = await axios.get(`http://${address}:21000/disk/clean`)
+    return response
   } catch (e) {
     console.log(e)
     return e
   }
 }
 
-const createDatabase = async function (address, data) {
+export async function createDatabase(
+  address: string,
+  data: { name: string; userId: string; collation: string }
+) {
   try {
-    const response = await axios.post(`http://${address}/database/create`, data)
-    return null
-  } catch (e) {
+    const res = await axios.post<JSON>(`http://${address}:21000/database`, data)
+    return {
+      success: true,
+      status: res.status,
+      data: res.data,
+    }
+  } catch (e: any) {
     console.log(e)
-    return e
+    return { success: false, message: 'Unknown' }
   }
 }
 
-const deleteDatabase = async function (name) {
+export async function deleteDatabase(address: string, name: string) {
   try {
-    const response = await axios.post(`http://${address}/database/delete`, {
-      name: name,
-    })
-    return null
-  } catch (e) {
+    const res = await axios.delete(`http://${address}:21000/database/${name}`)
+    return {
+      success: true,
+      status: res.status,
+      data: res.data,
+    }
+  } catch (e: any) {
     console.log(e)
-    return e
+    return { success: false, message: 'Unknown' }
   }
 }
 
-const createDatabaseUser = async function (data) {
+export async function createDatabaseUser(address: string, data: any) {
   try {
-    const response = await axios.post(
-      `http://${address}/database/user/create`,
-      data
+    const res = await axios.post(`http://${address}:21000/database/user`, data)
+    return {
+      success: true,
+      status: res.status,
+      data: res.data,
+    }
+  } catch (e: any) {
+    console.log(e)
+    return { success: false, message: 'Unknown' }
+  }
+}
+
+export async function deleteDatabaseUser(address: string, name: string) {
+  try {
+    const res = await axios.delete(
+      `http://${address}:21000/database/user/${name}`
     )
-    return null
-  } catch (e) {
+    return {
+      success: true,
+      status: res.status,
+      data: res.data,
+    }
+  } catch (e: any) {
     console.log(e)
-    return e
+    return { success: false, message: 'Unknown' }
   }
 }
 
-const deleteDatabaseUser = async function (name) {
+export async function createWebApplication() {
+  return null
+}
+
+export async function updateWebApplication() {
+  return null
+}
+
+export async function setDefaultApp() {
+  return null
+}
+
+export async function removeDefaultApp() {
+  return null
+}
+
+export async function deleteWebApplication(address: string, name: string) {
+  return null
+}
+
+export async function createSystemUser(
+  address: string,
+  { name, password }: { name: string; password: string }
+) {
   try {
-    const response = await axios.post(
-      `http://${address}/database/user/delete`,
-      { name: name }
-    )
-    return null
-  } catch (e) {
-    console.log(e)
-    return e
-  }
-}
-
-const createWebApplication = async function () {
-  return null
-}
-
-const updateWebApplication = async function () {
-  return null
-}
-
-const setDefaultApp = async function () {
-  return null
-}
-
-const removeDefaultApp = async function () {
-  return null
-}
-
-const deleteWebApplication = async function (name) {
-  return null
-}
-
-const createSystemUser = async function ({ name, password }) {
-  try {
-    const response = await axios.post(`http://${address}/system/user`, {
+    const response = await axios.post(`http://${address}:21000/system/user`, {
       name,
       password,
     })
@@ -91,72 +107,55 @@ const createSystemUser = async function ({ name, password }) {
   }
 }
 
-const deleteSystemUser = async function (name) {
+export async function deleteSystemUser(address: string, name: string) {
   try {
-    const response = await axios.post(`http://${address}/system/user/delete`, {
-      name: name,
-    })
-    return null
+    const response = await axios.post(
+      `http://${address}:21000/system/user/delete`,
+      {
+        name: name,
+      }
+    )
+    return response
   } catch (e) {
     console.log(e)
     return e
   }
 }
 
-const createDeploymentKey = async function (data) {
+export async function createDeploymentKey(address: string, data: any) {
   try {
     const response = await axios.post(
-      `http://${address}/deploymentkey/create`,
+      `http://${address}:21000/deploymentkey/create`,
       data
     )
-    return null
+    return response
   } catch (e) {
     console.log(e)
     return e
   }
 }
 
-const deleteDeploymentKey = async function (name) {
+export async function deleteDeploymentKey(address: string, name: string) {
   try {
     const response = await axios.post(
-      `http://${address}/deploymentkey/delete`,
+      `http://${address}:21000/deploymentkey/delete`,
       { name: name }
     )
-    return null
+    return response
   } catch (e) {
     console.log(e)
     return e
   }
 }
 
-const createCronJob = async function () {
+export async function createCronJob() {
   return null
 }
 
-const removeCronJob = async function () {
+export async function removeCronJob() {
   return null
 }
 
-const rebuildCronJob = async function () {
+export async function rebuildCronJob() {
   return null
-}
-
-export default {
-  diskClean,
-  createDatabase,
-  deleteDatabase,
-  createDatabaseUser,
-  deleteDatabaseUser,
-  createWebApplication,
-  updateWebApplication,
-  setDefaultApp,
-  removeDefaultApp,
-  deleteWebApplication,
-  createCronJob,
-  removeCronJob,
-  rebuildCronJob,
-  createSystemUser,
-  deleteSystemUser,
-  createDeploymentKey,
-  deleteDeploymentKey,
 }

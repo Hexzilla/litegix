@@ -152,6 +152,7 @@ router.get(
   }
 )
 
+//TODO~~~~~~
 router.post(
   '/channels/:channelId/healthsetting',
   auth.required,

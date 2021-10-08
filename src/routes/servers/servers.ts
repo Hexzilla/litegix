@@ -2,12 +2,12 @@ import { body } from 'express-validator'
 import { Router, Request, Response } from 'express'
 import auth from '../auth'
 import validate from 'routes/validate'
-import * as server from 'services/server.service'
+import * as serverSvc from 'services/server.service'
 const router = Router()
 
 router.get('/', auth.required, async function (req: Request, res: Response) {
   try {
-    const response = await server.getServers(req.payload.id)
+    const response = await serverSvc.getServers(req.payload.id)
     return res.json(response)
   } catch (e) {
     console.error(e)
@@ -26,7 +26,7 @@ router.post(
   validate,
   async function (req: Request, res: Response) {
     try {
-      const response = await server.storeServer(req.payload.id, req.body)
+      const response = await serverSvc.storeServer(req.payload.id, req.body)
       return res.json(response)
     } catch (e) {
       console.error(e)

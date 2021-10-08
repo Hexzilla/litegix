@@ -1,3 +1,4 @@
+import randomstring from 'randomstring'
 import { model } from 'mongoose'
 import { User, Server } from 'models'
 const UserModel = model<User>('User')
@@ -57,7 +58,8 @@ export async function updateSetting(userId: string, server: Server) {
 }
 
 export async function getServers(userId: string) {
-  const servers = await ServerModel.find({ userId: userId })
+  const user: any = userId
+  const servers = await ServerModel.find({ user })
   return {
     success: true,
     data: {
@@ -109,16 +111,18 @@ export async function storeServer(userId: string, data: any) {
     }
   }
 
-  const server = new ServerModel(data)
-  server.connected = false
-  server.user = user
-  server.securityId = '' //TODO--random
-  server.securityKey = ''
+  const server = new ServerModel({
+    ...data,
+    connection: false,
+    user: user,
+    securityId: randomstring.generate(64),
+    securityKey: randomstring.generate(84),
+  })
   await server.save()
 
   return {
     success: true,
-    data: { id: server._id },
+    data: { id: server.id },
   }
 }
 

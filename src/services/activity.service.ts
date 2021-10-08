@@ -51,7 +51,8 @@ export async function getServerActivityLogs(server: Server) {
 }
 
 export async function getAccountActivityLogs(userId: string) {
-  const activities = await UserActivityModel.find({ userId })
+  const user: any = userId
+  const activities = await UserActivityModel.find({ user })
   return {
     success: true,
     data: { activities },

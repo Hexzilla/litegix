@@ -2,6 +2,7 @@ import { body } from 'express-validator'
 import { Router, Request, Response } from 'express'
 import auth from '../auth'
 import validate from 'routes/validate'
+import errorMessage from 'routes/errors'
 import * as database from 'services/database.service'
 const router = Router()
 
@@ -11,7 +12,10 @@ router.get('/', auth.required, async function (req: Request, res: Response) {
     return res.json(response)
   } catch (e) {
     console.error(e)
-    return res.status(501).json({ success: false })
+    return res.status(501).json({
+      success: false,
+      errors: errorMessage(e),
+    })
   }
 })
 
@@ -41,7 +45,10 @@ router.post(
       res.json(response)
     } catch (e) {
       console.error(e)
-      return res.status(501).json({ success: false })
+      return res.status(501).json({
+        success: false,
+        errors: errorMessage(e),
+      })
     }
   }
 )
@@ -56,7 +63,10 @@ router.delete(
       res.json(response)
     } catch (e) {
       console.error(e)
-      return res.status(501).json({ success: false })
+      return res.status(501).json({
+        success: false,
+        errors: errorMessage(e),
+      })
     }
   }
 )
@@ -85,7 +95,10 @@ router.get(
       return res.json(response)
     } catch (e) {
       console.error(e)
-      return res.status(501).json({ success: false })
+      return res.status(501).json({
+        success: false,
+        errors: errorMessage(e),
+      })
     }
   }
 )
@@ -100,7 +113,10 @@ router.get(
       return res.json(response)
     } catch (e) {
       console.error(e)
-      return res.status(501).json({ success: false })
+      return res.status(501).json({
+        success: false,
+        errors: errorMessage(e),
+      })
     }
   }
 )
@@ -117,7 +133,10 @@ router.post(
       return res.json(response)
     } catch (e) {
       console.error(e)
-      return res.status(501).json({ success: false })
+      return res.status(501).json({
+        success: false,
+        errors: errorMessage(e),
+      })
     }
   }
 )
@@ -139,7 +158,10 @@ router.delete(
       return res.json(response)
     } catch (e) {
       console.error(e)
-      return res.status(501).json({ success: false })
+      return res.status(501).json({
+        success: false,
+        errors: errorMessage(e),
+      })
     }
   }
 )
