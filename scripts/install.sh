@@ -9,9 +9,9 @@ PHP_CLI_VERSION="php74"
 
 SERVERID=""
 SERVERKEY=""
-ENVIRONMENT="production"
 WEBSERVER=""
 DATABASE=""
+ENVIRONMENT="production"
 
 echo "INSTALL_STATE_URL: $INSTALL_STATE_URL"
 sleep 2
@@ -23,16 +23,18 @@ INSTALL_PACKAGE="curl git wget expect redis-server fail2ban python-setuptools op
 
 function send_state {
   status=$1
-  echo "send_state: $status"
-  sleep 2
+  echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  echo -e "send_state: $status"
   curl --ipv4 --header "Content-Type: application/json" -X POST $INSTALL_STATE_URL -d '{"status": "'"$status"'"}'
   sleep 2
 }
 
 function send_data {
   payload=$1
-  echo "send_data: $payload\n"
+  echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  echo -e "send_data: $payload\n"
   curl --ipv4 --header "Content-Type: application/json" -X POST $INSTALL_STATE_URL -d $payload
+  sleep 2
 }
 
 function replace_true_whole_line {
@@ -454,8 +456,8 @@ function install_openlitespeed {
     cd $TEMP_DIR
     wget -O openlitespeed-${OLS_VERSION}.tgz --no-check-certificate https://openlitespeed.org/packages/openlitespeed-${OLS_VERSION}.tgz
     tar -zxvf openlitespeed-${OLS_VERSION}.tgz
-    chown -R root.root /tmp/openlitespeed
-    chmod -R 777 /tmp/openlitespeed
+    chown -R root.root $TEMP_DIR/openlitespeed
+    chmod -R 777 $TEMP_DIR/openlitespeed
     cd $TEMP_DIR/openlitespeed
     bash install.sh
 
@@ -596,9 +598,7 @@ function install_webapp {
     setfacl -Rm g:users-lg:- /var/log
     setfacl -Rm g:$USER:rx /home/$USER/logs
 
-
     mkdir -p /opt/litegix/{.ssh,letsencrypt}
-
 
     ############################# TODO
     echo "-----BEGIN DH PARAMETERS-----
@@ -797,7 +797,7 @@ fix_auto_update
 
 # Agent
 send_state "agent"
-#install_agent
+install_agent
 
 # Firewall
 send_state "firewall"
@@ -855,5 +855,5 @@ User: $USER
 Password: $LITEGIX_PASSWORD
 \n
 \n
-You can now manage your server using $LITEGIX_URL
+You can now manage your server using https://litegix.netlify.app
 "
