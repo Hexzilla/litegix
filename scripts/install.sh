@@ -23,18 +23,18 @@ INSTALL_PACKAGE="curl git wget expect redis-server fail2ban python-setuptools op
 
 function send_state {
   status=$1
-  echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-  echo -e "send_state: $status"
+  echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~send_state: $status"
   curl --ipv4 --header "Content-Type: application/json" -X POST $INSTALL_STATE_URL -d '{"status": "'"$status"'"}'
   sleep 2
+  echo -e ""
 }
 
 function send_data {
   payload=$1
-  echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-  echo -e "send_data: $payload\n"
+  echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~send_data: $payload\n"
   curl --ipv4 --header "Content-Type: application/json" -X POST $INSTALL_STATE_URL -d $payload
   sleep 2
+  echo -e ""
 }
 
 function replace_true_whole_line {
@@ -395,7 +395,7 @@ EOF
         --add-module=$NGINX_MODULES/memc-nginx-module-0.19 \
         --add-module=$NGINX_MODULES/redis2-nginx-module-0.15 \
         --add-module=$NGINX_MODULES/redis-nginx-module-0.3.7 \
-        --add-module=$NGINX_MODULES/rds-json-nginx-module-0.15 \ 
+        --add-module=$NGINX_MODULES/rds-json-nginx-module-0.15 \
         --add-module=$NGINX_MODULES/rds-csv-nginx-module-0.09 \
         --add-module=$NGINX_MODULES/ngx_stream_lua-0.0.9 \
         --add-module=$NGINX_MODULES/ngx_brotli-1.0.0rc \
@@ -424,7 +424,7 @@ EOF
         --with-http_addition_module \
         --with-http_flv_module \
         --with-http_mp4_module \
-        --with-http_gunzip_module \ 
+        --with-http_gunzip_module \
         --with-http_gzip_static_module \
         --with-http_geoip_module \
         --with-http_image_filter_module \
