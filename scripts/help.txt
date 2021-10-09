@@ -10,3 +10,8 @@ sudo nmap -sTU -O IP-address-Here
 systemctl stop nginx
 apt remove nginx
 apt-get purge nginx
+
+
+systemctl stop litespeed
+apt remove litespeed
+apt-get purge litespeed

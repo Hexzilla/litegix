@@ -767,17 +767,25 @@ install_supervisor
 send_state "fail2ban"
 install_fail2ban
 
+if [[ "$WEBSERVER" == 'nginx' ]]; then
 # Nginx
 send_state "nginx"
 install_nginx
+else
+# Openlitespeed
+send_state "openlitespeed"
+install_openlitespeed
+fi
 
+if [[ "$DATABASE" == 'mysql' ]]; then
 # MySQL
 send_state "mysql"
 install_mysql
-
+else
 # MariaDB
 send_state "mariadb"
-#install_mariadb
+install_mariadb
+fi
 
 # Web Application
 send_state "webapp"

@@ -80,33 +80,52 @@ export async function updateInstallState(encryptedToken: string, data: any) {
 
   let progress = server.installation?.progress || 0
   let message = data.message
-  if (data.status === 'start') {
-    progress = 5
-    message =
-      'Starting installation. Upgrading system to latest update. This will take a while...'
-  } else if (data.status === 'port') {
-    progress = 10
-    message = 'Checking open port...'
-  } else if (data.status === 'config') {
-    progress = 20
-    message = 'Bootstrap server...'
-  } else if (data.status === 'update') {
-    progress = 30
-    message = 'Upgrating system to latest software version...'
-  } else if (data.status === 'packages') {
-    progress = 35
-    message =
-      'Installation started. Installing dependency will take a few minutes...'
-  } else if (data.status === 'supervisor') {
-    progress = 70
-    message = 'Configuring Supervisord to run background job...'
-  } else if (data.status === 'mariadb') {
-    progress = 75
-    message = 'Configuring MariaDB database...'
-  } else if (data.status === 'finish') {
-    server.connected = true
-    progress = 100
-    message = 'Server has been installed successufuly'
+  switch (data.status) {
+    case 'start':
+      progress = 5
+      message =
+        'Starting installation. Upgrading system to latest update. This will take a while...'
+      break
+    case 'port':
+      progress = 10
+      message = 'Checking open port...'
+      break
+    case 'config':
+      progress = 20
+      message = 'Bootstrap server...'
+      break
+    case 'update':
+      progress = 30
+      message = 'Upgrating system to latest software version...'
+      break
+    case 'packages':
+      progress = 35
+      message =
+        'Installation started. Installing dependency will take a few minutes...'
+      break
+    case 'supervisor':
+      progress = 40
+      message = 'Configuring Supervisord to run background job...'
+      break
+    case 'fail2ban':
+      progress = 45
+      message = 'Configuring Supervisord to run background job...'
+      break
+    case 'nginx':
+    case 'openlitespeed':
+      progress = 50
+      message = 'Installing webserver. It will take a few minutes...'
+      break
+    case 'mariadb':
+    case 'mysql':
+      progress = 75
+      message = 'Configuring MariaDB database...'
+      break
+    case 'finish':
+      server.connected = true
+      progress = 100
+      message = 'Server has been installed successufuly'
+      break
   }
 
   server.installation = {
