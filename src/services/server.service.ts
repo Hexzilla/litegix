@@ -71,13 +71,23 @@ export async function getServers(userId: string) {
           address: it.address,
           connected: it.connected,
           webserver: it.webserver,
+          database: it.database,
         }
       }),
     },
   }
 }
 
-export async function storeServer(userId: string, data: any) {
+export async function storeServer(
+  userId: string,
+  data: {
+    name: string
+    address: string
+    webserver: string
+    database: string
+    phpVersion: string
+  }
+) {
   const user = await UserModel.findById(userId)
   if (!user) {
     return {
