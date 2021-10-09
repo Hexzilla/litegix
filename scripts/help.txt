@@ -12,6 +12,19 @@ apt remove nginx
 apt-get purge nginx
 
 
-systemctl stop litespeed
-apt remove litespeed
-apt-get purge litespeed
+systemctl stop lsws
+/usr/local/lsws/admin/misc/uninstall.sh
+
+
+
+
+Control Commands
+Start OpenLiteSpeed: systemctl start lsws
+Stop OpenLiteSpeed: systemctl stop lsws
+Gracefully restart OpenLiteSpeed (zero downtime): systemctl restart lsws
+Show OpenLiteSpeed commands: /usr/local/lsws/bin/lswsctrl help
+Miscellaneous Commands
+Reset the WebAdmin password from the command line: /usr/local/lsws/admin/misc/admpass.sh
+Switch between XML and plain text configuration files: /usr/local/lsws/conf/switch_config.sh
+Check OpenLiteSpeed version: /usr/local/lsws/bin/lshttpd -v
+Check OpenLiteSpeed configuration errors: /usr/local/lsws/bin/openlitespeed -t
