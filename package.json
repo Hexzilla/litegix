@@ -7,7 +7,6 @@
   "scripts": {
     "dev": "nodemon ./src/app.ts",
     "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register 'tests/*.ts'",
-    "build": "tsc --project ./",
     "postinstall": "tsc && rm -v -rf src",
     "start": "env NODE_PATH=dist node dist/app.js",
     "tslint": "tslint --project tsconfig.json",
