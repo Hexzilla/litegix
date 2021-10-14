@@ -51,10 +51,24 @@ export async function createDatabaseUser(address: string, data: any) {
       status: res.status,
       data: res.data,
     }
-  } catch (e: any) {
-    console.log('agent.createDatabaseUser-3')
-    console.log(e)
-    return { success: false, message: 'Unknown' }
+  } catch (err: any) {
+    if (err.response) {
+      console.log(
+        'agent.createDatabaseUser-err.response.status',
+        err.response.status
+      )
+      console.log(
+        'agent.createDatabaseUser-err.response.data',
+        err.response.data
+      )
+      return { success: false, message: 'Unknown' }
+    } else if (err.request) {
+      console.log('agent.createDatabaseUser-4')
+      return { success: false, message: 'Unknown' }
+    } else {
+      console.log('agent.createDatabaseUser-5')
+      return { success: false, message: 'Unknown' }
+    }
   }
 }
 
