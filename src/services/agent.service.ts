@@ -43,13 +43,16 @@ export async function deleteDatabase(address: string, name: string) {
 
 export async function createDatabaseUser(address: string, data: any) {
   try {
+    console.log('agent.createDatabaseUser-1')
     const res = await axios.post(`http://${address}:21000/database/user`, data)
+    console.log('agent.createDatabaseUser-2')
     return {
       success: true,
       status: res.status,
       data: res.data,
     }
   } catch (e: any) {
+    console.log('agent.createDatabaseUser-3')
     console.log(e)
     return { success: false, message: 'Unknown' }
   }

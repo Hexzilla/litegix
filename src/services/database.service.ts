@@ -231,26 +231,32 @@ export async function storeDatabaseUser(
   server: Server,
   data: { name: string }
 ) {
+  console.log('storeDatabaseUser1')
   const exists = await DatabaseUserModel.findOne({
     serverId: server.id,
     name: data.name,
   })
+  console.log('storeDatabaseUser2', exists?.name)
   if (exists) {
     throw Error('Database User name has already been taken.')
   }
 
+  console.log('storeDatabaseUser3')
   const result = await agentSvc.createDatabaseUser(server.address, data)
   if (!result.success) {
     throw Error(result.message)
   }
 
+  console.log('storeDatabaseUser4')
   const databaseUser = new DatabaseUserModel(data)
   databaseUser.server = server
   await databaseUser.save()
 
+  console.log('storeDatabaseUser5')
   const message = `Added new database user ${data.name} with password`
   await activitySvc.createServerActivityLogInfo(server, message)
 
+  console.log('storeDatabaseUser6')
   return {
     success: true,
     message: 'It has been successfully created.',
