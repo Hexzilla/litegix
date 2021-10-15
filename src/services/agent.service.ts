@@ -1,12 +1,27 @@
 import axios from 'axios'
 
+function getErrorMessage(err: any) {
+  if (err.response) {
+    if (err.response.data) {
+      return err.response.data.message
+    } else {
+      return 'Agent service error'
+    }
+  } else if (err.request) {
+    return 'Your server seems to be offline now.'
+  }
+  return 'Unknown'
+}
+
 export async function diskClean(address: string) {
   try {
     const response = await axios.get(`http://${address}:21000/disk/clean`)
     return response
-  } catch (e) {
-    console.log(e)
-    return e
+  } catch (err: any) {
+    return {
+      success: false,
+      message: getErrorMessage(err),
+    }
   }
 }
 
@@ -21,9 +36,11 @@ export async function createDatabase(
       status: res.status,
       data: res.data,
     }
-  } catch (e: any) {
-    console.log(e)
-    return { success: false, message: 'Unknown' }
+  } catch (err: any) {
+    return {
+      success: false,
+      message: getErrorMessage(err),
+    }
   }
 }
 
@@ -35,39 +52,26 @@ export async function deleteDatabase(address: string, name: string) {
       status: res.status,
       data: res.data,
     }
-  } catch (e: any) {
-    console.log(e)
-    return { success: false, message: 'Unknown' }
+  } catch (err: any) {
+    return {
+      success: false,
+      message: getErrorMessage(err),
+    }
   }
 }
 
 export async function createDatabaseUser(address: string, data: any) {
   try {
-    console.log('agent.createDatabaseUser-1')
     const res = await axios.post(`http://${address}:21000/database/user`, data)
-    console.log('agent.createDatabaseUser-2')
     return {
       success: true,
       status: res.status,
       data: res.data,
     }
   } catch (err: any) {
-    if (err.response) {
-      console.log(
-        'agent.createDatabaseUser-err.response.status',
-        err.response.status
-      )
-      console.log(
-        'agent.createDatabaseUser-err.response.data',
-        err.response.data
-      )
-      return { success: false, message: 'Unknown' }
-    } else if (err.request) {
-      console.log('agent.createDatabaseUser-4')
-      return { success: false, message: 'Unknown' }
-    } else {
-      console.log('agent.createDatabaseUser-5')
-      return { success: false, message: 'Unknown' }
+    return {
+      success: false,
+      message: getErrorMessage(err),
     }
   }
 }
@@ -82,9 +86,11 @@ export async function deleteDatabaseUser(address: string, name: string) {
       status: res.status,
       data: res.data,
     }
-  } catch (e: any) {
-    console.log(e)
-    return { success: false, message: 'Unknown' }
+  } catch (err: any) {
+    return {
+      success: false,
+      message: getErrorMessage(err),
+    }
   }
 }
 

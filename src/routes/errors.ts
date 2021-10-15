@@ -2,11 +2,11 @@ export default (error: any) => {
   if (error?.code === 11000) {
     return {
       code: error.code,
-      text: 'duplicated',
+      message: 'duplicated',
     }
   }
   return {
-    code: 'Unknown',
-    text: error?.message,
+    code: -1,
+    message: error?.message,
   }
 }

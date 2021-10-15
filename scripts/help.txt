@@ -6,17 +6,28 @@ sudo lsof -i:22 ## see a specific port such as 22 ##
 sudo nmap -sTU -O IP-address-Here
 
 
+ls /etc/systemd/system/
+
+
 # Remove nginx
 systemctl stop nginx
-apt remove nginx
+apt remove --purge nginx
 apt-get purge nginx
+
+
+systemctl stop mysql
+apt-get remove --purge mysql*
 
 
 systemctl stop lsws
 /usr/local/lsws/admin/misc/uninstall.sh
 
+systemctl stop litegix-agent
+apt remove --purge litegix-agent
+apt-get purge litegix-agent
+rm -rf /litegix/litegix-agent
 
-
+journalctl --unit=litegix-agent
 
 Control Commands
 Start OpenLiteSpeed: systemctl start lsws

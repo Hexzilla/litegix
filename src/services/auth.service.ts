@@ -12,7 +12,9 @@ export function login(req: Request, res: Response, next: NextFunction) {
     { session: false },
     function (err: any, user: User, info: any) {
       if (err) {
-        return res.status(422).json({ success: false, message: err.message })
+        return res
+          .status(422)
+          .json({ success: false, message: err.errors?.message })
       }
 
       if (!user) {
@@ -58,7 +60,7 @@ export async function changePassword(
   if (!user.validPassword(currentPassword)) {
     return {
       success: false,
-      message: 'Password mismatch',
+      message: 'Password does not match',
     }
   }
 

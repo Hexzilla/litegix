@@ -97,7 +97,6 @@ router.post(
   auth.required,
   body('service').isString(),
   body('name').isString(),
-  body('content').isString(),
   validate,
   async function (req: Request, res: Response) {
     try {

@@ -78,6 +78,7 @@ export async function unsubscribe(userId: string) {
 }
 
 export async function getChannels(userId: any) {
+  console.log('getChannels', userId)
   const user: any = userId
   const channels = await ChannelModel.find({ user })
 
@@ -91,14 +92,26 @@ export async function getChannels(userId: any) {
 
 export async function storeChannel(
   userId: string,
-  { service, name, content }: { service: string; name: string; content: string }
+  { service, name, address }: { service: string; name: string; address: string }
 ) {
+  if (service == 'Email' || service == 'Slack') {
+    if (!address) {
+      throw Error('Invalid address')
+    }
+  }
+
   const user: any = userId
-  const exists = await ChannelModel.findOne({
+  let condition: any = {
     user,
     service,
-    content,
-  })
+    name,
+  }
+  if (address) {
+    condition = { ...condition, address }
+  }
+  console.log('address', condition)
+
+  const exists = await ChannelModel.findOne(condition)
   if (exists) {
     throw Error('Already exists')
   }
@@ -107,7 +120,7 @@ export async function storeChannel(
     user,
     service,
     name,
-    content,
+    address,
   })
   await channel.save()
 
@@ -116,13 +129,13 @@ export async function storeChannel(
 
   return {
     success: true,
-    data: { channel },
+    data: { id: channel.id },
   }
 }
 
 export async function updateChannel(
   channel: Channel,
-  { service, name, content }: { service: string; name: string; content: string }
+  { service, name, address }: { service: string; name: string; address: string }
 ) {
   if (channel.service != service) {
     throw Error('InvalidService')
@@ -130,7 +143,7 @@ export async function updateChannel(
 
   channel.service = service
   channel.name = name
-  channel.content = content
+  channel.address = address
   await channel.save()
 
   const message = `Update Notification Channel ${name} (${service})`

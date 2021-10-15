@@ -4,7 +4,7 @@ import { User } from './user.model'
 export interface Channel extends Document {
   service: string
   name: string
-  content: string
+  address?: string
   user: User
 }
 
@@ -18,7 +18,7 @@ const ChannelSchema = new Schema<Channel>(
       type: String,
       required: [true, "can't be blank"],
     },
-    content: {
+    address: {
       type: String,
     },
     user: {
@@ -33,6 +33,8 @@ const ChannelSchema = new Schema<Channel>(
         ret.id = ret._id
         delete ret._id
         delete ret.__v
+        delete ret.createdAt
+        delete ret.updatedAt
         delete ret.user
       },
     },
