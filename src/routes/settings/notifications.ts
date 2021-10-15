@@ -133,6 +133,23 @@ router.post(
   }
 )
 
+router.delete(
+  '/channels/:channelId',
+  auth.required,
+  async function (req: Request, res: Response) {
+    try {
+      const response = await notifySvc.deleteChannel(req.channel)
+      return res.json(response)
+    } catch (e) {
+      console.error(e)
+      return res.status(501).json({
+        success: false,
+        errors: errorMessage(e),
+      })
+    }
+  }
+)
+
 router.get(
   '/channels/:channelId',
   auth.required,

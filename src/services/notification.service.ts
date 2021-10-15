@@ -155,6 +155,18 @@ export async function updateChannel(
   }
 }
 
+export async function deleteChannel(channel: Channel) {
+  await channel.remove()
+
+  const message = `Delete Notification Channel ${channel.name} (${channel.service})`
+  await createUserActivityLogInfo(channel.user, message, 2)
+
+  return {
+    success: true,
+    data: { id: channel.id },
+  }
+}
+
 export async function channelHealthSetting(channel: Channel, data: any) {
   /*if (data.load) {
     channel.load = data.load
