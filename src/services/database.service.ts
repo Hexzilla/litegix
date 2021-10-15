@@ -29,10 +29,10 @@ export async function storeDatabase(
     throw Error('Database name has already been taken.')
   }
 
-  const result = await agentSvc.createDatabase(server.address, data)
+  /*const result = await agentSvc.createDatabase(server.address, data)
   if (!result.success) {
     throw Error(result.message)
-  }
+  }*/
 
   const options = { ...data, users: [''] }
   if (data.userId) {
@@ -65,10 +65,10 @@ export async function deleteDatabase(server: Server, databaseId: string) {
     throw Error("It doesn't exists")
   }
 
-  const result = await agentSvc.deleteDatabase(server.address, database.name)
+  /*const result = await agentSvc.deleteDatabase(server.address, database.name)
   if (!result.success) {
     throw Error(result.message)
-  }
+  }*/
 
   await database.remove()
 
@@ -231,32 +231,26 @@ export async function storeDatabaseUser(
   server: Server,
   data: { name: string }
 ) {
-  console.log('storeDatabaseUser1')
   const exists = await DatabaseUserModel.findOne({
     serverId: server.id,
     name: data.name,
   })
-  console.log('storeDatabaseUser2', exists?.name)
   if (exists) {
     throw Error('Database User name has already been taken.')
   }
 
-  console.log('storeDatabaseUser3')
-  const result = await agentSvc.createDatabaseUser(server.address, data)
+  /*const result = await agentSvc.createDatabaseUser(server.address, data)
   if (!result.success) {
     throw Error(result.message)
-  }
+  }*/
 
-  console.log('storeDatabaseUser4')
   const databaseUser = new DatabaseUserModel(data)
   databaseUser.server = server
   await databaseUser.save()
 
-  console.log('storeDatabaseUser5')
   const message = `Added new database user ${data.name} with password`
   await activitySvc.createServerActivityLogInfo(server, message)
 
-  console.log('storeDatabaseUser6')
   return {
     success: true,
     message: 'It has been successfully created.',
@@ -272,10 +266,10 @@ export async function deleteDatabaseUser(
     throw Error("It doesn't exists")
   }
 
-  const result = await agentSvc.deleteDatabaseUser(server.address, user.name)
+  /*const result = await agentSvc.deleteDatabaseUser(server.address, user.name)
   if (!result.success) {
     throw Error(result.message)
-  }
+  }*/
 
   await user.remove()
 
