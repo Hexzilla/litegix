@@ -43,7 +43,9 @@ export async function createUserActivityLogInfo(
 }
 
 export async function getServerActivityLogs(server: Server) {
-  const activities = await ServerActivityModel.find({ serverId: server.id })
+  const activities = await ServerActivityModel.find({
+    serverId: server.id,
+  }).sort({ date: -1 })
   return {
     success: true,
     data: { activities },
@@ -52,7 +54,7 @@ export async function getServerActivityLogs(server: Server) {
 
 export async function getAccountActivityLogs(userId: string) {
   const user: any = userId
-  const activities = await UserActivityModel.find({ user })
+  const activities = await UserActivityModel.find({ user }).sort({ date: -1 })
   return {
     success: true,
     data: { activities },

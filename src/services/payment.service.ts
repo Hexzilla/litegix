@@ -1,6 +1,30 @@
 import { model } from 'mongoose'
-import { PaymentHistory } from 'models'
+import { PaymentMethod, PaymentHistory } from 'models'
+const PaymentMethodModel = model<PaymentMethod>('PaymentMethod')
 const PaymentHistoryModel = model<PaymentHistory>('PaymentHistory')
+
+export async function getPaymentMethods(userId: string) {
+  const user: any = userId
+  const payments = await PaymentMethodModel.find({ user })
+
+  return {
+    success: true,
+    data: { payments },
+  }
+}
+
+export async function storePaymentMethods(userId: string, data: any) {
+  const user: any = userId
+
+  const paymentMethod = new PaymentMethodModel(data)
+  paymentMethod.user = user
+  await paymentMethod.save()
+
+  return {
+    success: true,
+    data: { id: paymentMethod.id },
+  }
+}
 
 export async function getPaymentHistory(userId: string) {
   const user: any = userId

@@ -5,6 +5,7 @@ import apiKeys from './apiKeys'
 import notifications from './notifications'
 import ipwhitelist from './ipwhitelist'
 import activity from './activity'
+import paymentmethods from './paymentmethods'
 
 const router = Router()
 router.use('/profile', profile)
@@ -13,5 +14,6 @@ router.use('/apikey', apiKeys)
 router.use('/notifications', notifications)
 router.use('/ipwhitelist', ipwhitelist)
 router.use('/activity', activity)
+router.use('/paymentmethods', paymentmethods)
 
 export default router
