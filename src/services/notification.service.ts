@@ -137,6 +137,12 @@ export async function updateChannel(
   channel: Channel,
   { service, name, address }: { service: string; name: string; address: string }
 ) {
+  if (service == 'Email' || service == 'Slack') {
+    if (!address) {
+      throw Error('Invalid address')
+    }
+  }
+
   if (channel.service != service) {
     throw Error('InvalidService')
   }

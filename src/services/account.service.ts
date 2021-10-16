@@ -84,7 +84,8 @@ export async function enableAccess(userId: string, data: any) {
 }
 
 export async function getAllowedIPAddresses(userId: string) {
-  const addresses = await IPAddressModel.find({ userId })
+  const user: any = userId
+  const addresses = await IPAddressModel.find({ user })
   return {
     success: true,
     data: { addresses },
