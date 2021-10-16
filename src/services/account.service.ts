@@ -45,6 +45,9 @@ export async function createApiKey(userId: string) {
 
   return {
     success: true,
+    data: {
+      apiKeys: user.apiKeys,
+    },
   }
 }
 
@@ -60,6 +63,9 @@ export async function createSecretKey(userId: string) {
 
   return {
     success: true,
+    data: {
+      apiKeys: user.apiKeys,
+    },
   }
 }
 
