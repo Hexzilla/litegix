@@ -213,7 +213,7 @@ export async function getDatabaseUser(databaseUserId: string) {
 }
 
 export async function getDatabaseUserList(server: Server) {
-  const users = await DatabaseUserModel.find({ serverId: server.id })
+  const users = await DatabaseUserModel.find({ server })
   return {
     success: true,
     data: { dbusers: users },
@@ -232,7 +232,7 @@ export async function storeDatabaseUser(
   data: { name: string }
 ) {
   const exists = await DatabaseUserModel.findOne({
-    serverId: server.id,
+    server,
     name: data.name,
   })
   if (exists) {
