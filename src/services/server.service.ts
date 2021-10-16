@@ -5,6 +5,9 @@ const UserModel = model<User>('User')
 const ServerModel = model<Server>('Server')
 
 export async function getSummary(server: Server) {
+  if (!server) {
+    throw new Error('Invalid Server')
+  }
   console.log('getSummary', server.address)
   server.system = {
     kernelVersion: '5.4.0-72-generic',

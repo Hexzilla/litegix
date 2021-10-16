@@ -2,6 +2,7 @@ import { body } from 'express-validator'
 import { Router, Request, Response } from 'express'
 import auth from '../auth'
 import validate from 'routes/validate'
+import errorMessage from 'routes/errors'
 import * as serverService from 'services/server.service'
 const router = Router()
 
@@ -15,7 +16,21 @@ router.delete('/', auth.required, async function (req: Request, res: Response) {
   }
 })
 
-router.post('/summary', auth.required, serverService.getSummary)
+router.post(
+  '/summary',
+  auth.required,
+  async function (req: Request, res: Response) {
+    try {
+      const response = await serverService.getSummary(req.server)
+      return res.json(response)
+    } catch (e) {
+      return res.status(501).json({
+        success: false,
+        errors: errorMessage(e),
+      })
+    }
+  }
+)
 
 router.get(
   '/phpVersion',
