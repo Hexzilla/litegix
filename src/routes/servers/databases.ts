@@ -37,7 +37,7 @@ router.post(
   '/',
   auth.required,
   body('name').isString(),
-  body('collation').isString(),
+  body('user').isString(),
   validate,
   async function (req: Request, res: Response) {
     try {
@@ -141,12 +141,29 @@ router.post(
   }
 )
 
-// router.put(
-//   '/users/:dbuserId/password',
-//   auth.required,
-//   body('password').isString(),
-//   database.changePassword
-// )
+router.put(
+  '/users/:dbuserId/password',
+  auth.required,
+  body('password').isString(),
+  validate,
+  async function (req: Request, res: Response) {
+    try {
+      const dbuserId = req.params.dbuserId
+      const response = await database.changePassword(
+        req.server,
+        dbuserId,
+        req.body.password
+      )
+      return res.json(response)
+    } catch (e) {
+      console.error(e)
+      return res.status(501).json({
+        success: false,
+        errors: errorMessage(e),
+      })
+    }
+  }
+)
 
 router.delete(
   '/users/:userId',

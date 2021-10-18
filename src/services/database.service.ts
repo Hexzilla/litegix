@@ -19,7 +19,7 @@ export async function createDatabase() {}
 
 export async function storeDatabase(
   server: Server,
-  data: { name: string; userId: string; collation: string }
+  data: { name: string; user: string; collation: string }
 ) {
   const exists = await DatabaseModel.findOne({
     server,
@@ -34,18 +34,21 @@ export async function storeDatabase(
     throw Error(result.message)
   }*/
 
-  const options = { ...data, users: [''] }
-  if (data.userId) {
-    const user = await DatabaseUserModel.findById(data.userId)
-    if (!user) {
-      return {
-        success: false,
-        errors: { message: 'Invalid User.' },
-      }
+  const user = await DatabaseUserModel.findById(data.user)
+  if (!user) {
+    return {
+      success: false,
+      errors: { message: 'Invalid User.' },
     }
-    options.users = [data.userId]
   }
-  const database = new DatabaseModel(options)
+
+  const db = {
+    name: data.name,
+    user: user,
+    server: server,
+    collation: data.collation,
+  }
+  const database = new DatabaseModel(db)
   database.server = server
   await database.save()
 
@@ -257,11 +260,8 @@ export async function storeDatabaseUser(
   }
 }
 
-export async function deleteDatabaseUser(
-  server: Server,
-  databaseUserId: string
-) {
-  const user = await DatabaseUserModel.findById(databaseUserId)
+export async function deleteDatabaseUser(server: Server, dbuserId: string) {
+  const user = await DatabaseUserModel.findById(dbuserId)
   if (!user) {
     throw Error("It doesn't exists")
   }
@@ -278,40 +278,33 @@ export async function deleteDatabaseUser(
 
   return {
     success: true,
-    data: { id: databaseUserId, name: user.name },
+    data: { id: dbuserId, name: user.name },
   }
 }
 
-export async function changePassword(req: Request, res: Response) {
-  /*try {
-    let errors = valiator.validationResult(req)
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ success: false, errors: errors.array() })
-    }
+export async function changePassword(
+  server: Server,
+  dbuserId: string,
+  password: string
+) {
+  const user = await DatabaseUserModel.findById(dbuserId)
+  if (!user) {
+    throw Error("It doesn't exists")
+  }
 
-    let user = await DatabaseUserModel.findById(req.params.dbuserId)
-    if (!user) {
-      return res.status(422).json({
-        success: false,
-        errors: { message: "It doesn't exists" }
-      })
-    }
-
-    user.password = req.body.password
-    await user.save()
-
-    const message = `successfully password changed for ${user.name}`
-    await activityService.createServerActivityLogInfo(
-      req.params.serverId,
-      message
-    )
-
-    res.json({
-      success: true,
-      message: 'It has been successfully changed.',
-    })
-  } catch (e) {
-    console.error(e)
-    return res.status(501).json({ success: false })
+  /*const result = await agentSvc.deleteDatabaseUser(server.address, user.name)
+  if (!result.success) {
+    throw Error(result.message)
   }*/
+
+  user.password = password
+  await user.save()
+
+  const message = `Changed database user password ${user.name}`
+  await activitySvc.createServerActivityLogInfo(server, message)
+
+  return {
+    success: true,
+    data: { id: dbuserId, name: user.name },
+  }
 }

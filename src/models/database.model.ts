@@ -4,8 +4,8 @@ import { Server } from './server.model'
 
 export interface Database extends Document {
   name: string
-  collation: string
-  users: Array<DatabaseUser>
+  collation?: string
+  user: DatabaseUser
   server: Server
 }
 
@@ -18,12 +18,10 @@ const DatabaseSchema = new Schema<Database>(
     collation: {
       type: String,
     },
-    users: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'DatabaseUser',
-      },
-    ],
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: 'DatabaseUser',
+    },
     server: {
       type: Schema.Types.ObjectId,
       ref: 'Server',
