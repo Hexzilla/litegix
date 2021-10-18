@@ -47,13 +47,26 @@ router.post(
   }
 )
 
-// router.post(
-//   '/changepassword',
-//   auth.required,
-//   body('id').isString(),
-//   body('password').isLength({ min: 8 }).trim().escape(),
-//   systemService.changeSystemUserPassword
-// )
+router.put(
+  '/:userId/password',
+  auth.required,
+  body('password').isLength({ min: 8 }).trim().escape(),
+  validate,
+  async function (req: Request, res: Response) {
+    try {
+      const userId = req.params.userId
+      const response = await systemService.changeSystemUserPassword(
+        req.server,
+        userId,
+        req.body.password
+      )
+      return res.json(response)
+    } catch (e) {
+      console.error(e)
+      return res.status(501).json({ success: false })
+    }
+  }
+)
 
 router.delete(
   '/:userId',

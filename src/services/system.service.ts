@@ -22,10 +22,10 @@ export async function getSystemUsers(server: Server) {
 }
 
 export async function getSystemUserById(server: Server, userId: string) {
-  const users = await SystemUserModel.findById(userId)
+  const user = await SystemUserModel.findById(userId)
   return {
     success: true,
-    data: { users: users },
+    data: { user: user },
   }
 }
 
@@ -81,6 +81,36 @@ export async function deleteSystemUser(server: Server, userId: string) {
   await user.remove()
 
   const message = `Deleted system user ${user.name}`
+  await createServerActivityLogInfo(server, message)
+
+  return {
+    success: true,
+    data: { id: userId },
+  }
+}
+
+export async function changeSystemUserPassword(
+  server: Server,
+  userId: string,
+  password: string
+) {
+  const user = await SystemUserModel.findById(userId)
+  if (!user) {
+    return {
+      success: false,
+      errors: { message: "It doesn't exists" },
+    }
+  }
+
+  // errors = await agent.deleteSystemUser(user.name)
+  // if (errors) {
+  //   return { success: false, errors: errors }
+  // }
+
+  user.password = password
+  await user.save()
+
+  const message = `Changed password for system user ${user.name}`
   await createServerActivityLogInfo(server, message)
 
   return {
