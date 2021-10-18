@@ -164,6 +164,7 @@ export async function storeServerSSHKey(server: Server, data: any) {
 
   const sshkey = new SSHKeyModel(data)
   sshkey.server = server.id
+  sshkey.user = data.userId
   await sshkey.save()
 
   const message = `Added new SSH key ${data.label} with user ${data.userId}`

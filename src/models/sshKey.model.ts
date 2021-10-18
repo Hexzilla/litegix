@@ -1,11 +1,11 @@
 import { Document, Schema, model } from 'mongoose'
-import { User } from './user.model'
+import { SystemUser } from './systemUser.model'
 import { Server } from './server.model'
 
 export interface SSHKey extends Document {
   label: string
   publicKey: string
-  user: User
+  user: SystemUser
   server: Server
 }
 
@@ -13,7 +13,7 @@ const SSHKeySchema = new Schema<SSHKey>(
   {
     user: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: 'SystemUser',
       required: [true, "can't be blank"],
     },
     server: {
