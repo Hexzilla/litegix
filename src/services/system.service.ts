@@ -2,6 +2,7 @@ import { model } from 'mongoose'
 import uuid from 'uuid'
 import { Server, SystemUser, SSHKey } from 'models'
 import { createServerActivityLogInfo } from 'services/activity.service'
+import * as activitySvc from 'services/activity.service'
 // const ServiceModel = model<Service>('Service')
 const SystemUserModel = model<SystemUser>('SystemUser')
 const SSHKeyModel = model<SSHKey>('SSHKey')
@@ -177,10 +178,16 @@ export async function storeServerSSHKey(server: Server, data: any) {
 }
 
 export async function deleteServerSSHKey(server: Server, keyId: string) {
-  const result = await SSHKeyModel.deleteOne({
-    id: keyId,
-  })
-  console.log(result)
+  console.log('deleteServerSSHKey', keyId)
+  const sshKey = await SSHKeyModel.findById(keyId)
+  if (!sshKey) {
+    throw Error("It doesn't exists")
+  }
+
+  await sshKey.remove()
+
+  const message = `Deleted SSH Key ${sshKey.label}`
+  await activitySvc.createServerActivityLogInfo(server, message, 1)
 
   return {
     success: true,

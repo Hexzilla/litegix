@@ -47,11 +47,9 @@ export async function updateServerName(
   name: string,
   provider: string
 ) {
-  console.log('updateServerName', server.name, server.provider, name, provider)
   if (server.name != name || server.provider != provider) {
     const user: any = userId
     const exists = await ServerModel.find({ user, name })
-    console.log('exists', exists)
     if (exists && exists.length > 0) {
       throw new Error('Already exists')
     }
@@ -62,6 +60,32 @@ export async function updateServerName(
     await server.save()
 
     const message = `Changed server name from ${serverName} to ${name}`
+    await activitySvc.createServerActivityLogInfo(server, message, 1)
+  }
+
+  return {
+    success: true,
+    data: { id: server.id },
+  }
+}
+
+export async function updateServerAddress(
+  userId: string,
+  server: Server,
+  address: string
+) {
+  if (server.address != address) {
+    const user: any = userId
+    const exists = await ServerModel.find({ user, address })
+    if (exists && exists.length > 0) {
+      throw new Error('Already exists')
+    }
+
+    const old = server.address
+    server.address = address
+    await server.save()
+
+    const message = `Changed server address from ${old} to ${address}`
     await activitySvc.createServerActivityLogInfo(server, message, 1)
   }
 

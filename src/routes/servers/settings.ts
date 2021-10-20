@@ -46,4 +46,27 @@ router.put(
   }
 )
 
+router.put(
+  '/address',
+  auth.required,
+  body('address').isIP(4),
+  validate,
+  async function (req: Request, res: Response) {
+    try {
+      const response = await serverSvc.updateServerAddress(
+        req.payload.id,
+        req.server,
+        req.body.address
+      )
+      return res.json(response)
+    } catch (e) {
+      console.error(e)
+      return res.status(501).json({
+        success: false,
+        errors: errorMessage(e),
+      })
+    }
+  }
+)
+
 export default router
