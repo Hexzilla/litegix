@@ -3,6 +3,7 @@ import { model } from 'mongoose'
 import { User, Server } from 'models'
 const UserModel = model<User>('User')
 const ServerModel = model<Server>('Server')
+import * as activitySvc from 'services/activity.service'
 
 export async function getSummary(server: Server) {
   if (!server) {
@@ -32,7 +33,41 @@ export async function getSummary(server: Server) {
 export async function getServerInfo(server: Server) {
   return {
     success: true,
-    data: server,
+    data: {
+      name: server.name,
+      provider: server.provider,
+      address: server.address,
+    },
+  }
+}
+
+export async function updateServerName(
+  userId: string,
+  server: Server,
+  name: string,
+  provider: string
+) {
+  console.log('updateServerName', server.name, server.provider, name, provider)
+  if (server.name != name || server.provider != provider) {
+    const user: any = userId
+    const exists = await ServerModel.find({ user, name })
+    console.log('exists', exists)
+    if (exists && exists.length > 0) {
+      throw new Error('Already exists')
+    }
+
+    const serverName = server.name
+    server.name = name
+    server.provider = provider
+    await server.save()
+
+    const message = `Changed server name from ${serverName} to ${name}`
+    await activitySvc.createServerActivityLogInfo(server, message, 1)
+  }
+
+  return {
+    success: true,
+    data: { id: server.id },
   }
 }
 
