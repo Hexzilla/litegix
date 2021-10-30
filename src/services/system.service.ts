@@ -1,5 +1,5 @@
 import { model } from 'mongoose'
-import uuid from 'uuid'
+import { v4 as uuidv4 } from 'uuid'
 import { Server, SystemUser, SSHKey } from 'models'
 import { createServerActivityLogInfo } from 'services/activity.service'
 import * as activitySvc from 'services/activity.service'
@@ -206,7 +206,7 @@ export async function deleteServerSSHKey(server: Server, keyId: string) {
 }
 
 export async function getDeploymentKeys(server: Server) {
-  const users = await SystemUserModel.find({ serverId: server.id })
+  const users = await SystemUserModel.find({ server })
   return {
     success: true,
     data: {
@@ -224,7 +224,7 @@ export async function storeDeploymentKey(server: Server, userId: string) {
     }
   }
 
-  const deploymentKey = `TEST_PUBLIC_KEY_${userId}_${uuid.v4()}`
+  const deploymentKey = `TEST_PUBLIC_KEY_${userId}_${uuidv4()}`
 
   // errors = await agent.storeDeploymentKey(userId, deploymentKey)
   // if (errors) {
