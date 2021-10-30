@@ -121,12 +121,22 @@ export async function changeSystemUserPassword(
 }
 
 export async function getServerSSHKeys(server: Server) {
-  const sshKeys = await SSHKeyModel.find({ server: server.id })
+  const sshKeys = await SSHKeyModel.find({ server: server.id }).populate('user')
+  console.log('sshKeys', sshKeys)
 
   return {
     success: true,
     data: {
-      sshKeys: sshKeys,
+      sshKeys: sshKeys.map((it) => {
+        const item = {
+          id: it.id,
+          userId: it.user.id,
+          userName: it.user.name,
+          label: it.label,
+          publicKey: it.publicKey,
+        }
+        return item
+      }),
     },
   }
 }
