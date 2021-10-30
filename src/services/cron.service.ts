@@ -1,9 +1,10 @@
 import { model } from 'mongoose'
-import { Server, CronJob, Supervisor } from 'models'
+import { Server, CronJob, Supervisor, SystemUser } from 'models'
 import * as activity from 'services/activity.service'
 //import * as agentSvc from 'services/agent.service'
 const CronJobModel = model<CronJob>('CronJob')
 const SupervisorModel = model<Supervisor>('Supervisor')
+const SystemUserModel = model<SystemUser>('SystemUser')
 
 // const rebuildJob = async function (req: Request, res: Response) {
 //   try {
@@ -20,33 +21,81 @@ const SupervisorModel = model<Supervisor>('Supervisor')
 
 const getVendorBinaries = function () {
   return [
-    '/Litegix/Packages/php72/bin/php',
-    '/Litegix/Packages/php73/bin/php',
-    '/Litegix/Packages/php74/bin/php',
-    '/Litegix/Packages/php80/bin/php',
-    '/user/bin/node',
-    '/bin/bash',
+    {
+      value: 'php72',
+      text: '/Litegix/Packages/php72/bin/php',
+    },
+    {
+      value: 'php73',
+      text: '/Litegix/Packages/php73/bin/php',
+    },
+    {
+      value: 'php74',
+      text: '/Litegix/Packages/php74/bin/php',
+    },
+    {
+      value: 'php80',
+      text: '/Litegix/Packages/php80/bin/php',
+    },
+    {
+      value: 'node',
+      text: '/user/bin/node',
+    },
+    {
+      value: 'bash',
+      text: '/bin/bash',
+    },
   ]
 }
 
 const getPredefinedSettings = function () {
   return [
-    'Every Minutes',
-    'Every 10 Minutes',
-    'Every 30 Minutes',
-    'Every Hours',
-    'All midnight',
-    'Every Day',
-    'Every Week',
-    'Every Month',
+    {
+      value: 'e1',
+      text: 'Every Minutes',
+    },
+    {
+      value: 'e10',
+      text: 'Every 10 Minutes',
+    },
+    {
+      value: 'e30',
+      text: 'Every 30 Minutes',
+    },
+    {
+      value: 'eh',
+      text: 'Every Hours',
+    },
+    {
+      value: 'mn',
+      text: 'All midnight',
+    },
+    {
+      value: 'ed',
+      text: 'Every Day',
+    },
+    {
+      value: 'ew',
+      text: 'Every Week',
+    },
+    {
+      value: 'em',
+      text: 'Every Month',
+    },
   ]
 }
 
 export async function getCronJobs(server: Server) {
-  const cronJobs = await CronJobModel.find({ server })
+  const cronJobs = await CronJobModel.find({ server }).populate('user')
+  console.log('cronJobs', cronJobs)
   return {
     success: true,
-    data: { cronJobs },
+    data: {
+      cronJobs: cronJobs.map((it) => {
+        const job = it.toJSON()
+        return { ...job, user: it.user.name }
+      }),
+    },
   }
 }
 
@@ -59,8 +108,10 @@ export async function getCronJob(jobId: string) {
 }
 
 export async function createCronJob(server: Server) {
+  const systemUsers = await SystemUserModel.find({ server })
   return {
     success: true,
+    system_users: systemUsers.map((user) => ({ id: user.id, name: user.name })),
     vendor_binaries: getVendorBinaries(),
     predefined_settings: getPredefinedSettings(),
   }
@@ -72,10 +123,7 @@ export async function storeCronJob(server: Server, data: any) {
     label: data.label,
   })
   if (exists) {
-    return {
-      success: false,
-      errors: { label: 'has already been taken.' },
-    }
+    throw new Error('Label has already been taken.')
   }
 
   /*const errors = await agent.createCronJob(data)
@@ -110,12 +158,7 @@ export async function storeCronJob(server: Server, data: any) {
 export async function removeCronJob(jobId: string) {
   const cronJob = await CronJobModel.findById(jobId)
   if (!cronJob) {
-    return {
-      success: false,
-      errors: {
-        message: "It doesn't exists",
-      },
-    }
+    throw new Error("It doesn't exists")
   }
 
   /*const errors = await agent.removeCronJob(req.body);
@@ -130,7 +173,7 @@ export async function removeCronJob(jobId: string) {
 
   return {
     success: true,
-    data: { cronJob },
+    data: { id: cronJob.id },
   }
 }
 

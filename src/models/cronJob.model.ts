@@ -1,9 +1,10 @@
 import { Document, Schema, model } from 'mongoose'
 import { Server } from './server.model'
+import { SystemUser } from './systemUser.model'
 
 export interface CronJob extends Document {
   label: string
-  username: string
+  user: SystemUser
   time: string
   command: string
   vendor_binary: string
@@ -13,13 +14,17 @@ export interface CronJob extends Document {
 
 const CronJobSchema = new Schema<CronJob>(
   {
+    server: {
+      type: Schema.Types.ObjectId,
+      ref: 'Server',
+    },
     label: {
       type: String,
       required: [true, "can't be blank"],
     },
-    username: {
-      type: String,
-      required: [true, "can't be blank"],
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: 'SystemUser',
     },
     time: {
       type: String,
@@ -37,14 +42,11 @@ const CronJobSchema = new Schema<CronJob>(
       type: String,
       required: [true, "can't be blank"],
     },
-    server: {
-      type: Schema.Types.ObjectId,
-      ref: 'Server',
-    },
   },
   {
     toJSON: {
       transform: function (doc, ret) {
+        ret.id = ret._id
         delete ret._id
         delete ret.__v
         delete ret.server

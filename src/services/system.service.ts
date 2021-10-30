@@ -6,12 +6,8 @@ import * as activitySvc from 'services/activity.service'
 // const ServiceModel = model<Service>('Service')
 const SystemUserModel = model<SystemUser>('SystemUser')
 const SSHKeyModel = model<SSHKey>('SSHKey')
-const CronJobModel = model<SSHKey>('CronJob')
-// const { getServer } = require('./server-service')
-// const { getUser } = require('./auth')
 // const SSHKey = mongoose.model('SSHKey')
 // const ServerSSHKey = mongoose.model('ServerSSHKey')
-// const CronJob = mongoose.model('CronJob')
 // const agent = require('./agent')
 
 export async function getSystemUsers(server: Server) {
@@ -240,61 +236,6 @@ export async function storeDeploymentKey(server: Server, userId: string) {
   return {
     success: true,
     data: { key: deploymentKey },
-  }
-}
-
-export async function getCronJobList(server: Server) {
-  const cronjobs = await CronJobModel.find({ serverId: server.id })
-  return {
-    success: true,
-    data: { cronjobs },
-  }
-}
-
-export async function getCronJobById(jobId: string) {
-  const cronjob = await CronJobModel.findById(jobId)
-  return {
-    success: true,
-    data: { cronjob },
-  }
-}
-
-export async function storeCronJob(server: Server, data: any) {
-  const exists = await CronJobModel.findOne({
-    serverId: server.id,
-    label: data.label,
-  })
-  if (exists) {
-    return {
-      success: false,
-      errors: { label: 'has already been taken.' },
-    }
-  }
-
-  // errors = await agent.createCronJob(data)
-  // if (errors) {
-  //   return { success: false, errors: errors })
-  // }
-
-  data.time = [
-    data.minute,
-    data.hour,
-    data.dayOfMonth,
-    data.month,
-    data.dayOfWeek,
-  ].join(' ')
-  console.log(data)
-
-  const cronjob = new CronJobModel(data)
-  cronjob.server = server.id
-  await cronjob.save()
-
-  const message = `Added new Cron Job ${data.label}`
-  await createServerActivityLogInfo(server.id, message)
-
-  return {
-    success: true,
-    message: 'It has been successfully created.',
   }
 }
 
