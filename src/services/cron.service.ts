@@ -178,16 +178,23 @@ export async function removeCronJob(jobId: string) {
 }
 
 export async function getSupervisorJobs(server: Server) {
-  const supervisors = await SupervisorModel.find({ server })
+  const supervisors = await SupervisorModel.find({ server }).populate('user')
   return {
     success: true,
-    data: { supervisors },
+    data: {
+      supervisors: supervisors.map((it) => {
+        const job = it.toJSON()
+        return { ...job, user: it.user.name }
+      }),
+    },
   }
 }
 
 export async function createSupervisorJob(server: Server) {
+  const systemUsers = await SystemUserModel.find({ server })
   return {
     success: true,
+    system_users: systemUsers.map((user) => ({ id: user.id, name: user.name })),
     vendor_binaries: getVendorBinaries(),
     predefined_settings: getPredefinedSettings(),
   }
@@ -229,12 +236,7 @@ export async function storeSupervisorJob(server: Server, data: any) {
 export async function deleteSupervisorJob(jobId: string) {
   const supervisor = await SupervisorModel.findById(jobId)
   if (!supervisor) {
-    return {
-      success: false,
-      errors: {
-        message: "It doesn't exists",
-      },
-    }
+    throw new Error("It doesn't exists")
   }
 
   /*const errors = await agent.removeSupervisorJob(req.body);

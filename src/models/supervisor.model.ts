@@ -1,10 +1,12 @@
 import { Document, Schema, model } from 'mongoose'
 import { Server } from './server.model'
+import { SystemUser } from './systemUser.model'
 
 export interface Supervisor extends Document {
+  server: Server
+  user: SystemUser
   name: string
   realName: string
-  server: Server
 }
 
 var SupervisorSchema = new Schema<Supervisor>(
@@ -17,9 +19,9 @@ var SupervisorSchema = new Schema<Supervisor>(
       type: String,
       required: [true, "can't be blank"],
     },
-    userName: {
-      type: String,
-      required: [true, "can't be blank"],
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: 'SystemUser',
     },
     numprocs: {
       type: Number,
@@ -38,6 +40,14 @@ var SupervisorSchema = new Schema<Supervisor>(
     directory: String,
   },
   {
+    toJSON: {
+      transform: function (doc, ret) {
+        ret.id = ret._id
+        delete ret._id
+        delete ret.__v
+        delete ret.server
+      },
+    },
     timestamps: true,
   }
 )

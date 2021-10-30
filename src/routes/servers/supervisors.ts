@@ -33,7 +33,7 @@ router.post(
   '/',
   auth.required,
   body('name').isString(),
-  body('userName').isString(),
+  body('user').isString(),
   body('numprocs').isNumeric(),
   body('vendorBinary').isString(),
   body('command').isString(),
