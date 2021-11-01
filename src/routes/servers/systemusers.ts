@@ -2,8 +2,17 @@ import { body } from 'express-validator'
 import { Router, Request, Response } from 'express'
 import auth from '../auth'
 import validate from 'routes/validate'
+import errorMessage from 'routes/errors'
 import * as systemService from 'services/system.service'
 const router = Router()
+
+const catchError = function (res: Response, e: any) {
+  console.error(e)
+  return res.status(501).json({
+    success: false,
+    errors: errorMessage(e),
+  })
+}
 
 router.get('/', auth.required, async function (req: Request, res: Response) {
   try {
@@ -24,8 +33,7 @@ router.get(
       const response = await systemService.getSystemUserById(req.server, userId)
       return res.json(response)
     } catch (e) {
-      console.error(e)
-      return res.status(501).json({ success: false })
+      return catchError(res, e)
     }
   }
 )
@@ -41,8 +49,7 @@ router.post(
       const response = await systemService.storeSystemUser(req.server, req.body)
       return res.json(response)
     } catch (e) {
-      console.error(e)
-      return res.status(501).json({ success: false })
+      return catchError(res, e)
     }
   }
 )
@@ -62,8 +69,7 @@ router.put(
       )
       return res.json(response)
     } catch (e) {
-      console.error(e)
-      return res.status(501).json({ success: false })
+      return catchError(res, e)
     }
   }
 )
@@ -77,8 +83,7 @@ router.delete(
       const response = await systemService.deleteSystemUser(req.server, userId)
       return res.json(response)
     } catch (e) {
-      console.error(e)
-      return res.status(501).json({ success: false })
+      return catchError(res, e)
     }
   }
 )

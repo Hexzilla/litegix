@@ -123,7 +123,7 @@ export async function createSystemUser(
       name,
       password,
     })
-    console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~agent.response', response.data)
+    console.log('createSystemUser', response.data)
     return response.data
   } catch (e) {
     console.log(e)
@@ -139,7 +139,8 @@ export async function deleteSystemUser(address: string, name: string) {
         name: name,
       }
     )
-    return response
+    console.log('createSystemUser', response.data)
+    return response.data
   } catch (e) {
     console.log(e)
     return e

@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { Server, SystemUser, SSHKey } from 'models'
 import { createServerActivityLogInfo } from 'services/activity.service'
 import * as activitySvc from 'services/activity.service'
-import * as agentService from './agent.service'
+import * as agentSvc from './agent.service'
 // const ServiceModel = model<Service>('Service')
 const SystemUserModel = model<SystemUser>('SystemUser')
 const SSHKeyModel = model<SSHKey>('SSHKey')
@@ -40,12 +40,12 @@ export async function storeSystemUser(server: Server, data: any) {
     }
   }
 
-  const res = await agentService.createSystemUser(server.address, data)
+  const res = await agentSvc.createSystemUser(server.address, data)
   if (res.error != 0) {
     if (res.error == 9) {
       throw new Error('System user has already been taken.')
     }
-    throw new Error('agent error')
+    throw new Error(`Agent error ${res.error}`)
   }
 
   const user = new SystemUserModel(data)
@@ -70,10 +70,13 @@ export async function deleteSystemUser(server: Server, userId: string) {
     }
   }
 
-  // errors = await agent.deleteSystemUser(user.name)
-  // if (errors) {
-  //   return { success: false, errors: errors }
-  // }
+  const res = await agentSvc.deleteSystemUser(server.address, user.name)
+  if (res.error != 0) {
+    if (res.error == 9) {
+      throw new Error('System user has already been taken.')
+    }
+    throw new Error(`Agent error ${res.error}`)
+  }
 
   await user.remove()
 
