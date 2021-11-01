@@ -11,6 +11,7 @@ ls /etc/systemd/system/
 
 # Remove nginx
 systemctl stop nginx
+systemctl status nginx
 apt remove --purge nginx
 apt-get purge nginx
 

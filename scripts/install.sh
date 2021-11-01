@@ -521,6 +521,14 @@ EOF
     rm -v $MYSQLDIR/secure_our_mysql.sh # Remove the generated Expect script
     #apt-get -qq purge expect > /dev/null # Uninstall Expect, commented out in case you need Expect
 
+
+echo "[client]
+user=root
+password=$ROOTPASS
+" > /etc/mysql/conf.d/root.cnf
+
+    chmod 600 /etc/mysql/conf.d/root.cnf
+    
     echo "MySQL ROOT PASSWORD: $ROOTPASS"
     echo "MySQL setup completed."
 }
@@ -625,7 +633,7 @@ function install_agent {
     TEMPDIR="/litegix/tmp"
     mkdir -p $TEMPDIR
     cd $TEMPDIR
-    wget -O litegix-agent_1.0-1_amd64.deb https://github.com/goldencat-tom/litegix-agent-release/releases/download/v1.0/litegix-agent_1.0-1_amd64.deb
+    wget -O litegix-agent_1.0-1_amd64.deb https://github.com/goldencat-tom/litegix-agent-release/releases/download/v1.1/litegix-agent_1.0-1_amd64.deb
     dpkg -i litegix-agent_1.0-1_amd64.deb
 
     AGENTDIR="/litegix/litegix-agent"
@@ -732,6 +740,9 @@ function system_service {
 
     systemctl enable mysql
     systemctl restart mysql
+
+    systemctl enable nginx
+    systemctl start nginx
 
     systemctl enable litegix-agent
     systemctl start litegix-agent
