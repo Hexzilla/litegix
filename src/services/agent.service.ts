@@ -134,7 +134,7 @@ export async function createSystemUser(
 export async function deleteSystemUser(address: string, name: string) {
   try {
     const response = await axios.post(
-      `http://${address}:21000/system/user/delete`,
+      `http://${address}:21000/system/user?_method=DELETE`,
       {
         name: name,
       }
