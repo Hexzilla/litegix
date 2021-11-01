@@ -133,11 +133,12 @@ export async function createSystemUser(
 
 export async function deleteSystemUser(address: string, name: string) {
   try {
+    const payload = {
+      name: name,
+    }
     const response = await axios.post(
-      `http://${address}:21000/system/user?_method=DELETE`,
-      {
-        name: name,
-      }
+      `http://${address}:21000/system/user/delete`,
+      payload
     )
     console.log('createSystemUser', response.data)
     return response.data
@@ -150,7 +151,7 @@ export async function deleteSystemUser(address: string, name: string) {
 export async function createDeploymentKey(address: string, data: any) {
   try {
     const response = await axios.post(
-      `http://${address}:21000/deploymentkey/create`,
+      `http://${address}:21000/deploymentkey`,
       data
     )
     return response
