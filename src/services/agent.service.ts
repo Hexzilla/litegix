@@ -31,66 +31,48 @@ export async function createDatabase(
 ) {
   try {
     const res = await axios.post<JSON>(`http://${address}:21000/database`, data)
-    return {
-      success: true,
-      status: res.status,
-      data: res.data,
-    }
+    console.log('createDatabase', res.data)
+    return res.data
   } catch (err: any) {
-    return {
-      success: false,
-      message: getErrorMessage(err),
-    }
+    return { error: -1 }
   }
 }
 
 export async function deleteDatabase(address: string, name: string) {
   try {
-    const res = await axios.delete(`http://${address}:21000/database/${name}`)
-    return {
-      success: true,
-      status: res.status,
-      data: res.data,
-    }
+    const payload = { name }
+    const res = await axios.post<JSON>(
+      `http://${address}:21000/database/delete`,
+      payload
+    )
+    console.log('deleteDatabase', res.data)
+    return res.data
   } catch (err: any) {
-    return {
-      success: false,
-      message: getErrorMessage(err),
-    }
+    return { error: -1 }
   }
 }
 
 export async function createDatabaseUser(address: string, data: any) {
   try {
     const res = await axios.post(`http://${address}:21000/database/user`, data)
-    return {
-      success: true,
-      status: res.status,
-      data: res.data,
-    }
+    console.log('createDatabaseUser', res.data)
+    return res.data
   } catch (err: any) {
-    return {
-      success: false,
-      message: getErrorMessage(err),
-    }
+    return { error: -1 }
   }
 }
 
 export async function deleteDatabaseUser(address: string, name: string) {
   try {
-    const res = await axios.delete(
-      `http://${address}:21000/database/user/${name}`
+    const payload = { name }
+    const res = await axios.post<JSON>(
+      `http://${address}:21000/database/user/delete`,
+      payload
     )
-    return {
-      success: true,
-      status: res.status,
-      data: res.data,
-    }
+    console.log('deleteDatabaseUser', res.data)
+    return res.data
   } catch (err: any) {
-    return {
-      success: false,
-      message: getErrorMessage(err),
-    }
+    return { error: -1 }
   }
 }
 
@@ -127,7 +109,7 @@ export async function createSystemUser(
     return response.data
   } catch (e) {
     console.log(e)
-    return e
+    return { error: -1 }
   }
 }
 
@@ -144,7 +126,7 @@ export async function deleteSystemUser(address: string, name: string) {
     return response.data
   } catch (e) {
     console.log(e)
-    return e
+    return { error: -1 }
   }
 }
 

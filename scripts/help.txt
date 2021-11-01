@@ -6,6 +6,12 @@ sudo lsof -i:22 ## see a specific port such as 22 ##
 sudo nmap -sTU -O IP-address-Here
 
 
+
+# All users
+getent passwd
+
+
+
 ls /etc/systemd/system/
 
 
@@ -27,6 +33,9 @@ systemctl stop litegix-agent
 apt remove --purge litegix-agent
 apt-get purge litegix-agent
 rm -rf /litegix/litegix-agent
+
+
+rm -rf /etc/mysql/conf.d/root.cnf
 
 journalctl --unit=litegix-agent
 

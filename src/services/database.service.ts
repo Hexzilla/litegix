@@ -1,7 +1,7 @@
 import { model } from 'mongoose'
 import { Server, Database, DatabaseUser } from 'models'
 import * as activitySvc from 'services/activity.service'
-//import * as agentSvc from 'services/agent.service'
+import * as agentSvc from 'services/agent.service'
 const DatabaseModel = model<Database>('Database')
 const DatabaseUserModel = model<DatabaseUser>('DatabaseUser')
 
@@ -29,10 +29,10 @@ export async function storeDatabase(
     throw Error('Database name has already been taken.')
   }
 
-  /*const result = await agentSvc.createDatabase(server.address, data)
-  if (!result.success) {
-    throw Error(result.message)
-  }*/
+  const res = await agentSvc.createDatabase(server.address, data)
+  if (res.error != 0) {
+    throw new Error(`Agent error ${res.error}`)
+  }
 
   const user = await DatabaseUserModel.findById(data.user)
   if (!user) {
