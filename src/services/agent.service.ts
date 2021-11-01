@@ -123,8 +123,8 @@ export async function createSystemUser(
       name,
       password,
     })
-    console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~agent.response', response)
-    return response
+    console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~agent.response', response.data)
+    return response.data
   } catch (e) {
     console.log(e)
     return e

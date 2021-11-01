@@ -40,8 +40,11 @@ export async function storeSystemUser(server: Server, data: any) {
     }
   }
 
-  const error = await agentService.createSystemUser(server.address, data)
-  if (error != 0) {
+  const res = await agentService.createSystemUser(server.address, data)
+  if (res.error != 0) {
+    if (res.error == 9) {
+      throw new Error('System user has already been taken.')
+    }
     throw new Error('agent error')
   }
 
