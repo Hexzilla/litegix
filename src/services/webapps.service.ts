@@ -1,8 +1,13 @@
 import { model } from 'mongoose'
 import { Server, Application, SystemUser } from 'models'
-//import * as activitySvc from 'services/activity.service'
+import * as activitySvc from 'services/activity.service'
 //import * as agentSvc from 'services/agent.service'
-import { php_versions } from './constatns'
+import {
+  php_versions,
+  web_application_stacks,
+  web_environments,
+  web_ssl_methods,
+} from './constatns'
 const ApplicationModel = model<Application>('Application')
 const SystemUserModel = model<SystemUser>('SystemUser')
 
@@ -24,9 +29,101 @@ export async function createCustomWebApplication(server: Server) {
         name: user.name,
       })),
       php_versions: php_versions,
-      //vendor_binaries: getVendorBinaries(),
-      //predefined_settings: getPredefinedSettings(),
+      web_application_stacks: web_application_stacks,
+      web_environments: web_environments,
+      web_ssl_methods: web_ssl_methods,
     },
+  }
+}
+
+export async function storeCustomWebApplication(server: Server, payload: any) {
+  const exists = await ApplicationModel.findOne({
+    serverId: server.id,
+    name: payload.name,
+  })
+  if (exists) {
+    throw new Error('Name has already been taken.')
+  }
+
+  /*const errors = await agent.createWebApplication(req.body)
+    if (errors) {
+      return res.status(422).json({
+        success: false,
+        errors: errors,
+      })
+    }*/
+
+  const user = await SystemUserModel.findById(payload.user)
+  if (!user) {
+    throw new Error('Invalid User')
+  }
+
+  let data = {
+    server_user_id: payload.user,
+    name: payload.name,
+    rootPath: '/home/' + user.username + '/webapps/' + payload.name,
+    publicPath:
+      payload.publicPath == null
+        ? '/home/' + user.username + '/webapps/' + payload.name
+        : payload.publicPath,
+    phpVersion: payload.phpVersion,
+    stack: payload.stack,
+    stackMode: payload.stackMode,
+    type: 'custom',
+    defaultApp: false,
+    alias: null,
+    pullKey1: 'jwMZwtXP3ItQRKKoMSZboAXr1561748870',
+    pullKey2: 'zU4gYF96NZGjNqGSjUhasn0YZmlK2Ctu',
+    advancedSSL: {
+      advancedSSL: payload.ssl_tlsMethod == 'advanced',
+      autoSSL: payload.autoSSL,
+    },
+    settings: {
+      disableFunctions: payload.disableFunctions,
+      timezone: payload.timezone,
+      maxExecutionTime: payload.maxExecutionTime,
+      maxInputTime: payload.maxExecutionTime,
+      maxInputVars: payload.maxInputVars,
+      memoryLimit: payload.memoryLimit,
+      postMaxSize: payload.postMaxSize,
+      uploadMaxFilesize: payload.uploadMaxFilesize,
+      allowUrlFopen: payload.allowUrlFopen,
+      sessionGcMaxlifetime: payload.sessionGcMaxlifetime,
+      processManager: payload.processManager,
+      processManagerStartServers: payload.processManagerStartServers,
+      processManagerMinSpareServers: payload.processManagerMinSpareServers,
+      processManagerMaxSpareServers: payload.processManagerMaxSpareServers,
+      processManagerMaxChildren: payload.processManagerMaxChildren,
+      processManagerMaxRequests: payload.processManagerMaxRequests,
+      openBasedir: payload.openBasedir,
+      clickjackingProtection: payload.clickjackingProtection,
+      xssProtection: payload.xssProtection,
+      mimeSniffingProtection: payload.mimeSniffingProtection,
+    },
+  }
+
+  /*let domain_data = {
+    name: payload.domain_name,
+    type: 'primary',
+    www: 'www_enable',
+    dns_integration: payload.dns_integration,
+    rediraction: payload.domain_rediraction,
+  }*/
+
+  const application = new ApplicationModel(data)
+  application.server = server
+  await application.save()
+
+  /**let domain = new Domains(domain_data)
+  domain.applicationId = application.id
+  await domain.save()*/
+
+  const message = `Added new web application ${payload.name}`
+  await activitySvc.createServerActivityLogInfo(server, message)
+
+  return {
+    success: true,
+    data: application,
   }
 }
 
@@ -92,115 +189,6 @@ export async function createCustomWebApplication(server: Server) {
 //       collections: ['utf8_general_ci', 'utf16_general_ci'],
 //     },
 //   })
-// }
-
-// //TODO
-// const createWebApplication = async function (req: Request, res: Response) {
-//   try {
-//     let errors = valiator.validationResult(req)
-//     if (!errors.isEmpty()) {
-//       return res.status(422).json({ success: false, errors: errors.array() })
-//     }
-
-//     let server = req.server
-//     let application = await Application.findOne({
-//       serverId: server.id,
-//       name: req.body.name,
-//     })
-//     if (application) {
-//       return res.status(422).json({
-//         success: false,
-//         errors: { name: 'has already been taken.' },
-//       })
-//     }
-
-//     errors = await agent.createWebApplication(req.body)
-//     if (errors) {
-//       return res.status(422).json({
-//         success: false,
-//         errors: errors,
-//       })
-//     }
-//     const user = await User.findById(req.payload.id)
-//     if (!user) {
-//       return res.status(501).json({
-//         success: false,
-//         message: 'Invalid User',
-//       })
-//     }
-
-//     let data = {
-//       server_user_id: req.body.user,
-//       name: req.body.name,
-//       rootPath: '/home/' + user.username + '/webapps/' + req.body.name,
-//       publicPath:
-//         req.body.publicPath == null
-//           ? '/home/' + user.username + '/webapps/' + req.body.name
-//           : req.body.publicPath,
-//       phpVersion: req.body.phpVersion,
-//       stack: req.body.stack,
-//       stackMode: req.body.stackMode,
-//       type: 'custom',
-//       defaultApp: false,
-//       alias: null,
-//       pullKey1: 'jwMZwtXP3ItQRKKoMSZboAXr1561748870',
-//       pullKey2: 'zU4gYF96NZGjNqGSjUhasn0YZmlK2Ctu',
-//       advancedSSL: {
-//         advancedSSL: req.body.ssl_tlsMethod == 'advanced',
-//         autoSSL: req.body.autoSSL,
-//       },
-//       settings: {
-//         disableFunctions: req.body.disableFunctions,
-//         timezone: req.body.timezone,
-//         maxExecutionTime: req.body.maxExecutionTime,
-//         maxInputTime: req.body.maxExecutionTime,
-//         maxInputVars: req.body.maxInputVars,
-//         memoryLimit: req.body.memoryLimit,
-//         postMaxSize: req.body.postMaxSize,
-//         uploadMaxFilesize: req.body.uploadMaxFilesize,
-//         allowUrlFopen: req.body.allowUrlFopen,
-//         sessionGcMaxlifetime: req.body.sessionGcMaxlifetime,
-//         processManager: req.body.processManager,
-//         processManagerStartServers: req.body.processManagerStartServers,
-//         processManagerMinSpareServers: req.body.processManagerMinSpareServers,
-//         processManagerMaxSpareServers: req.body.processManagerMaxSpareServers,
-//         processManagerMaxChildren: req.body.processManagerMaxChildren,
-//         processManagerMaxRequests: req.body.processManagerMaxRequests,
-//         openBasedir: req.body.openBasedir,
-//         clickjackingProtection: req.body.clickjackingProtection,
-//         xssProtection: req.body.xssProtection,
-//         mimeSniffingProtection: req.body.mimeSniffingProtection,
-//       },
-//     }
-
-//     let domain_data = {
-//       name: req.body.domain_name,
-//       type: 'primary',
-//       www: 'www_enable',
-//       dns_integration: req.body.dns_integration,
-//       rediraction: req.body.domain_rediraction,
-//     }
-
-//     application = new Application(data)
-//     application.serverId = server.id
-//     await application.save()
-
-//     let domain = new Domains(domain_data)
-//     domain.applicationId = application.id
-//     await domain.save()
-
-//     const message = `Added new web application ${req.body.name}`
-//     await activity.createServerActivityLogInfo(server.id, message)
-
-//     res.json({
-//       success: true,
-//       message: 'It has been successfully created.',
-//       data: application,
-//     })
-//   } catch (e) {
-//     console.error(e)
-//     return res.status(501).json({ success: false })
-//   }
 // }
 
 // const updateWebApplication = async function (req: Request, res: Response) {

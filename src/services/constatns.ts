@@ -17,6 +17,43 @@ const php_versions: Array<object> = [
   },
 ]
 
+const web_application_stacks: Array<object> = [
+  {
+    value: 'nginx_apache2',
+    text: 'NGINX + Apache2 Hybrid (You will be able to use .htaccess)',
+  },
+  {
+    value: 'native_nginx',
+    text: "Native NGINX (You won't be able to use .htaccess but it is faster)",
+  },
+  {
+    value: 'nginx_custom',
+    text: 'Native NGINX + Custom config (For power user. Manual Nginx implementation)',
+  },
+]
+
+const web_environments: Array<object> = [
+  {
+    value: 'production',
+    text: 'Production',
+  },
+  {
+    value: 'development',
+    text: 'Development',
+  },
+]
+
+const web_ssl_methods: Array<object> = [
+  {
+    value: 'basic',
+    text: 'Basic (One SSL certificate for all domains on this web app)',
+  },
+  {
+    value: 'advanced',
+    text: 'Advanced (Different SSL certificate for every domain on this web app)',
+  },
+]
+
 const vendor_binaries: Array<object> = [
   {
     value: 'php72',
@@ -79,4 +116,11 @@ const predefined_settings: Array<object> = [
   },
 ]
 
-export { vendor_binaries, predefined_settings, php_versions }
+export {
+  vendor_binaries,
+  predefined_settings,
+  php_versions,
+  web_application_stacks,
+  web_environments,
+  web_ssl_methods,
+}
