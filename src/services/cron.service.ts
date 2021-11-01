@@ -2,6 +2,7 @@ import { model } from 'mongoose'
 import { Server, CronJob, Supervisor, SystemUser } from 'models'
 import * as activity from 'services/activity.service'
 //import * as agentSvc from 'services/agent.service'
+import { vendor_binaries, predefined_settings } from './constatns'
 const CronJobModel = model<CronJob>('CronJob')
 const SupervisorModel = model<Supervisor>('Supervisor')
 const SystemUserModel = model<SystemUser>('SystemUser')
@@ -18,72 +19,6 @@ const SystemUserModel = model<SystemUser>('SystemUser')
 //     return res.status(501).json({ success: false })
 //   }
 // }
-
-const getVendorBinaries = function () {
-  return [
-    {
-      value: 'php72',
-      text: '/Litegix/Packages/php72/bin/php',
-    },
-    {
-      value: 'php73',
-      text: '/Litegix/Packages/php73/bin/php',
-    },
-    {
-      value: 'php74',
-      text: '/Litegix/Packages/php74/bin/php',
-    },
-    {
-      value: 'php80',
-      text: '/Litegix/Packages/php80/bin/php',
-    },
-    {
-      value: 'node',
-      text: '/user/bin/node',
-    },
-    {
-      value: 'bash',
-      text: '/bin/bash',
-    },
-  ]
-}
-
-const getPredefinedSettings = function () {
-  return [
-    {
-      value: 'e1',
-      text: 'Every Minutes',
-    },
-    {
-      value: 'e10',
-      text: 'Every 10 Minutes',
-    },
-    {
-      value: 'e30',
-      text: 'Every 30 Minutes',
-    },
-    {
-      value: 'eh',
-      text: 'Every Hours',
-    },
-    {
-      value: 'mn',
-      text: 'All midnight',
-    },
-    {
-      value: 'ed',
-      text: 'Every Day',
-    },
-    {
-      value: 'ew',
-      text: 'Every Week',
-    },
-    {
-      value: 'em',
-      text: 'Every Month',
-    },
-  ]
-}
 
 export async function getCronJobs(server: Server) {
   const cronJobs = await CronJobModel.find({ server }).populate('user')
@@ -112,8 +47,8 @@ export async function createCronJob(server: Server) {
   return {
     success: true,
     system_users: systemUsers.map((user) => ({ id: user.id, name: user.name })),
-    vendor_binaries: getVendorBinaries(),
-    predefined_settings: getPredefinedSettings(),
+    vendor_binaries: vendor_binaries,
+    predefined_settings: predefined_settings,
   }
 }
 
@@ -195,8 +130,8 @@ export async function createSupervisorJob(server: Server) {
   return {
     success: true,
     system_users: systemUsers.map((user) => ({ id: user.id, name: user.name })),
-    vendor_binaries: getVendorBinaries(),
-    predefined_settings: getPredefinedSettings(),
+    vendor_binaries: vendor_binaries,
+    predefined_settings: predefined_settings,
   }
 }
 
