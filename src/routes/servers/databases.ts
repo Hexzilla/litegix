@@ -37,7 +37,7 @@ router.post(
   '/',
   auth.required,
   body('name').isString(),
-  body('user').isString(),
+  body('userId').isString(),
   validate,
   async function (req: Request, res: Response) {
     try {

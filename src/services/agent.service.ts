@@ -27,24 +27,23 @@ export async function diskClean(address: string) {
 
 export async function createDatabase(
   address: string,
-  data: { name: string; userId: string; collation: string }
+  data: { name: string; encoding: string }
 ) {
   try {
-    const res = await axios.post<JSON>(`http://${address}:21000/database`, data)
+    const res = await axios.post(`http://${address}:21000/database`, data)
     console.log('createDatabase', res.data)
     return res.data
   } catch (err: any) {
+    console.log(err)
     return { error: -1 }
   }
 }
 
 export async function deleteDatabase(address: string, name: string) {
   try {
-    const payload = { name }
-    const res = await axios.post<JSON>(
-      `http://${address}:21000/database/delete`,
-      payload
-    )
+    const res = await axios.post(`http://${address}:21000/database/delete`, {
+      name,
+    })
     console.log('deleteDatabase', res.data)
     return res.data
   } catch (err: any) {
@@ -52,7 +51,10 @@ export async function deleteDatabase(address: string, name: string) {
   }
 }
 
-export async function createDatabaseUser(address: string, data: any) {
+export async function createDatabaseUser(
+  address: string,
+  data: { name: string; password: string }
+) {
   try {
     const res = await axios.post(`http://${address}:21000/database/user`, data)
     console.log('createDatabaseUser', res.data)
@@ -64,10 +66,9 @@ export async function createDatabaseUser(address: string, data: any) {
 
 export async function deleteDatabaseUser(address: string, name: string) {
   try {
-    const payload = { name }
-    const res = await axios.post<JSON>(
+    const res = await axios.post(
       `http://${address}:21000/database/user/delete`,
-      payload
+      { name }
     )
     console.log('deleteDatabaseUser', res.data)
     return res.data

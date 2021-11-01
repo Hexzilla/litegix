@@ -19,7 +19,7 @@ export async function createDatabase() {}
 
 export async function storeDatabase(
   server: Server,
-  data: { name: string; user: string; collation: string }
+  data: { name: string; userId: string; collation: string }
 ) {
   const exists = await DatabaseModel.findOne({
     server,
@@ -29,26 +29,27 @@ export async function storeDatabase(
     throw Error('Database name has already been taken.')
   }
 
-  const res = await agentSvc.createDatabase(server.address, data)
+  const dbuser = await DatabaseUserModel.findById(data.userId)
+  if (!dbuser) {
+    throw Error('Invalid database user')
+  }
+
+  const payload = {
+    name: data.name,
+    encoding: data.collation,
+  }
+  const res = await agentSvc.createDatabase(server.address, payload)
   if (res.error != 0) {
     throw new Error(`Agent error ${res.error}`)
   }
 
-  const user = await DatabaseUserModel.findById(data.user)
-  if (!user) {
-    return {
-      success: false,
-      errors: { message: 'Invalid User.' },
-    }
-  }
-
-  const db = {
+  const model = {
     name: data.name,
-    user: user,
+    user: dbuser,
     server: server,
     collation: data.collation,
   }
-  const database = new DatabaseModel(db)
+  const database = new DatabaseModel(model)
   database.server = server
   await database.save()
 
