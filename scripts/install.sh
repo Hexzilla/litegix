@@ -441,6 +441,10 @@ EOF
     apt-mark hold nginx
 }
 
+function install_nginx_default {
+    apt install nginx
+}
+
 function install_openlitespeed {
     grep -Fq  "http://rpms.litespeedtech.com/debian/" /etc/apt/sources.list.d/lst_debian_repo.list
     if [ $? != 0 ] ; then
@@ -770,7 +774,8 @@ install_fail2ban
 if [[ "$WEBSERVER" == 'nginx' ]]; then
 # Nginx
 send_state "nginx"
-install_nginx
+install_nginx_default
+#install_nginx
 else
 # Openlitespeed
 send_state "openlitespeed"

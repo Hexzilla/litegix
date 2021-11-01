@@ -58,7 +58,8 @@ export async function storeCustomWebApplication(server: Server, payload: any) {
     throw new Error('Invalid User')
   }
 
-  let data = {
+  const data = {}
+  /*const data = {
     server_user_id: payload.user,
     name: payload.name,
     rootPath: '/home/' + user.username + '/webapps/' + payload.name,
@@ -100,7 +101,7 @@ export async function storeCustomWebApplication(server: Server, payload: any) {
       xssProtection: payload.xssProtection,
       mimeSniffingProtection: payload.mimeSniffingProtection,
     },
-  }
+  }*/
 
   /*let domain_data = {
     name: payload.domain_name,
