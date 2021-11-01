@@ -3,12 +3,12 @@ import { v4 as uuidv4 } from 'uuid'
 import { Server, SystemUser, SSHKey } from 'models'
 import { createServerActivityLogInfo } from 'services/activity.service'
 import * as activitySvc from 'services/activity.service'
+import * as agentService from './agent.service'
 // const ServiceModel = model<Service>('Service')
 const SystemUserModel = model<SystemUser>('SystemUser')
 const SSHKeyModel = model<SSHKey>('SSHKey')
 // const SSHKey = mongoose.model('SSHKey')
 // const ServerSSHKey = mongoose.model('ServerSSHKey')
-// const agent = require('./agent')
 
 export async function getSystemUsers(server: Server) {
   const users = await SystemUserModel.find({ server: server.id })
@@ -40,13 +40,10 @@ export async function storeSystemUser(server: Server, data: any) {
     }
   }
 
-  /*const response = await agentService.createSystemUser(data)
-  if (!response.success) {
-    return {
-      success: false,
-      errors: response.errors,
-    }
-  }*/
+  const error = await agentService.createSystemUser(server.address, data)
+  if (error != 0) {
+    throw new Error('agent error')
+  }
 
   const user = new SystemUserModel(data)
   user.server = server
