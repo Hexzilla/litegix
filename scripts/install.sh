@@ -132,7 +132,7 @@ function install_packages {
     apt-get remove mysql-common --purge -y
 
     echo "install_packages"
-    apt-get install $install_packages -y
+    apt-get install $INSTALL_PACKAGE -y
 }
 
 function check_port {
@@ -751,7 +751,7 @@ send_state "start"
 #check_port
 
 # Bootstrap the server
-send_state "config"
+# send_state "config"
 send_state "update"
 bootstrap
 
