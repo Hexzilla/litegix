@@ -41,9 +41,7 @@ export async function createDatabase(
 
 export async function deleteDatabase(address: string, name: string) {
   try {
-    const res = await axios.post(`http://${address}:21000/database/delete`, {
-      name,
-    })
+    const res = await axios.post(`http://${address}:21000/database/${name}`)
     console.log('deleteDatabase', res.data)
     return res.data
   } catch (err: any) {
@@ -67,8 +65,7 @@ export async function createDatabaseUser(
 export async function deleteDatabaseUser(address: string, name: string) {
   try {
     const res = await axios.post(
-      `http://${address}:21000/database/user/delete`,
-      { name }
+      `http://${address}:21000/database/user/${name}`
     )
     console.log('deleteDatabaseUser', res.data)
     return res.data
@@ -116,12 +113,8 @@ export async function createSystemUser(
 
 export async function deleteSystemUser(address: string, name: string) {
   try {
-    const payload = {
-      name: name,
-    }
-    const response = await axios.post(
-      `http://${address}:21000/system/user/delete`,
-      payload
+    const response = await axios.delete(
+      `http://${address}:21000/system/user/${name}`
     )
     console.log('createSystemUser', response.data)
     return response.data
