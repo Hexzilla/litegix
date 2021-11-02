@@ -4,11 +4,9 @@ import { Server, SystemUser, SSHKey } from 'models'
 import { createServerActivityLogInfo } from 'services/activity.service'
 import * as activitySvc from 'services/activity.service'
 import * as agentSvc from './agent.service'
-// const ServiceModel = model<Service>('Service')
+import { php_versions } from './constants'
 const SystemUserModel = model<SystemUser>('SystemUser')
 const SSHKeyModel = model<SSHKey>('SSHKey')
-// const SSHKey = mongoose.model('SSHKey')
-// const ServerSSHKey = mongoose.model('ServerSSHKey')
 
 export async function getSystemUsers(server: Server) {
   const users = await SystemUserModel.find({ server: server.id })
@@ -244,12 +242,25 @@ export async function storeDeploymentKey(server: Server, userId: string) {
   }
 }
 
-export async function getPhpVersions(server: Server) {
+export async function getPhpVersion(server: Server) {
   return {
     success: true,
     data: {
-      phpVersion: '7.2',
-      versions: ['7.2', '7.4', '8.0'],
+      avaliable: php_versions,
+      phpVersion: server.phpVersion,
+    },
+  }
+}
+
+export async function updatePhpVersion(server: Server, version: string) {
+  server.phpVersion = version
+  await server.save()
+
+  return {
+    success: true,
+    data: {
+      id: server._id,
+      phpVersion: version,
     },
   }
 }

@@ -218,26 +218,3 @@ export async function deleteServer(server: Server) {
 //     success: true,
 //   })
 // }
-
-export async function getPhpVersion(server: Server) {
-  return {
-    success: true,
-    data: {
-      avaliable: ['7.2', '7.4', '8.0'],
-      phpVersion: server.phpVersion,
-    },
-  }
-}
-
-export async function updatePhpVersion(server: Server, version: string) {
-  server.phpVersion = version
-  await server.save()
-
-  return {
-    success: true,
-    data: {
-      id: server._id,
-      phpVersion: version,
-    },
-  }
-}

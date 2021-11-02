@@ -1,24 +1,11 @@
 import { model } from 'mongoose'
 import { Server, CronJob, Supervisor, SystemUser } from 'models'
 import * as activity from 'services/activity.service'
-//import * as agentSvc from 'services/agent.service'
+import * as agentSvc from 'services/agent.service'
 import { vendor_binaries, predefined_settings } from './constants'
 const CronJobModel = model<CronJob>('CronJob')
 const SupervisorModel = model<Supervisor>('Supervisor')
 const SystemUserModel = model<SystemUser>('SystemUser')
-
-// const rebuildJob = async function (req: Request, res: Response) {
-//   try {
-//     const cronjob = await CronJobModel.findById(req.params.jobId)
-//     return res.json({
-//       success: true,
-//       data: { cronjob },
-//     })
-//   } catch (e) {
-//     console.error(e)
-//     return res.status(501).json({ success: false })
-//   }
-// }
 
 export async function getCronJobs(server: Server) {
   const cronJobs = await CronJobModel.find({ server }).populate('user')
@@ -61,13 +48,10 @@ export async function storeCronJob(server: Server, data: any) {
     throw new Error('Label has already been taken.')
   }
 
-  /*const errors = await agent.createCronJob(data)
-  if (errors) {
-    return {
-      success: false,
-      errors: errors
-    }
-  }*/
+  const res = await agentSvc.createCronJob(server.address, data)
+  if (res.error != 0) {
+    throw new Error(`Agent error ${res.error}`)
+  }
 
   data.time = [
     data.minute,
@@ -90,19 +74,16 @@ export async function storeCronJob(server: Server, data: any) {
   }
 }
 
-export async function removeCronJob(jobId: string) {
+export async function removeCronJob(server: Server, jobId: string) {
   const cronJob = await CronJobModel.findById(jobId)
   if (!cronJob) {
     throw new Error("It doesn't exists")
   }
 
-  /*const errors = await agent.removeCronJob(req.body);
-  if (errors) {
-    return {
-      success: false,
-      errors: errors,
-    };
-  }*/
+  const res = await agentSvc.removeCronJob(server.address, cronJob.label)
+  if (res.error != 0) {
+    throw new Error(`Agent error ${res.error}`)
+  }
 
   await cronJob.remove()
 
@@ -111,6 +92,19 @@ export async function removeCronJob(jobId: string) {
     data: { id: cronJob.id },
   }
 }
+
+// const rebuildJob = async function (req: Request, res: Response) {
+//   try {
+//     const cronjob = await CronJobModel.findById(req.params.jobId)
+//     return res.json({
+//       success: true,
+//       data: { cronjob },
+//     })
+//   } catch (e) {
+//     console.error(e)
+//     return res.status(501).json({ success: false })
+//   }
+// }
 
 export async function getSupervisorJobs(server: Server) {
   const supervisors = await SupervisorModel.find({ server }).populate('user')

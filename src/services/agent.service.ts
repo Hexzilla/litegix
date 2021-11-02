@@ -240,12 +240,32 @@ export async function deleteDeploymentKey(address: string, name: string) {
   }
 }
 
-export async function createCronJob() {
-  return null
+export async function createCronJob(address: string, data: any) {
+  try {
+    if (process.env.NODE_ENV !== 'production') {
+      return { error: 0 }
+    }
+    const res = await axios.post(`http://${address}:21000/cronjob`, data)
+    console.log('createCronJob', res.data)
+    return res.data
+  } catch (e) {
+    console.log(e)
+    return { error: -1 }
+  }
 }
 
-export async function removeCronJob() {
-  return null
+export async function removeCronJob(address: string, label: string) {
+  try {
+    if (process.env.NODE_ENV !== 'production') {
+      return { error: 0 }
+    }
+    const res = await axios.delete(`http://${address}:21000/cronjob/label`)
+    console.log('removeCronJob', res.data)
+    return res.data
+  } catch (e) {
+    console.log(e)
+    return { error: -1 }
+  }
 }
 
 export async function rebuildCronJob() {

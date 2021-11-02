@@ -77,7 +77,7 @@ router.delete(
   async function (req: Request, res: Response) {
     try {
       const jobId = req.params.jobId
-      const response = await cronJob.removeCronJob(jobId)
+      const response = await cronJob.removeCronJob(req.server, jobId)
       return res.json(response)
     } catch (e) {
       console.error(e)
