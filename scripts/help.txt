@@ -30,6 +30,7 @@ systemctl stop lsws
 /usr/local/lsws/admin/misc/uninstall.sh
 
 systemctl stop litegix-agent
+systemctl status litegix-agent
 apt remove --purge litegix-agent
 apt-get purge litegix-agent
 rm -rf /litegix/litegix-agent

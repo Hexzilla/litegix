@@ -7,7 +7,7 @@ import {
   web_application_stacks,
   web_environments,
   web_ssl_methods,
-} from './constatns'
+} from './constants'
 const ApplicationModel = model<Application>('Application')
 const SystemUserModel = model<SystemUser>('SystemUser')
 

@@ -30,6 +30,9 @@ export async function createDatabase(
   data: { name: string; encoding: string }
 ) {
   try {
+    if (process.env.NODE_ENV !== 'production') {
+      return { error: 0 }
+    }
     const res = await axios.post(`http://${address}:21000/database`, data)
     console.log('createDatabase', res.data)
     return res.data
@@ -41,7 +44,10 @@ export async function createDatabase(
 
 export async function deleteDatabase(address: string, name: string) {
   try {
-    const res = await axios.post(`http://${address}:21000/database/${name}`)
+    if (process.env.NODE_ENV !== 'production') {
+      return { error: 0 }
+    }
+    const res = await axios.delete(`http://${address}:21000/database/${name}`)
     console.log('deleteDatabase', res.data)
     return res.data
   } catch (err: any) {
@@ -54,6 +60,9 @@ export async function createDatabaseUser(
   data: { name: string; password: string }
 ) {
   try {
+    if (process.env.NODE_ENV !== 'production') {
+      return { error: 0 }
+    }
     const res = await axios.post(`http://${address}:21000/database/user`, data)
     console.log('createDatabaseUser', res.data)
     return res.data
@@ -64,7 +73,10 @@ export async function createDatabaseUser(
 
 export async function deleteDatabaseUser(address: string, name: string) {
   try {
-    const res = await axios.post(
+    if (process.env.NODE_ENV !== 'production') {
+      return { error: 0 }
+    }
+    const res = await axios.delete(
       `http://${address}:21000/database/user/${name}`
     )
     console.log('deleteDatabaseUser', res.data)
@@ -99,6 +111,9 @@ export async function createSystemUser(
   { name, password }: { name: string; password: string }
 ) {
   try {
+    if (process.env.NODE_ENV !== 'production') {
+      return { error: 0 }
+    }
     const response = await axios.post(`http://${address}:21000/system/user`, {
       name,
       password,
@@ -113,10 +128,13 @@ export async function createSystemUser(
 
 export async function deleteSystemUser(address: string, name: string) {
   try {
+    if (process.env.NODE_ENV !== 'production') {
+      return { error: 0 }
+    }
     const response = await axios.delete(
       `http://${address}:21000/system/user/${name}`
     )
-    console.log('createSystemUser', response.data)
+    console.log('deleteSystemUser', response.data)
     return response.data
   } catch (e) {
     console.log(e)
@@ -124,16 +142,88 @@ export async function deleteSystemUser(address: string, name: string) {
   }
 }
 
-export async function createDeploymentKey(address: string, data: any) {
+export async function changeSystemUserPassword(
+  address: string,
+  name: string,
+  password: string
+) {
   try {
-    const response = await axios.post(
-      `http://${address}:21000/deploymentkey`,
-      data
+    if (process.env.NODE_ENV !== 'production') {
+      return { error: 0 }
+    }
+    const res = await axios.put(
+      `http://${address}:21000/system/user/password/change`,
+      {
+        name,
+        password,
+      }
     )
-    return response
+    console.log('changeSystemUserPassword', res.data)
+    return res.data
   } catch (e) {
     console.log(e)
-    return e
+    return { error: -1 }
+  }
+}
+
+export async function createSSHKey(
+  address: string,
+  usreName: string,
+  pubKey: string
+) {
+  try {
+    if (process.env.NODE_ENV !== 'production') {
+      return { error: 0 }
+    }
+    const res = await axios.post(`http://${address}:21000/sshkey`, {
+      usreName,
+      pubKey,
+    })
+    console.log('createSSHKey', res.data)
+    return res.data
+  } catch (e) {
+    console.log(e)
+    return { error: -1 }
+  }
+}
+
+export async function deleteSSHKey(
+  address: string,
+  usreName: string,
+  pubKey: string
+) {
+  try {
+    if (process.env.NODE_ENV !== 'production') {
+      return { error: 0 }
+    }
+    const res = await axios.post(`http://${address}:21000/sshkey/delete`, {
+      usreName,
+      pubKey,
+    })
+    console.log('deleteSSHKey', res.data)
+    return res.data
+  } catch (e) {
+    console.log(e)
+    return { error: -1 }
+  }
+}
+
+export async function createDeploymentKey(
+  address: string,
+  deploymentKey: string
+) {
+  try {
+    if (process.env.NODE_ENV !== 'production') {
+      return { error: 0 }
+    }
+    const res = await axios.post(`http://${address}:21000/deploymentkey`, {
+      deploymentKey,
+    })
+    console.log('createDeploymentKey', res.data)
+    return res.data
+  } catch (e) {
+    console.log(e)
+    return { error: -1 }
   }
 }
 
@@ -146,7 +236,7 @@ export async function deleteDeploymentKey(address: string, name: string) {
     return response
   } catch (e) {
     console.log(e)
-    return e
+    return { error: -1 }
   }
 }
 

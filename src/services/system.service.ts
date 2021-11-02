@@ -34,10 +34,7 @@ export async function storeSystemUser(server: Server, data: any) {
     name: data.name,
   })
   if (exists) {
-    return {
-      success: false,
-      errors: { message: 'Name has already been taken.' },
-    }
+    throw new Error('Name has already been taken.')
   }
 
   const res = await agentSvc.createSystemUser(server.address, data)
@@ -64,17 +61,11 @@ export async function storeSystemUser(server: Server, data: any) {
 export async function deleteSystemUser(server: Server, userId: string) {
   const user = await SystemUserModel.findById(userId)
   if (!user) {
-    return {
-      success: false,
-      errors: { message: "It doesn't exists" },
-    }
+    throw new Error(`System user doesn't exists`)
   }
 
   const res = await agentSvc.deleteSystemUser(server.address, user.name)
   if (res.error != 0) {
-    if (res.error == 9) {
-      throw new Error('System user has already been taken.')
-    }
     throw new Error(`Agent error ${res.error}`)
   }
 
@@ -96,16 +87,17 @@ export async function changeSystemUserPassword(
 ) {
   const user = await SystemUserModel.findById(userId)
   if (!user) {
-    return {
-      success: false,
-      errors: { message: "It doesn't exists" },
-    }
+    throw new Error(`The user doesn't exist`)
   }
 
-  // errors = await agent.deleteSystemUser(user.name)
-  // if (errors) {
-  //   return { success: false, errors: errors }
-  // }
+  const res = await agentSvc.changeSystemUserPassword(
+    server.address,
+    user.name,
+    password
+  )
+  if (res.error != 0) {
+    throw new Error(`Agent error ${res.error}`)
+  }
 
   user.password = password
   await user.save()
@@ -121,7 +113,6 @@ export async function changeSystemUserPassword(
 
 export async function getServerSSHKeys(server: Server) {
   const sshKeys = await SSHKeyModel.find({ server: server.id }).populate('user')
-  console.log('sshKeys', sshKeys)
 
   return {
     success: true,
@@ -129,8 +120,8 @@ export async function getServerSSHKeys(server: Server) {
       sshKeys: sshKeys.map((it) => {
         const item = {
           id: it.id,
-          userId: it.user.id,
-          userName: it.user.name,
+          userId: it.user?._id,
+          userName: it.user?.name,
           label: it.label,
           publicKey: it.publicKey,
         }
@@ -152,29 +143,35 @@ export async function createServerSSHKey(server: Server) {
   }
 }
 
-export async function storeServerSSHKey(server: Server, data: any) {
+export async function storeServerSSHKey(
+  server: Server,
+  data: { label: string; userId: string; publicKey: string }
+) {
   const exists = await SSHKeyModel.find({
     server: server.id,
     label: data.label,
   })
   if (exists && exists.length > 0) {
-    return {
-      success: false,
-      errors: { message: 'Label is duplicated' },
-    }
+    throw new Error('Label has already been taken.')
   }
 
-  /*errors = await agent.createSSHKey(data)
-  if (errors) {
-    return res.status(422).json({
-      success: false,
-      errors: errors
-    })
-  }*/
+  const systemUser = await SystemUserModel.findById(data.userId)
+  if (!systemUser) {
+    throw new Error(`System user doesn't exists`)
+  }
+
+  const res = await agentSvc.createSSHKey(
+    server.address,
+    systemUser.name,
+    data.publicKey
+  )
+  if (res.error != 0) {
+    throw new Error(`Agent error ${res.error}`)
+  }
 
   const sshkey = new SSHKeyModel(data)
   sshkey.server = server.id
-  sshkey.user = data.userId
+  sshkey.user = systemUser
   await sshkey.save()
 
   const message = `Added new SSH key ${data.label} with user ${data.userId}`
@@ -187,10 +184,18 @@ export async function storeServerSSHKey(server: Server, data: any) {
 }
 
 export async function deleteServerSSHKey(server: Server, keyId: string) {
-  console.log('deleteServerSSHKey', keyId)
-  const sshKey = await SSHKeyModel.findById(keyId)
+  const sshKey = await SSHKeyModel.findById(keyId).populate('user')
   if (!sshKey) {
     throw Error("It doesn't exists")
+  }
+
+  const res = await agentSvc.deleteSSHKey(
+    server.address,
+    sshKey.user.name,
+    sshKey.publicKey
+  )
+  if (res.error != 0) {
+    throw new Error(`Agent error ${res.error}`)
   }
 
   await sshKey.remove()
@@ -217,18 +222,15 @@ export async function getDeploymentKeys(server: Server) {
 export async function storeDeploymentKey(server: Server, userId: string) {
   const user = await SystemUserModel.findById(userId)
   if (!user) {
-    return {
-      success: false,
-      errors: { userId: "doesn't exists." },
-    }
+    throw Error(`System user doesn't exists`)
   }
 
   const deploymentKey = `TEST_PUBLIC_KEY_${userId}_${uuidv4()}`
 
-  // errors = await agent.storeDeploymentKey(userId, deploymentKey)
-  // if (errors) {
-  //   return { success: false, errors: errors }
-  // }
+  const res = await agentSvc.createDeploymentKey(userId, deploymentKey)
+  if (res.error != 0) {
+    throw new Error(`Agent error ${res.error}`)
+  }
 
   user.deploymentKey = deploymentKey
   await user.save()

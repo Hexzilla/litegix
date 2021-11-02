@@ -2,7 +2,7 @@ import { model } from 'mongoose'
 import { Server, CronJob, Supervisor, SystemUser } from 'models'
 import * as activity from 'services/activity.service'
 //import * as agentSvc from 'services/agent.service'
-import { vendor_binaries, predefined_settings } from './constatns'
+import { vendor_binaries, predefined_settings } from './constants'
 const CronJobModel = model<CronJob>('CronJob')
 const SupervisorModel = model<Supervisor>('Supervisor')
 const SystemUserModel = model<SystemUser>('SystemUser')

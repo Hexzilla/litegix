@@ -23,13 +23,16 @@ router.get(
   '/create',
   auth.required,
   async function (req: Request, res: Response) {
-    return res.json({
-      success: true,
-      data: {
-        users: ['runcloud', 'dbuser'],
-        collations: ['utf8_general_ci', 'utf16_general_ci'],
-      },
-    })
+    try {
+      const response = await database.createDatabase(req.server)
+      res.json(response)
+    } catch (e) {
+      console.error(e)
+      return res.status(501).json({
+        success: false,
+        errors: errorMessage(e),
+      })
+    }
   }
 )
 
