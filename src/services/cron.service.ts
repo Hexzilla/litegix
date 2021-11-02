@@ -15,7 +15,7 @@ export async function getCronJobs(server: Server) {
     data: {
       cronJobs: cronJobs.map((it) => {
         const job = it.toJSON()
-        return { ...job, user: it.user.name }
+        return { ...job, user: it.user?.name }
       }),
     },
   }
@@ -48,6 +48,11 @@ export async function storeCronJob(server: Server, data: any) {
     throw new Error('Label has already been taken.')
   }
 
+  const systemUser = await SystemUserModel.findById(data.user)
+  if (!systemUser) {
+    throw new Error('System user does not exist')
+  }
+
   const res = await agentSvc.createCronJob(server.address, data)
   if (res.error != 0) {
     throw new Error(`Agent error ${res.error}`)
@@ -63,6 +68,7 @@ export async function storeCronJob(server: Server, data: any) {
 
   const cronJob = new CronJobModel(data)
   cronJob.server = server
+  cronJob.user = systemUser
   await cronJob.save()
 
   const message = `Added new Cron Job ${data.label}`
@@ -113,7 +119,7 @@ export async function getSupervisorJobs(server: Server) {
     data: {
       supervisors: supervisors.map((it) => {
         const job = it.toJSON()
-        return { ...job, user: it.user.name }
+        return { ...job, user: it.user?.name }
       }),
     },
   }
@@ -141,16 +147,19 @@ export async function storeSupervisorJob(server: Server, data: any) {
     }
   }
 
-  /*errors = await agent.createSupervisorJob(data);
-  if (errors) {
-    return {
-      success: false,
-      errors: errors,
-    };
-  }*/
+  const systemUser = await SystemUserModel.findById(data.user)
+  if (!systemUser) {
+    throw new Error('System user does not exist')
+  }
+
+  const res = await agentSvc.createSupervisorJob(server.address, data)
+  if (res.error != 0) {
+    throw new Error(`Agent error ${res.error}`)
+  }
 
   const supervisor = new SupervisorModel(data)
   supervisor.server = server
+  supervisor.user = systemUser
   await supervisor.save()
 
   const message = `Added new Supervisor Job ${data.name}`
@@ -162,19 +171,19 @@ export async function storeSupervisorJob(server: Server, data: any) {
   }
 }
 
-export async function deleteSupervisorJob(jobId: string) {
+export async function deleteSupervisorJob(server: Server, jobId: string) {
   const supervisor = await SupervisorModel.findById(jobId)
   if (!supervisor) {
     throw new Error("It doesn't exists")
   }
 
-  /*const errors = await agent.removeSupervisorJob(req.body);
-  if (errors) {
-    return {
-      success: false,
-      errors: errors,
-    };
-  }*/
+  const res = await agentSvc.deleteSupervisorJob(
+    server.address,
+    supervisor.name
+  )
+  if (res.error != 0) {
+    throw new Error(`Agent error ${res.error}`)
+  }
 
   await supervisor.remove()
 

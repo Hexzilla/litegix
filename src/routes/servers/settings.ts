@@ -9,16 +9,15 @@ const router = Router()
 // router.get("/", auth.required, server.getServers)
 
 router.get('/', auth.required, async function (req: Request, res: Response) {
-  try {
-    const response = await serverSvc.getServerInfo(req.server)
-    return res.json(response)
-  } catch (e) {
-    console.error(e)
-    return res.status(501).json({
-      success: false,
-      errors: errorMessage(e),
-    })
-  }
+  const server = req.server
+  return res.json({
+    success: true,
+    data: {
+      name: server.name,
+      provider: server.provider,
+      address: server.address,
+    },
+  })
 })
 
 router.put(

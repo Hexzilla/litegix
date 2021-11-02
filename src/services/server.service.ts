@@ -9,9 +9,12 @@ export async function getSummary(server: Server) {
   if (!server) {
     throw new Error('Invalid Server')
   }
+
   console.log('getSummary', server.address)
   server.system = {
     kernelVersion: '5.4.0-72-generic',
+    agentVersion: '2.4.8 ubuntu 20.d',
+    osVersion: 'ubuntu 20.04',
     processorName: 'Intel Xeon Processor (Skylake, IBRS)',
     totalCPUCore: 2,
     totalMemory: 3.750080108642578,
@@ -26,18 +29,6 @@ export async function getSummary(server: Server) {
   return {
     success: true,
     data: server.toSummaryJSON(),
-  }
-}
-
-// getting Server by url param serverId
-export async function getServerInfo(server: Server) {
-  return {
-    success: true,
-    data: {
-      name: server.name,
-      provider: server.provider,
-      address: server.address,
-    },
   }
 }
 

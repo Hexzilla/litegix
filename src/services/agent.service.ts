@@ -259,8 +259,36 @@ export async function removeCronJob(address: string, label: string) {
     if (process.env.NODE_ENV !== 'production') {
       return { error: 0 }
     }
-    const res = await axios.delete(`http://${address}:21000/cronjob/label`)
+    const res = await axios.delete(`http://${address}:21000/cronjob/${label}`)
     console.log('removeCronJob', res.data)
+    return res.data
+  } catch (e) {
+    console.log(e)
+    return { error: -1 }
+  }
+}
+
+export async function createSupervisorJob(address: string, data: any) {
+  try {
+    if (process.env.NODE_ENV !== 'production') {
+      return { error: 0 }
+    }
+    const res = await axios.post(`http://${address}:21000/supervisor`, data)
+    console.log('createSupervisorJob', res.data)
+    return res.data
+  } catch (e) {
+    console.log(e)
+    return { error: -1 }
+  }
+}
+
+export async function deleteSupervisorJob(address: string, name: string) {
+  try {
+    if (process.env.NODE_ENV !== 'production') {
+      return { error: 0 }
+    }
+    const res = await axios.delete(`http://${address}:21000/supervisor/${name}`)
+    console.log('deleteSupervisorJob', res.data)
     return res.data
   } catch (e) {
     console.log(e)

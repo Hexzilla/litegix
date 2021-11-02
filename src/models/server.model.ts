@@ -2,7 +2,9 @@ import { Document, Schema, model } from 'mongoose'
 import { User } from './user.model'
 
 export interface SystemStatus {
+  osVersion: string
   kernelVersion: string
+  agentVersion: string
   processorName: string
   totalCPUCore: number
   totalMemory: number
@@ -61,6 +63,8 @@ const ServerSchema = new Schema<Server>(
       diskFree: Number,
       loadAvg: Number,
       uptime: String,
+      agentVersion: String,
+      osVersion: String,
     },
     userEmail: {
       type: String,
@@ -93,7 +97,11 @@ const ServerSchema = new Schema<Server>(
 ServerSchema.index({ name: 1, type: -1 }) // schema level
 
 ServerSchema.methods.toSummaryJSON = function () {
-  return this.system
+  return {
+    ...this.system,
+    name: this.name,
+    address: this.address,
+  }
 }
 
 export default model<Server>('Server', ServerSchema)
