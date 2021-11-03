@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { v4 as uuidv4 } from 'uuid'
 
 function getErrorMessage(err: any) {
   if (err.response) {
@@ -208,16 +209,16 @@ export async function deleteSSHKey(
   }
 }
 
-export async function createDeploymentKey(
-  address: string,
-  deploymentKey: string
-) {
+export async function createDeploymentKey(address: string, userName: string) {
   try {
     if (process.env.NODE_ENV !== 'production') {
-      return { error: 0 }
+      return {
+        error: 0,
+        publicKey: `TEST_PUBLIC_KEY_${uuidv4()}${uuidv4()}${uuidv4()}`,
+      }
     }
     const res = await axios.post(`http://${address}:21000/deploymentkey`, {
-      deploymentKey,
+      userName,
     })
     console.log('createDeploymentKey', res.data)
     return res.data

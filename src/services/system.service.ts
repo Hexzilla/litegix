@@ -1,5 +1,4 @@
 import { model } from 'mongoose'
-import { v4 as uuidv4 } from 'uuid'
 import { Server, SystemUser, SSHKey } from 'models'
 import { createServerActivityLogInfo } from 'services/activity.service'
 import * as activitySvc from 'services/activity.service'
@@ -223,14 +222,12 @@ export async function storeDeploymentKey(server: Server, userId: string) {
     throw Error(`System user doesn't exists`)
   }
 
-  const deploymentKey = `TEST_PUBLIC_KEY_${userId}_${uuidv4()}`
-
-  const res = await agentSvc.createDeploymentKey(userId, deploymentKey)
+  const res = await agentSvc.createDeploymentKey(server.address, user.name)
   if (res.error != 0) {
     throw new Error(`Agent error ${res.error}`)
   }
 
-  user.deploymentKey = deploymentKey
+  user.deploymentKey = res.publicKey
   await user.save()
 
   const message = `Created new deployment key for system user ${user.name}`
@@ -238,7 +235,7 @@ export async function storeDeploymentKey(server: Server, userId: string) {
 
   return {
     success: true,
-    data: { key: deploymentKey },
+    data: { key: res.publicKey },
   }
 }
 
