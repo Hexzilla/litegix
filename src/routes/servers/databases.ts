@@ -6,16 +6,20 @@ import errorMessage from 'routes/errors'
 import * as database from 'services/database.service'
 const router = Router()
 
+const catchError = function (res: Response, e: any) {
+  console.error(e)
+  return res.status(501).json({
+    success: false,
+    errors: errorMessage(e),
+  })
+}
+
 router.get('/', auth.required, async function (req: Request, res: Response) {
   try {
     const response = await database.getDatabases(req.server)
     return res.json(response)
   } catch (e) {
-    console.error(e)
-    return res.status(501).json({
-      success: false,
-      errors: errorMessage(e),
-    })
+    return catchError(res, e)
   }
 })
 
@@ -27,11 +31,7 @@ router.get(
       const response = await database.createDatabase(req.server)
       res.json(response)
     } catch (e) {
-      console.error(e)
-      return res.status(501).json({
-        success: false,
-        errors: errorMessage(e),
-      })
+      return catchError(res, e)
     }
   }
 )
@@ -47,11 +47,7 @@ router.post(
       const response = await database.storeDatabase(req.server, req.body)
       res.json(response)
     } catch (e) {
-      console.error(e)
-      return res.status(501).json({
-        success: false,
-        errors: errorMessage(e),
-      })
+      return catchError(res, e)
     }
   }
 )
@@ -65,29 +61,65 @@ router.delete(
       const response = await database.deleteDatabase(req.server, databaseId)
       res.json(response)
     } catch (e) {
-      console.error(e)
-      return res.status(501).json({
-        success: false,
-        errors: errorMessage(e),
-      })
+      return catchError(res, e)
     }
   }
 )
 
 // router.get('/:databaseId/grant', auth.required, database.getUngrantedDBuser)
 
-// router.post(
-//   '/:databaseId/grant',
-//   auth.required,
-//   body('dbuserId').isString(),
-//   database.grantDBuser
-// )
+router.post(
+  '/:databaseId/grant',
+  auth.required,
+  body('dbuserId').isString(),
+  async function (req: Request, res: Response) {
+    try {
+      const databaseId = req.params.databaseId
+      const dbuserId = req.body.dbuserId
+      const r = await database.grantDatabaseUser(
+        req.server,
+        databaseId,
+        dbuserId
+      )
+      res.json(r)
+    } catch (e) {
+      return catchError(res, e)
+    }
+  }
+)
 
-// router.delete(
-//   '/:databaseId/grant/:dbuserId',
-//   auth.required,
-//   database.revokeDBuser
-// )
+router.delete(
+  '/:databaseId/grant/:dbuserId',
+  auth.required,
+  async function (req: Request, res: Response) {
+    try {
+      const databaseId = req.params.databaseId
+      const dbuserId = req.params.dbuserId
+      const r = await database.revokeDatabaseUser(
+        req.server,
+        databaseId,
+        dbuserId
+      )
+      res.json(r)
+    } catch (e) {
+      return catchError(res, e)
+    }
+  }
+)
+
+router.get(
+  '/:databaseId/users/ungranted',
+  auth.required,
+  async function (req: Request, res: Response) {
+    try {
+      const databaseId = req.params.databaseId
+      const r = await database.getUngrantedDBUsers(req.server, databaseId)
+      res.json(r)
+    } catch (e) {
+      return catchError(res, e)
+    }
+  }
+)
 
 router.get(
   '/users',
@@ -97,11 +129,7 @@ router.get(
       const response = await database.getDatabaseUserList(req.server)
       return res.json(response)
     } catch (e) {
-      console.error(e)
-      return res.status(501).json({
-        success: false,
-        errors: errorMessage(e),
-      })
+      return catchError(res, e)
     }
   }
 )
@@ -115,11 +143,7 @@ router.get(
       const response = await database.getDatabaseUser(dbuserId)
       return res.json(response)
     } catch (e) {
-      console.error(e)
-      return res.status(501).json({
-        success: false,
-        errors: errorMessage(e),
-      })
+      return catchError(res, e)
     }
   }
 )
@@ -135,11 +159,7 @@ router.post(
       const response = await database.storeDatabaseUser(req.server, req.body)
       return res.json(response)
     } catch (e) {
-      console.error(e)
-      return res.status(501).json({
-        success: false,
-        errors: errorMessage(e),
-      })
+      return catchError(res, e)
     }
   }
 )
@@ -159,11 +179,7 @@ router.put(
       )
       return res.json(response)
     } catch (e) {
-      console.error(e)
-      return res.status(501).json({
-        success: false,
-        errors: errorMessage(e),
-      })
+      return catchError(res, e)
     }
   }
 )
@@ -177,11 +193,7 @@ router.delete(
       const response = await database.deleteDatabaseUser(req.server, userId)
       return res.json(response)
     } catch (e) {
-      console.error(e)
-      return res.status(501).json({
-        success: false,
-        errors: errorMessage(e),
-      })
+      return catchError(res, e)
     }
   }
 )

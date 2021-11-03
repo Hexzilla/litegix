@@ -1,10 +1,12 @@
 import { Document, Schema, model } from 'mongoose'
 import { Server } from './server.model'
+import { Database } from './database.model'
 
 export interface DatabaseUser extends Document {
   name: string
   password: string
   server: Server
+  database: Database
 }
 
 const DatabaseUserSchema = new Schema<DatabaseUser>(
@@ -21,6 +23,10 @@ const DatabaseUserSchema = new Schema<DatabaseUser>(
       type: Schema.Types.ObjectId,
       ref: 'Server',
     },
+    database: {
+      type: Schema.Types.ObjectId,
+      ref: 'Database',
+    }
   },
   {
     toJSON: {

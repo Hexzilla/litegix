@@ -87,6 +87,38 @@ export async function deleteDatabaseUser(address: string, name: string) {
   }
 }
 
+export async function grantDatabaseUser(address: string, database: string, userName: string) {
+  try {
+    if (process.env.NODE_ENV !== 'production') {
+      return { error: 0 }
+    }
+    const res = await axios.post(`http://${address}:21000/database/grant/assign`, {
+      database, userName
+    })
+    console.log('grantDatabaseUser', res.data)
+    return res.data
+  } catch (e) {
+    console.log(e)
+    return { error: -1 }
+  }
+}
+
+export async function removeDatabaseUserGrant(address: string, database: string, userName: string) {
+  try {
+    if (process.env.NODE_ENV !== 'production') {
+      return { error: 0 }
+    }
+    const res = await axios.post(`http://${address}:21000/database/grant/remove`, {
+      database, userName
+    })
+    console.log('removeDatabaseUserGrant', res.data)
+    return res.data
+  } catch (e) {
+    console.log(e)
+    return { error: -1 }
+  }
+}
+
 export async function createWebApplication() {
   return null
 }

@@ -94,121 +94,103 @@ export async function deleteDatabase(server: Server, databaseId: string) {
   }
 }
 
-export async function getUngrantedDBuser(req: Request, res: Response) {
-  /*try {
-    let errors = valiator.validationResult(req)
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ success: false, errors: errors.array() })
-    }
+export async function grantDatabaseUser(
+  server: Server,
+  databaseId: string,
+  dbuserId: string
+) {
+  const database = await DatabaseModel.findById(databaseId).populate('users')
+  if (!database) {
+    throw new Error("Database doesn't exists")
+  }
 
-    let server = req.server
-    const database = await DatabaseModel.findById(req.params.databaseId)
-    if (!database) {
-      return res.status(422).json({
-        success: false,
-        errors: { message: "Database doesn't exists" }
-      })
-    }
+  const dbuser = await DatabaseUserModel.findById(dbuserId)
+  if (!dbuser) {
+    throw new Error("Database user doesn't exists")
+  }
 
-    const ungrantedusers = await DatabaseUserModel.find({
-      _id: { $nin: database.users }
-    })
+  console.log('grantDatabaseuser', database.users)
+  if (database.users.includes(dbuser)) {
+    throw new Error('The user already granted in database')
+  }
 
-    return res.json({
-      success: true,
-      data: { ungrantedusers }
-    })
-  } catch (e) {
-    console.error(e)
-    return res.status(501).json({ success: false })
-  }*/
+  const r = await agentSvc.grantDatabaseUser(
+    server.address,
+    database.name,
+    dbuser.name
+  )
+  if (r.error != 0) {
+    throw new Error(`Agent error ${r.error}`)
+  }
+
+  database.users.push(dbuser)
+  await database.save()
+
+  return {
+    success: true,
+    data: { databaseId, dbuserId },
+  }
 }
 
-export async function grantDBuser(req: Request, res: Response) {
-  /*try {
-    let errors = valiator.validationResult(req)
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ success: false, errors: errors.array() })
-    }
+/**
+ *
+ */
+export async function revokeDatabaseUser(
+  server: Server,
+  databaseId: string,
+  dbuserId: string
+) {
+  const database = await DatabaseModel.findById(databaseId).populate('users')
+  if (!database) {
+    throw new Error("Database doesn't exists")
+  }
 
-    const database = await DatabaseModel.findById(req.params.databaseId)
-    if (!database) {
-      return res.status(422).json({
-        success: false,
-        errors: { message: "Database doesn't exists" }
-      })
-    }
+  const dbuser = await DatabaseUserModel.findById(dbuserId)
+  if (!dbuser) {
+    throw new Error("Database user doesn't exists")
+  }
 
-    const dbuser = await DatabaseUserModel.findById(req.body.dbuserId)
-    if (!dbuser) {
-      return res.status(422).json({
-        success: false,
-        errors: { message: "user doesn't exists" }
-      })
-    }
+  const index = database.users.indexOf(dbuser)
+  if (index < 0) {
+    throw new Error('The user has no access for this database')
+  }
 
-    if (database.users.includes(req.body.dbuserId)) {
-      return res.status(422).json({
-        success: false,
-        errors: { message: 'user already granted in database' }
-      })
-    }
+  const r = await agentSvc.removeDatabaseUserGrant(
+    server.address,
+    database.name,
+    dbuser.name
+  )
+  if (r.error != 0) {
+    throw new Error(`Agent error ${r.error}`)
+  }
 
-    database.users.push(req.body.dbuserId)
-    await database.save()
+  database.users.splice(index, 1)
+  await database.save()
 
-    return res.json({
-      success: true,
-      message: 'It has been successfully granted.',
-    })
-  } catch (e) {
-    console.error(e)
-    return res.status(501).json({ success: false })
-  }*/
+  return {
+    success: true,
+    data: { databaseId, dbuserId },
+  }
 }
 
-export async function revokeDBuser(req: Request, res: Response) {
-  /*try {
-    let errors = valiator.validationResult(req)
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ success: false, errors: errors.array() })
-    }
+/**
+ *
+ */
+export async function getUngrantedDBUsers(server: Server, databaseId: string) {
+  const database = await DatabaseModel.findById(databaseId).populate('users')
+  if (!database) {
+    throw new Error("Database doesn't exists")
+  }
 
-    const database = await DatabaseModel.findById(req.params.databaseId)
-    if (!database) {
-      return res.status(422).json({
-        success: false,
-        errors: { message: "Database doesn't exists" }
-      })
-    }
+  const users = await DatabaseUserModel.find({
+    server: server,
+    _id: { $nin: database.users },
+  })
 
-    const dbuser = await DatabaseUserModel.findById(req.params.dbuserId)
-    if (!dbuser) {
-      return res.status(422).json({
-        success: false,
-        errors: { message: "user doesn't exists" }
-      })
-    }
-
-    let gIndex = database.users.indexOf(req.params.dbuserId)
-    if (gIndex < 0) {
-      return res.status(422).json({
-        success: false,
-        errors: { message: 'user not granted in database' }
-      })
-    }
-
-    database.users.splice(gIndex, 1)
-    await database.save()
-
-    return res.json({
-      success: true,
-      message: 'It has been successfully granted.',
-    })
-  } catch (e) {
-    console.error(e)
-    return res.status(501).json({ success: false })
-  }*/
+  return {
+    success: true,
+    data: { users },
+  }
 }
 
 export async function getDatabaseUser(databaseUserId: string) {
