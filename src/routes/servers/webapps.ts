@@ -24,7 +24,7 @@ router.get('/', auth.required, async function (req: Request, res: Response) {
 })
 
 router.get(
-  '/create/custom',
+  '/custom',
   auth.required,
   async function (req: Request, res: Response) {
     try {
@@ -39,7 +39,7 @@ router.get(
 )
 
 router.post(
-  '/create/custom',
+  '/custom',
   auth.required,
   body('name').isString(),
   body('domainType').isString(),
@@ -52,11 +52,53 @@ router.post(
   body('stackMode').isString(),
   body('sslMode').isString(),
   body('enableAutoSSL').isBoolean(),
-  body('suffixName').isString(),
   validate,
   async function (req: Request, res: Response) {
     try {
       const response = await webappService.storeCustomWebApplication(
+        req.server,
+        req.body
+      )
+      return res.json(response)
+    } catch (e) {
+      return catchError(res, e)
+    }
+  }
+)
+
+router.get(
+  '/wordpress',
+  auth.required,
+  async function (req: Request, res: Response) {
+    try {
+      const response = await webappService.createWordpressApplication(
+        req.server
+      )
+      return res.json(response)
+    } catch (e) {
+      return catchError(res, e)
+    }
+  }
+)
+
+router.post(
+  '/wordpress',
+  auth.required,
+  body('name').isString(),
+  body('domainType').isString(),
+  body('domainName').isString(),
+  body('enableW3Version').isBoolean(),
+  body('owner').isString(),
+  body('publicPath').isString(),
+  body('phpVersion').isString(),
+  body('webAppStack').isString(),
+  body('stackMode').isString(),
+  body('sslMode').isString(),
+  body('enableAutoSSL').isBoolean(),
+  validate,
+  async function (req: Request, res: Response) {
+    try {
+      const response = await webappService.storeWordpressApplication(
         req.server,
         req.body
       )

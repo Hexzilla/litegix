@@ -19,6 +19,8 @@ export async function getWebApplications(server: Server) {
   }
 }
 
+/**
+ */
 export async function createCustomWebApplication(server: Server) {
   const systemUsers = await SystemUserModel.find({ server })
   return {
@@ -115,6 +117,70 @@ export async function storeCustomWebApplication(server: Server, payload: any) {
     dns_integration: payload.dns_integration,
     rediraction: payload.domain_rediraction,
   }*/
+
+  const application = new ApplicationModel(data)
+  await application.save()
+
+  /**let domain = new Domains(domain_data)
+  domain.applicationId = application.id
+  await domain.save()*/
+
+  const message = `Added new web application ${payload.name}`
+  await activitySvc.createServerActivityLogInfo(server, message)
+
+  return {
+    success: true,
+    data: { application },
+  }
+}
+
+/**
+ */
+export async function createWordpressApplication(server: Server) {
+  const systemUsers = await SystemUserModel.find({ server })
+  return {
+    success: true,
+    data: {
+      system_users: systemUsers.map((user) => ({
+        id: user.id,
+        name: user.name,
+      })),
+      php_versions: php_versions,
+      web_application_stacks: web_application_stacks,
+      web_ssl_methods: web_ssl_methods,
+      canvases: [],
+    },
+  }
+}
+
+/**
+ */
+export async function storeWordpressApplication(server: Server, payload: any) {
+  const exists = await ApplicationModel.findOne({
+    server: server,
+    name: payload.name,
+  })
+  if (exists) {
+    throw new Error('The name has already been taken.')
+  }
+
+  // check parameters
+  const systemUser = await SystemUserModel.findById(payload.owner)
+  if (!systemUser) {
+    throw new Error('The user doen not exists.')
+  }
+
+  /*const res = await agent.createWebApplication(req.body)
+    if (res.error != 0) {
+      throw new Error(`Agent error ${res.error}`)
+    }*/
+
+  const data = {
+    ...payload,
+    server: server,
+    systemUser: systemUser,
+    publicPath: `/home/${systemUser.name}/webapps/${payload.name}`,
+  }
 
   const application = new ApplicationModel(data)
   await application.save()
