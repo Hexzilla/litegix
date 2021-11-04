@@ -543,7 +543,7 @@ function install_mariadb {
     sudo apt update
     sudo apt install mariadb-server
 
-    ROOTPASS="$(get_random_string 64)#!"
+    ROOTPASS="!$(get_random_string 64)"
 
     # Start mariadb
     systemctl start mysql

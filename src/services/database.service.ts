@@ -234,9 +234,9 @@ export async function storeDatabaseUser(
     throw Error('Database User name has already been taken.')
   }
 
-  const result = await agentSvc.createDatabaseUser(server.address, data)
-  if (!result.success) {
-    throw Error(result.message)
+  const r = await agentSvc.createDatabaseUser(server.address, data)
+  if (r.error != 0) {
+    throw new Error(`Agent error ${r.error}`)
   }
 
   const databaseUser = new DatabaseUserModel(data)
@@ -258,9 +258,9 @@ export async function deleteDatabaseUser(server: Server, dbuserId: string) {
     throw Error("It doesn't exists")
   }
 
-  const result = await agentSvc.deleteDatabaseUser(server.address, user.name)
-  if (!result.success) {
-    throw Error(result.message)
+  const r = await agentSvc.deleteDatabaseUser(server.address, user.name)
+  if (r.error != 0) {
+    throw new Error(`Agent error ${r.error}`)
   }
 
   await user.remove()
