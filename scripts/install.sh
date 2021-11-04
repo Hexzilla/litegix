@@ -527,7 +527,7 @@ user=root
 password=$ROOTPASS
 " > /etc/mysql/conf.d/root.cnf
 
-    chmod 600 /etc/mysql/conf.d/root.cnf
+    chmod 755 /etc/mysql/conf.d/root.cnf
 
     echo "MySQL ROOT PASSWORD: $ROOTPASS"
     echo "MySQL setup completed."
@@ -588,7 +588,7 @@ user=root
 password=$ROOTPASS
 " > /etc/mysql/conf.d/root.cnf
 
-    chmod 600 /etc/mysql/conf.d/root.cnf
+    chmod 755 /etc/mysql/conf.d/root.cnf
 }
 
 function install_webapp {

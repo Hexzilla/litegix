@@ -1,3 +1,4 @@
+import { randomBytes } from 'crypto'
 import { model } from 'mongoose'
 import { Server, Application, SystemUser } from 'models'
 import * as activitySvc from 'services/activity.service'
@@ -10,6 +11,13 @@ import {
 } from './constants'
 const ApplicationModel = model<Application>('Application')
 const SystemUserModel = model<SystemUser>('SystemUser')
+
+const getDomainSuffix = function () {
+  // const rs1 = randomBytes(5).toString('hex')
+  // const rs2 = randomBytes(7).toString('hex')
+  // return `${rs1}-${rs2}`
+  return `kc${randomBytes(12).toString('hex')}`
+}
 
 export async function getWebApplications(server: Server) {
   const apps = await ApplicationModel.find({ server })
@@ -36,6 +44,7 @@ export async function createCustomWebApplication(server: Server) {
       web_application_stacks: web_application_stacks,
       web_environments: web_environments,
       web_ssl_methods: web_ssl_methods,
+      domainSuffix: getDomainSuffix(),
     },
   }
 }
@@ -57,13 +66,22 @@ export async function storeCustomWebApplication(server: Server, payload: any) {
     throw new Error('The user doen not exists.')
   }
 
-  const res = await agentSvc.createWebApplication(server.address, payload)
+  let domainName = payload.domainName
+  if (payload.domainType == 'litegix') {
+    domainName = `${payload.domainName}${payload.domainSuffix}`
+  }
+  const postData = {
+    ...payload,
+    domainName,
+  }
+  const res = await agentSvc.createWebApplication(server.address, postData)
   if (res.error != 0) {
     throw new Error(`Agent error ${res.error}`)
   }
 
   const data = {
     ...payload,
+    domainName,
     webType: 'custom',
     server: server,
     systemUser: systemUser,
@@ -151,6 +169,7 @@ export async function createWordpressApplication(server: Server) {
       php_versions: php_versions,
       web_application_stacks: web_application_stacks,
       web_ssl_methods: web_ssl_methods,
+      domainSuffix: getDomainSuffix(),
       canvases: [],
     },
   }
@@ -173,13 +192,22 @@ export async function storeWordpressApplication(server: Server, payload: any) {
     throw new Error('The user doen not exists.')
   }
 
-  const res = await agentSvc.createWordpress(server.address, payload)
+  let domainName = payload.domainName
+  if (payload.domainType == 'litegix') {
+    domainName = `${payload.domainName}${payload.domainSuffix}`
+  }
+  const postData = {
+    ...payload,
+    domainName,
+  }
+  const res = await agentSvc.createWordpress(server.address, postData)
   if (res.error != 0) {
     throw new Error(`Agent error ${res.error}`)
   }
 
   const data = {
     ...payload,
+    domainName,
     webType: 'wordpress',
     server: server,
     systemUser: systemUser,
@@ -203,6 +231,25 @@ export async function storeWordpressApplication(server: Server, payload: any) {
 
 /**
  */
+export async function createPhpMyAdmin(server: Server) {
+  const systemUsers = await SystemUserModel.find({ server })
+  return {
+    success: true,
+    data: {
+      system_users: systemUsers.map((user) => ({
+        id: user.id,
+        name: user.name,
+      })),
+      php_versions: php_versions,
+      web_application_stacks: web_application_stacks,
+      web_ssl_methods: web_ssl_methods,
+      domainSuffix: getDomainSuffix(),
+    },
+  }
+}
+
+/**
+ */
 export async function storePhpMyAdmin(server: Server, payload: any) {
   const exists = await ApplicationModel.findOne({
     server: server,
@@ -218,13 +265,22 @@ export async function storePhpMyAdmin(server: Server, payload: any) {
     throw new Error('The user doen not exists.')
   }
 
-  const res = await agentSvc.createPhpMyAdmin(server.address, payload)
+  let domainName = payload.domainName
+  if (payload.domainType == 'litegix') {
+    domainName = `${payload.domainName}${payload.domainSuffix}`
+  }
+  const postData = {
+    ...payload,
+    domainName,
+  }
+  const res = await agentSvc.createPhpMyAdmin(server.address, postData)
   if (res.error != 0) {
     throw new Error(`Agent error ${res.error}`)
   }
 
   const data = {
     ...payload,
+    domainName,
     webType: 'phpmyadmin',
     server: server,
     systemUser: systemUser,
