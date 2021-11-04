@@ -474,7 +474,7 @@ function install_mysql {
     rm -rf $MYSQLDIR
     mkdir -p $MYSQLDIR
 
-    ROOTPASS="$(get_random_string 64)#!"
+    ROOTPASS="!$(get_random_string 64)"
 
     # Install MySQL
     echo debconf mysql-server/root_password password $ROOTPASS | debconf-set-selections

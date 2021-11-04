@@ -224,7 +224,7 @@ export async function createDatabaseUser(req: Request, res: Response) {
 
 export async function storeDatabaseUser(
   server: Server,
-  data: { name: string }
+  data: { name: string; password: string }
 ) {
   const exists = await DatabaseUserModel.findOne({
     server,
@@ -234,10 +234,10 @@ export async function storeDatabaseUser(
     throw Error('Database User name has already been taken.')
   }
 
-  /*const result = await agentSvc.createDatabaseUser(server.address, data)
+  const result = await agentSvc.createDatabaseUser(server.address, data)
   if (!result.success) {
     throw Error(result.message)
-  }*/
+  }
 
   const databaseUser = new DatabaseUserModel(data)
   databaseUser.server = server
@@ -258,10 +258,10 @@ export async function deleteDatabaseUser(server: Server, dbuserId: string) {
     throw Error("It doesn't exists")
   }
 
-  /*const result = await agentSvc.deleteDatabaseUser(server.address, user.name)
+  const result = await agentSvc.deleteDatabaseUser(server.address, user.name)
   if (!result.success) {
     throw Error(result.message)
-  }*/
+  }
 
   await user.remove()
 

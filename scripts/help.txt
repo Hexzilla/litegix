@@ -5,26 +5,21 @@ sudo ss -tulpn | grep LISTEN
 sudo lsof -i:22 ## see a specific port such as 22 ##
 sudo nmap -sTU -O IP-address-Here
 
-
-
-# All users
-getent passwd
-
-
-
-ls /etc/systemd/system/
-
-
+##############################################################################################################
 # Remove nginx
 systemctl stop nginx
 systemctl status nginx
 apt remove --purge nginx
 apt-get purge nginx
 
-
 systemctl stop mysql
 apt-get remove --purge mysql*
-
+apt-get remove --purge mysql-server
+rm -rf /var/lib/mysql
+rm -rf /etc/mysql
+rm /etc/apparmor.d/abstractions/mysql
+rm /usr/share/bash-completion/completions/mysql
+rm -rf /etc/mysql/conf.d/root.cnf
 
 systemctl stop lsws
 /usr/local/lsws/admin/misc/uninstall.sh
@@ -36,7 +31,35 @@ apt-get purge litegix-agent
 rm -rf /litegix/litegix-agent
 
 
-rm -rf /etc/mysql/conf.d/root.cnf
+##############################################################################################################
+# All users
+getent passwd
+
+sudo deluser --remove-home userNameHere
+
+ls /etc/systemd/system/
+
+
+##############################################################################################################
+# MySQL 8.0
+
+cat /etc/mysql/my.cnf
+vim /etc/mysql/conf.d/root.cnf
+cat /etc/mysql/mysql.conf.d/mysqld.cnf
+vim /etc/mysql/mysql.conf.d/mysql.cnf
+
+
+
+[client]
+user=root
+password=!C6gwCEd_L6dherXvrD9fCOt1e67v6g1AKpRcv4ml5TTVDmLGIMnBNVWJ1NcKF7tu
+
+[mysql]
+user=root
+password=!C6gwCEd_L6dherXvrD9fCOt1e67v6g1AKpRcv4ml5TTVDmLGIMnBNVWJ1NcKF7tu
+
+ALTER USER 'root'@'localhost' IDENTIFIED BY '!C6gwCEd_L6dherXvrD9fCOt1e67v6g1AKpRcv4ml5TTVDmLGIMnBNVWJ1NcKF7tu';
+
 
 journalctl --unit=litegix-agent
 
