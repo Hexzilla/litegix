@@ -89,12 +89,15 @@ router.post(
   body('domainName').isString(),
   body('enableW3Version').isBoolean(),
   body('owner').isString(),
-  body('publicPath').isString(),
   body('phpVersion').isString(),
   body('webAppStack').isString(),
   body('stackMode').isString(),
   body('sslMode').isString(),
   body('enableAutoSSL').isBoolean(),
+  body('siteTitle').isString(),
+  body('adminName').isString(),
+  body('adminPassword').isString(),
+  body('adminEmail').isString(),
   validate,
   async function (req: Request, res: Response) {
     try {

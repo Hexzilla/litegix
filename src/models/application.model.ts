@@ -2,12 +2,22 @@ import { Document, Schema, model } from 'mongoose'
 import { Server } from './server.model'
 import { SystemUser } from './systemUser.model'
 
+export interface Wordpress {
+  adminName: string
+  adminPassword: string
+  adminEmail: string
+  databaseUser: string
+  databasePassword: string
+  databaseName: string
+  tablePrefix: string
+}
 export interface Application extends Document {
   name: string
   rootPath: string
   server: Server
   systemUser: SystemUser
   domainType: string
+  wordpress: Wordpress
 }
 
 var ApplicationSchema = new Schema<Application>(
@@ -19,6 +29,10 @@ var ApplicationSchema = new Schema<Application>(
     systemUser: {
       type: Schema.Types.ObjectId,
       ref: 'SystemUser',
+    },
+    webType: {
+      type: String,
+      required: [true, "can't be blank"],
     },
     name: {
       type: String,
@@ -95,6 +109,15 @@ var ApplicationSchema = new Schema<Application>(
       clickjackingProtection: Boolean,
       xssProtection: Boolean,
       mimeSniffingProtection: Boolean,
+    },
+    wordpress: {
+      adminName: String,
+      adminPassword: String,
+      adminEmail: String,
+      databaseUser: String,
+      databasePassword: String,
+      databaseName: String,
+      tablePrefix: String,
     },
   },
   {
