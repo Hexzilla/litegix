@@ -1,32 +1,75 @@
 import { Document, Schema, model } from 'mongoose'
 import { Server } from './server.model'
+import { SystemUser } from './systemUser.model'
 
 export interface Application extends Document {
   name: string
   rootPath: string
   server: Server
+  systemUser: SystemUser
+  domainType: string
 }
 
 var ApplicationSchema = new Schema<Application>(
   {
-    server_user_id: { type: Number, required: [true, "can't be blank"] },
+    server: {
+      type: Schema.Types.ObjectId,
+      ref: 'Server',
+    },
+    systemUser: {
+      type: Schema.Types.ObjectId,
+      ref: 'SystemUser',
+    },
     name: {
       type: String,
       required: [true, "can't be blank"],
     },
-    rootPath: {
+    domainType: {
       type: String,
       required: [true, "can't be blank"],
     },
-    publicPath: String,
-    phpVersion: { type: String, required: [true, "can't be blank"] },
-    stack: { type: String, required: [true, "can't be blank"] }, // "hybrid", "nativenginx", or "customnginx"
-    stackMode: { type: String, required: [true, "can't be blank"] }, //"production" or "development"
-    type: { type: String, required: [true, "can't be blank"] },
-    defaultApp: { type: Boolean, default: false },
-    alias: String,
-    pullKey1: { type: String, required: [true, "can't be blank"] },
-    pullKey2: { type: String, required: [true, "can't be blank"] },
+    domainName: {
+      type: String,
+      required: [true, "can't be blank"],
+    },
+    enableW3Version: {
+      type: Boolean,
+      required: [true, "can't be blank"],
+    },
+    publicPath: {
+      type: String,
+      required: [true, "can't be blank"],
+    },
+    phpVersion: {
+      type: String,
+      required: [true, "can't be blank"],
+    },
+    webAppStack: {
+      // "hybrid", "nativenginx", or "customnginx"
+      type: String,
+      required: [true, "can't be blank"],
+    },
+    stackMode: {
+      //"production" or "development"
+      type: String,
+      required: [true, "can't be blank"],
+    },
+    sslMode: {
+      type: String,
+      required: [true, "can't be blank"],
+    },
+    enableAutoSSL: {
+      type: Boolean,
+      required: [true, "can't be blank"],
+    },
+    /*pullKey1: {
+      type: String,
+      required: [true, "can't be blank"],
+    },
+    pullKey2: {
+      type: String,
+      required: [true, "can't be blank"],
+    },*/
     advancedSSL: {
       advancedSSL: { type: Boolean, default: false },
       autoSSL: { type: Boolean, default: false },
@@ -53,12 +96,15 @@ var ApplicationSchema = new Schema<Application>(
       xssProtection: Boolean,
       mimeSniffingProtection: Boolean,
     },
-    server: {
-      type: Schema.Types.ObjectId,
-      ref: 'Server',
-    },
   },
   {
+    toJSON: {
+      transform: function (doc, ret) {
+        delete ret._id
+        delete ret.server
+        delete ret.__v
+      },
+    },
     timestamps: false,
   }
 )

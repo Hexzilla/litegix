@@ -9,6 +9,7 @@ export default (req: Request, res: Response, next: NextFunction) => {
       errors: {
         code: 1000,
         message: 'There are some invalid parameters',
+        params: errors.array().map((it) => it.param),
       },
     })
   }

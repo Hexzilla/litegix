@@ -36,29 +36,34 @@ export async function createCustomWebApplication(server: Server) {
   }
 }
 
+/**
+ */
 export async function storeCustomWebApplication(server: Server, payload: any) {
   const exists = await ApplicationModel.findOne({
-    serverId: server.id,
+    server: server,
     name: payload.name,
   })
   if (exists) {
-    throw new Error('Name has already been taken.')
+    throw new Error('The name has already been taken.')
   }
 
-  /*const errors = await agent.createWebApplication(req.body)
-    if (errors) {
-      return res.status(422).json({
-        success: false,
-        errors: errors,
-      })
+  // check parameters
+  const systemUser = await SystemUserModel.findById(payload.owner)
+  if (!systemUser) {
+    throw new Error('The user doen not exists.')
+  }
+
+  /*const res = await agent.createWebApplication(req.body)
+    if (res.error != 0) {
+      throw new Error(`Agent error ${res.error}`)
     }*/
 
-  const user = await SystemUserModel.findById(payload.user)
-  if (!user) {
-    throw new Error('Invalid User')
+  const data = {
+    ...payload,
+    server: server,
+    systemUser: systemUser,
+    publicPath: `/home/${systemUser.name}/webapps/${payload.suffixName}`,
   }
-
-  const data = {}
   /*const data = {
     server_user_id: payload.user,
     name: payload.name,
@@ -112,7 +117,6 @@ export async function storeCustomWebApplication(server: Server, payload: any) {
   }*/
 
   const application = new ApplicationModel(data)
-  application.server = server
   await application.save()
 
   /**let domain = new Domains(domain_data)
@@ -124,7 +128,7 @@ export async function storeCustomWebApplication(server: Server, payload: any) {
 
   return {
     success: true,
-    data: application,
+    data: { application },
   }
 }
 
@@ -1039,11 +1043,6 @@ export async function storeCustomWebApplication(server: Server, payload: any) {
 //     return res.status(501).json({ success: false })
 //   }
 // }
-
-// const storeCustomWebApplication = async function (
-//   req: Request,
-//   res: Response
-// ) {}
 
 // const storeWordpressWebApplication = async function (
 //   req: Request,
