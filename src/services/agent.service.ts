@@ -264,7 +264,7 @@ export async function changeSystemUserPassword(
 
 export async function createSSHKey(
   address: string,
-  usreName: string,
+  userName: string,
   pubKey: string
 ) {
   try {
@@ -272,7 +272,7 @@ export async function createSSHKey(
       return { error: 0 }
     }
     const res = await axios.post(`http://${address}:21000/sshkey`, {
-      usreName,
+      userName,
       pubKey,
     })
     console.log('createSSHKey', res.data)
