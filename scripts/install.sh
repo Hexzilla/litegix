@@ -633,7 +633,7 @@ function install_agent {
     TEMPDIR="/litegix/tmp"
     mkdir -p $TEMPDIR
     cd $TEMPDIR
-    wget -O litegix-agent_1.0-1_amd64.deb https://github.com/goldencat-tom/litegix-agent-release/releases/download/v1.4/litegix-agent_1.0-1_amd64.deb
+    wget -O litegix-agent_1.0-1_amd64.deb https://github.com/goldencat-tom/litegix-agent-release/blob/main/litegix-agent_1.0-1_amd64.deb
     dpkg -i litegix-agent_1.0-1_amd64.deb
 
     AGENTDIR="/litegix/litegix-agent"
