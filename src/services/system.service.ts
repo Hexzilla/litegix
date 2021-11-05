@@ -227,7 +227,7 @@ export async function storeDeploymentKey(server: Server, userId: string) {
     throw new Error(`Agent error ${res.error}`)
   }
 
-  user.deploymentKey = res.publicKey
+  user.deploymentKey = res.pubKey
   await user.save()
 
   const message = `Created new deployment key for system user ${user.name}`
@@ -235,7 +235,7 @@ export async function storeDeploymentKey(server: Server, userId: string) {
 
   return {
     success: true,
-    data: { key: res.publicKey },
+    data: { key: res.pubKey },
   }
 }
 
