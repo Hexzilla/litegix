@@ -1,17 +1,25 @@
 import { body } from 'express-validator'
 import { Router, Request, Response } from 'express'
 import validate from 'routes/validate'
+import errorMessage from 'routes/errors'
 import auth from '../auth'
 import * as systemService from 'services/system.service'
 const router = Router()
+
+const catchError = function (res: Response, e: any) {
+  console.error(e)
+  return res.status(501).json({
+    success: false,
+    errors: errorMessage(e),
+  })
+}
 
 router.get('/', auth.required, async function (req: Request, res: Response) {
   try {
     const response = await systemService.getServerSSHKeys(req.server)
     return res.json(response)
   } catch (e) {
-    console.error(e)
-    return res.status(501).json({ success: false })
+    return catchError(res, e)
   }
 })
 
@@ -25,8 +33,7 @@ router.get(
       const response = await systemService.createServerSSHKey(req.server)
       return res.json(response)
     } catch (e) {
-      console.error(e)
-      return res.status(501).json({ success: false })
+      return catchError(res, e)
     }
   }
 )
@@ -46,8 +53,7 @@ router.post(
       )
       return res.json(response)
     } catch (e) {
-      console.error(e)
-      return res.status(501).json({ success: false })
+      return catchError(res, e)
     }
   }
 )
@@ -61,8 +67,7 @@ router.delete(
       const response = await systemService.deleteServerSSHKey(req.server, keyId)
       return res.json(response)
     } catch (e) {
-      console.error(e)
-      return res.status(501).json({ success: false })
+      return catchError(res, e)
     }
   }
 )
