@@ -11,16 +11,23 @@ export interface Wordpress {
   databaseName: string
   tablePrefix: string
 }
-export interface Application extends Document {
+export interface GitRepository {
+  provider: string
+  githost: string
+  repository: string
+  branch: string
+}
+export interface Webapp extends Document {
   name: string
   rootPath: string
   server: Server
   systemUser: SystemUser
   domainType: string
+  git: GitRepository
   wordpress: Wordpress
 }
 
-var ApplicationSchema = new Schema<Application>(
+var WebappSchema = new Schema<Webapp>(
   {
     server: {
       type: Schema.Types.ObjectId,
@@ -119,6 +126,12 @@ var ApplicationSchema = new Schema<Application>(
       databaseName: String,
       tablePrefix: String,
     },
+    git: {
+      provider: String,
+      githost: String,
+      repository: String,
+      branch: String,
+    },
   },
   {
     toJSON: {
@@ -132,4 +145,4 @@ var ApplicationSchema = new Schema<Application>(
   }
 )
 
-export default model<Application>('Application', ApplicationSchema)
+export default model<Webapp>('Webapp', WebappSchema)

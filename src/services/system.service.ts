@@ -309,62 +309,6 @@ export async function getSystemServices(server: Server) {
   }
 }
 
-// export async function changeSystemUserPassword(req: Request, res: Response) {
-//   try {
-//     let errors = valiator.validationResult(req)
-//     if (!errors.isEmpty()) {
-//       return res.status(422).json({ success: false, errors: errors.array() })
-//     }
-
-//     await SystemUserModel.findByIdAndUpdate(
-//       req.body.id,
-//       { $set: { password: req.body.password } },
-//       { upsert: true },
-//       function (err, result) {
-//         if (err) {
-//           return res.status(422).json({
-//             success: false,
-//             errors: err,
-//           })
-//         } else {
-//           res.json({
-//             success: true,
-//             data: result,
-//           })
-//         }
-//       }
-//     )
-
-//     let server = req.server
-//     let user = await SystemUserModel.findById(req.body.id)
-//     if (!user) {
-//       return res.status(422).json({
-//         success: false,
-//         errors: { message: "User isn't exists" },
-//       })
-//     }
-
-//     // errors = await agent.changeSystemUserPassword(user.name, req.body.password)
-//     // if (errors) {
-//     //   return res.status(422).json({
-//     //     success: false,
-//     //     errors: errors
-//     //   })
-//     // }
-
-//     const message = `The password for system user ${user.name} is changed`
-//     await createServerActivityLogInfo(server.id, message)
-
-//     res.json({
-//       success: true,
-//       message: 'Password has been successfully changed.',
-//     })
-//   } catch (e) {
-//     console.error(e)
-//     return res.status(501).json({ success: false })
-//   }
-// }
-
 // export async function getVaultedSSHKeys(req: Request, res: Response) {
 //   try {
 //     const sshKeys = await SSHKey.find({ userId: req.payload.id })

@@ -8,9 +8,9 @@ export interface BasicSSL extends Document {
 
 const BasicSSLSchema = new Schema<BasicSSL>(
   {
-    application: {
+    webapp: {
       type: Schema.Types.ObjectId,
-      ref: 'Application',
+      ref: 'Webapp',
     },
 
     method: { type: String, required: [true, "can't be blank"] },

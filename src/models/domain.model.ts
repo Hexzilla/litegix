@@ -1,10 +1,10 @@
 import { Document, Schema, model } from 'mongoose'
-import { Application } from './application.model'
+import { Webapp } from './webapp.model'
 
 export interface Domain extends Document {
   name: string
   rootPath: string
-  application: Application
+  webapp: Webapp
 }
 
 const DomainSchema = new Schema<Domain>(
@@ -19,9 +19,9 @@ const DomainSchema = new Schema<Domain>(
     wildcard: { type: Boolean, default: false },
     dns_integration: String,
     status: String,
-    application: {
+    webapp: {
       type: Schema.Types.ObjectId,
-      ref: 'Application',
+      ref: 'Webapp',
     },
   },
   {

@@ -1,17 +1,17 @@
 import { Document, Schema, model } from 'mongoose'
-import { Application } from './application.model'
+import { Webapp } from './webapp.model'
 
 export interface PHPScript extends Document {
-  application: Application
+  webapp: Webapp
   name: string
   realName: string
 }
 
 var PHPScriptSchema = new Schema<PHPScript>(
   {
-    application: {
+    webapp: {
       type: Schema.Types.ObjectId,
-      ref: 'Application',
+      ref: 'Webapp',
     },
     name: {
       type: String,

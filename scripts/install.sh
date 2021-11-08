@@ -594,38 +594,22 @@ password=$ROOTPASS
 function install_webapp {
     USER="litegix"
     LITEGIX_PASSWORD=$(get_random_string 64)
+    USERGROUP="litegixes"
     HOMEDIR="/home/$USER/"
-    groupadd users-lg
+    groupadd $USERGROUP
     adduser --disabled-password --gecos "" $USER
-    usermod -a -G users-lg $USER
+    usermod -a -G $USERGROUP $USER
 
     echo "$USER:$LITEGIX_PASSWORD" | chpasswd
     chmod 755 /home
     mkdir -p $HOMEDIR/logs/{nginx,apache2,fpm}
 
     # FACL
-    setfacl -m g:users-lg:x /home
-    setfacl -Rm g:users-lg:- /home/$USER
-    setfacl -Rm g:users-lg:- /etc/mysql
-    setfacl -Rm g:users-lg:- /var/log
+    setfacl -m g:$USERGROUP:x /home
+    setfacl -Rm g:$USERGROUP:- /home/$USER
+    setfacl -Rm g:$USERGROUP:- /etc/mysql
+    setfacl -Rm g:$USERGROUP:- /var/log
     setfacl -Rm g:$USER:rx /home/$USER/logs
-
-    mkdir -p /opt/litegix/{.ssh,letsencrypt}
-
-    ############################# TODO
-    echo "-----BEGIN DH PARAMETERS-----
-MIICCAKCAgEAzZmGWVJjBWNtfh1Q4MrxFJ5uwTM6xkllSewPOdMq5BYmXOFAhYMr
-vhbig5AJHDexbl/VFp64S6JaokQRbTtiibBfHV92LCK9hVRJ2eB7Wlg6t5+YYjKc
-QiNxQ/uvSG3eqmAAr39V3oUWxeyCj/b1WdUVkDuKdJyHevDgfaoyFl7JHymxwvrn
-HR9/x7lH5o2Uhl60uYaZxlhzbbrqMU/ygx9JCj6trL5C5pv9hpH+2uJdvkp/2NJj
-BJCwiHmLMlfqXA3H8/T7L0vn/QLk1JUmqQeGdvZFqEmCe//LAT8llGofawtOUUwT
-v65K1Ovagt7R9iu+nOFIh6XPsLVLemq2HFy+amk+Ti4UZ+EJxvO+s84LxSvAqjsk
-clEE2v+AlIbe8Hjo6YzubXtqSrFLD049kxocPdQXqbDbvlI6br1UjYgWl08upKSZ
-fIwCFFsqwE4y7zRg1VY7MKc0z6MCBU7om/gI4xlPSSBxAP1fN9hv6MbSV/LEvWxs
-pFyShqTqefToDKiegPpqBs8LAsOtuH78eSm18SgKYpVPL1ph0VhhbphbsmKxmqaU
-+EP6bSOc2tTwCMPWySQslHN4TdbsiQJE/gJuVeaCLM1+u4sd0rU9NQblThPuOILp
-v03VfaTd1dUF1HmcqJSl/DYeeBVYjT8GtAKWI5JrvCKDIPvOB98xMysCAQI=
------END DH PARAMETERS-----" > /etc/litegix/nginx/dhparam.pem
 }
 
 function install_agent {

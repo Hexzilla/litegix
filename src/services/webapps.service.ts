@@ -1,6 +1,6 @@
 import { randomBytes } from 'crypto'
 import { model } from 'mongoose'
-import { Server, Application, SystemUser } from 'models'
+import { Server, Webapp, GitRepository, SystemUser } from 'models'
 import * as activitySvc from 'services/activity.service'
 import * as agentSvc from 'services/agent.service'
 import {
@@ -9,7 +9,7 @@ import {
   web_environments,
   web_ssl_methods,
 } from './constants'
-const ApplicationModel = model<Application>('Application')
+const WebappModel = model<Webapp>('Webapp')
 const SystemUserModel = model<SystemUser>('SystemUser')
 
 const getDomainSuffix = function () {
@@ -20,7 +20,7 @@ const getDomainSuffix = function () {
 }
 
 export async function getWebApplications(server: Server) {
-  const apps = await ApplicationModel.find({ server })
+  const apps = await WebappModel.find({ server })
   return {
     success: true,
     data: {
@@ -52,7 +52,7 @@ export async function createCustomWebApplication(server: Server) {
 /**
  */
 export async function storeCustomWebApplication(server: Server, payload: any) {
-  const exists = await ApplicationModel.findOne({
+  const exists = await WebappModel.findOne({
     server: server,
     name: payload.name,
   })
@@ -139,8 +139,8 @@ export async function storeCustomWebApplication(server: Server, payload: any) {
     rediraction: payload.domain_rediraction,
   }*/
 
-  const application = new ApplicationModel(data)
-  await application.save()
+  const webapp = new WebappModel(data)
+  await webapp.save()
 
   /**let domain = new Domains(domain_data)
   domain.applicationId = application.id
@@ -151,7 +151,7 @@ export async function storeCustomWebApplication(server: Server, payload: any) {
 
   return {
     success: true,
-    data: { application },
+    data: { application: webapp },
   }
 }
 
@@ -178,7 +178,7 @@ export async function createWordpressApplication(server: Server) {
 /**
  */
 export async function storeWordpressApplication(server: Server, payload: any) {
-  const exists = await ApplicationModel.findOne({
+  const exists = await WebappModel.findOne({
     server: server,
     name: payload.name,
   })
@@ -213,8 +213,8 @@ export async function storeWordpressApplication(server: Server, payload: any) {
     systemUser: systemUser,
   }
 
-  const application = new ApplicationModel(data)
-  await application.save()
+  const webapp = new WebappModel(data)
+  await webapp.save()
 
   /**let domain = new Domains(domain_data)
   domain.applicationId = application.id
@@ -225,7 +225,7 @@ export async function storeWordpressApplication(server: Server, payload: any) {
 
   return {
     success: true,
-    data: { application },
+    data: { application: webapp },
   }
 }
 
@@ -251,7 +251,7 @@ export async function createPhpMyAdmin(server: Server) {
 /**
  */
 export async function storePhpMyAdmin(server: Server, payload: any) {
-  const exists = await ApplicationModel.findOne({
+  const exists = await WebappModel.findOne({
     server: server,
     name: payload.name,
   })
@@ -286,8 +286,8 @@ export async function storePhpMyAdmin(server: Server, payload: any) {
     systemUser: systemUser,
   }
 
-  const application = new ApplicationModel(data)
-  await application.save()
+  const webapp = new WebappModel(data)
+  await webapp.save()
 
   /**let domain = new Domains(domain_data)
   domain.applicationId = application.id
@@ -298,6 +298,63 @@ export async function storePhpMyAdmin(server: Server, payload: any) {
 
   return {
     success: true,
-    data: { application },
+    data: { application: webapp },
+  }
+}
+
+/**
+ */
+export async function storeGitRepository(
+  server: Server,
+  webappId: string,
+  payload: any
+) {
+  const webapp = await WebappModel.findById(webappId)
+  if (!webapp) {
+    throw new Error('The app does not exists.')
+  }
+
+  let githost = ''
+  const provider = payload.provider
+  if (provider == 'github') {
+    githost = 'github.com'
+  } else if (provider == 'gitlab') {
+    githost = 'gitlab.com'
+  } else if (provider == 'bitbucket') {
+    githost = 'bitbucket.org'
+  } else if (provider == 'custom') {
+    if (!payload.githost) {
+      throw new Error('Invalid Git Host.')
+    }
+    if (!payload.gituser) {
+      throw new Error('Invalid Git User.')
+    }
+    githost = payload.githost
+  }
+
+  const data = {
+    ...payload,
+    webapp: webapp.name,
+    githost,
+  }
+  const res = await agentSvc.createGitRepository(server.address, data)
+  if (res.error != 0) {
+    throw new Error(`Agent error ${res.error}`)
+  }
+
+  webapp.git = {
+    provider: payload.provider,
+    githost: githost,
+    repository: payload.repository,
+    branch: payload.branch,
+  }
+  await webapp.save()
+
+  const message = `Added git repository to web application ${webapp.name}`
+  await activitySvc.createServerActivityLogInfo(server, message)
+
+  return {
+    success: true,
+    data: { id: webappId },
   }
 }

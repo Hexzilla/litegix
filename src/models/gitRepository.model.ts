@@ -8,9 +8,9 @@ export interface GitRepository extends Document {
 
 const GitRepositorySchema = new Schema<GitRepository>(
   {
-    application: {
+    webapp: {
       type: Schema.Types.ObjectId,
-      ref: 'Application',
+      ref: 'Webapp',
     },
     provider: {
       type: String,

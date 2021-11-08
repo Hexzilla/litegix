@@ -1,12 +1,12 @@
 import { Document, Schema, model } from 'mongoose'
-import { Application } from './application.model'
+import { Webapp } from './webapp.model'
 import { Domain } from './domain.model'
 
 export interface AdvancedSSL extends Document {
   method: string
   enableHttp: boolean
   enableHsts: boolean
-  application: Application
+  webapp: Webapp
   domain: Domain
 }
 
@@ -47,9 +47,9 @@ const AdvancedSSLSchema = new Schema<AdvancedSSL>(
     city: String,
     state: String,
     country: String,
-    application: {
+    webapp: {
       type: Schema.Types.ObjectId,
-      ref: 'Application',
+      ref: 'Webapp',
     },
     domain: {
       type: Schema.Types.ObjectId,

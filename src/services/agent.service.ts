@@ -248,9 +248,8 @@ export async function changeSystemUserPassword(
       return { error: 0 }
     }
     const res = await axios.put(
-      `http://${address}:21000/system/user/password/change`,
+      `http://${address}:21000/system/user/${name}/changepwd`,
       {
-        name,
         password,
       }
     )
@@ -394,4 +393,18 @@ export async function deleteSupervisorJob(address: string, name: string) {
 
 export async function rebuildCronJob() {
   return null
+}
+
+export async function createGitRepository(address: string, payload: any) {
+  try {
+    if (process.env.NODE_ENV !== 'production') {
+      return { error: 0 }
+    }
+    const res = await axios.post(`http://${address}:21000/webapp/git`, payload)
+    console.log('createGitRepository', res.data)
+    return res.data
+  } catch (e) {
+    console.log(e)
+    return { error: -1 }
+  }
 }
