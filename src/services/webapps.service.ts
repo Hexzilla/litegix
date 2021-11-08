@@ -1,6 +1,6 @@
 import { randomBytes } from 'crypto'
 import { model } from 'mongoose'
-import { Server, Webapp, GitRepository, SystemUser } from 'models'
+import { Server, Webapp, SystemUser } from 'models'
 import * as activitySvc from 'services/activity.service'
 import * as agentSvc from 'services/agent.service'
 import {
@@ -269,11 +269,11 @@ export async function storePhpMyAdmin(server: Server, payload: any) {
   if (payload.domainType == 'litegix') {
     domainName = `${payload.domainName}${payload.domainSuffix}`
   }
-  const postData = {
+
+  const res = await agentSvc.createPhpMyAdmin(server.address, {
     ...payload,
     domainName,
-  }
-  const res = await agentSvc.createPhpMyAdmin(server.address, postData)
+  })
   if (res.error != 0) {
     throw new Error(`Agent error ${res.error}`)
   }
@@ -332,12 +332,11 @@ export async function storeGitRepository(
     githost = payload.githost
   }
 
-  const data = {
+  const res = await agentSvc.createGitRepository(server.address, {
     ...payload,
     webapp: webapp.name,
     githost,
-  }
-  const res = await agentSvc.createGitRepository(server.address, data)
+  })
   if (res.error != 0) {
     throw new Error(`Agent error ${res.error}`)
   }
@@ -356,5 +355,30 @@ export async function storeGitRepository(
   return {
     success: true,
     data: { id: webappId },
+  }
+}
+
+/**
+ */
+export async function getFileList(
+  server: Server,
+  webappId: string,
+  folder: string
+) {
+  const webapp = await WebappModel.findById(webappId)
+  if (!webapp) {
+    throw new Error('The app does not exists.')
+  }
+
+  const res = await agentSvc.getFileList(server.address, webapp.name, folder)
+  if (res.error != 0) {
+    throw new Error(`Agent error ${res.error}`)
+  }
+
+  return {
+    success: true,
+    data: {
+      files: res.files,
+    },
   }
 }

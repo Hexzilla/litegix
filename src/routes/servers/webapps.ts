@@ -132,6 +132,22 @@ router.post(
   }
 )
 
+router.get(
+  '/:webappId/filemanager/list/:folder',
+  async function (req: Request, res: Response) {
+    try {
+      const response = await webappService.getFileList(
+        req.server,
+        req.params.webappId,
+        req.params.folder
+      )
+      return res.json(response)
+    } catch (e) {
+      return catchError(res, e)
+    }
+  }
+)
+
 // router.post(
 //   '/store/custom',
 //   auth.required,
