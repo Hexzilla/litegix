@@ -304,11 +304,7 @@ export async function storePhpMyAdmin(server: Server, payload: any) {
 
 /**
  */
-export async function storeGitRepository(
-  server: Server,
-  webappId: string,
-  payload: any
-) {
+export async function storeGitRepository(server: Server, webappId: string, payload: any) {
   const webapp = await WebappModel.findById(webappId)
   if (!webapp) {
     throw new Error('The app does not exists.')
@@ -360,11 +356,7 @@ export async function storeGitRepository(
 
 /**
  */
-export async function getFileList(
-  server: Server,
-  webappId: string,
-  folder: string
-) {
+export async function getFileList(server: Server, webappId: string, folder: string) {
   const webapp = await WebappModel.findById(webappId)
   if (!webapp) {
     throw new Error('The app does not exists.')
@@ -380,5 +372,77 @@ export async function getFileList(
     data: {
       files: res.files,
     },
+  }
+}
+
+/**
+ */
+export async function createFile(server: Server, webappId: string, fileName: string) {
+  const webapp = await WebappModel.findById(webappId)
+  if (!webapp) {
+    throw new Error('The app does not exists.')
+  }
+
+  const res = await agentSvc.createFile(server.address, webapp.name, fileName)
+  if (res.error != 0) {
+    throw new Error(`Agent error ${res.error}`)
+  }
+
+  return {
+    success: true,
+  }
+}
+
+/**
+ */
+export async function createFolder(server: Server, webappId: string, fileName: string) {
+  const webapp = await WebappModel.findById(webappId)
+  if (!webapp) {
+    throw new Error('The app does not exists.')
+  }
+
+  const res = await agentSvc.createFolder(server.address, webapp.name, fileName)
+  if (res.error != 0) {
+    throw new Error(`Agent error ${res.error}`)
+  }
+
+  return {
+    success: true,
+  }
+}
+
+/**
+ */
+export async function changeFileName(server: Server, webappId: string, oldname: string, newname: string) {
+  const webapp = await WebappModel.findById(webappId)
+  if (!webapp) {
+    throw new Error('The app does not exists.')
+  }
+
+  const res = await agentSvc.changeFileName(server.address, webapp.name, oldname, newname)
+  if (res.error != 0) {
+    throw new Error(`Agent error ${res.error}`)
+  }
+
+  return {
+    success: true,
+  }
+}
+
+/**
+ */
+export async function changeFilePermission(server: Server, webappId: string, permission: string) {
+  const webapp = await WebappModel.findById(webappId)
+  if (!webapp) {
+    throw new Error('The app does not exists.')
+  }
+
+  const res = await agentSvc.changeFilePermission(server.address, webapp.name, permission)
+  if (res.error != 0) {
+    throw new Error(`Agent error ${res.error}`)
+  }
+
+  return {
+    success: true,
   }
 }

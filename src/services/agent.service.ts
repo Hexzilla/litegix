@@ -87,11 +87,7 @@ export async function deleteDatabaseUser(address: string, name: string) {
   }
 }
 
-export async function grantDatabaseUser(
-  address: string,
-  database: string,
-  userName: string
-) {
+export async function grantDatabaseUser(address: string, database: string, userName: string) {
   try {
     if (process.env.NODE_ENV !== 'production') {
       return { error: 0 }
@@ -111,11 +107,7 @@ export async function grantDatabaseUser(
   }
 }
 
-export async function removeDatabaseUserGrant(
-  address: string,
-  database: string,
-  userName: string
-) {
+export async function removeDatabaseUserGrant(address: string, database: string, userName: string) {
   try {
     if (process.env.NODE_ENV !== 'production') {
       return { error: 0 }
@@ -238,11 +230,7 @@ export async function deleteSystemUser(address: string, name: string) {
   }
 }
 
-export async function changeSystemUserPassword(
-  address: string,
-  name: string,
-  password: string
-) {
+export async function changeSystemUserPassword(address: string, name: string, password: string) {
   try {
     if (process.env.NODE_ENV !== 'production') {
       return { error: 0 }
@@ -261,11 +249,7 @@ export async function changeSystemUserPassword(
   }
 }
 
-export async function createSSHKey(
-  address: string,
-  userName: string,
-  pubKey: string
-) {
+export async function createSSHKey(address: string, userName: string, pubKey: string) {
   try {
     if (process.env.NODE_ENV !== 'production') {
       return { error: 0 }
@@ -282,11 +266,7 @@ export async function createSSHKey(
   }
 }
 
-export async function deleteSSHKey(
-  address: string,
-  usreName: string,
-  pubKey: string
-) {
+export async function deleteSSHKey(address: string, usreName: string, pubKey: string) {
   try {
     if (process.env.NODE_ENV !== 'production') {
       return { error: 0 }
@@ -409,23 +389,86 @@ export async function createGitRepository(address: string, payload: any) {
   }
 }
 
-export async function getFileList(
-  address: string,
-  webapp: string,
-  folder: string
-) {
+export async function getFileList(address: string, webapp: string, folder: string) {
+  try {
+    if (process.env.NODE_ENV !== 'production') {
+      return { error: 0 }
+    }
+    const res = await axios.get(
+      `http://${address}:21000/webapp/${webapp}/filemanager/list/${folder}`
+    )
+    console.log('getFileList', res.data)
+    return res.data
+  } catch (e) {
+    console.log(e)
+    return { error: -1 }
+  }
+}
+
+export async function createFile(address: string, webapp: string, fileName: string) {
+  try {
+    if (process.env.NODE_ENV !== 'production') {
+      return { error: 0 }
+    }
+    const res = await axios.get(
+      `http://${address}:21000/webapp/${webapp}/filemanager/create/file/${fileName}`
+    )
+    console.log('createFile', res.data)
+    return res.data
+  } catch (e) {
+    console.log(e)
+    return { error: -1 }
+  }
+}
+
+export async function createFolder(address: string, webapp: string, folderName: string) {
+  try {
+    if (process.env.NODE_ENV !== 'production') {
+      return { error: 0 }
+    }
+    const res = await axios.get(
+      `http://${address}:21000/webapp/${webapp}/filemanager/create/folder/${folderName}`
+    )
+    console.log('createFolder', res.data)
+    return res.data
+  } catch (e) {
+    console.log(e)
+    return { error: -1 }
+  }
+}
+
+export async function changeFileName(address: string, webapp: string, oldname: string, newname: string) {
   try {
     if (process.env.NODE_ENV !== 'production') {
       return { error: 0 }
     }
     const res = await axios.post(
-      `http://${address}:21000/webapp/filemanager/list`,
+      `http://${address}:21000/webapp/${webapp}/filemanager/changename`,
       {
-        webapp,
-        folder,
+        oldname,
+        newname,
       }
     )
-    console.log('getFileList', res.data)
+    console.log('changeFileName', res.data)
+    return res.data
+  } catch (e) {
+    console.log(e)
+    return { error: -1 }
+  }
+}
+
+export async function changeFilePermission(address: string, webapp: string, permission: string) {
+  try {
+    if (process.env.NODE_ENV !== 'production') {
+      return { error: 0 }
+    }
+    const res = await axios.post(
+      `http://${address}:21000/webapp/${webapp}/filemanager/change_permission`,
+      {
+        permission,
+      }
+    )
+    console.log('changeFilePermission', res.data)
     return res.data
   } catch (e) {
     console.log(e)

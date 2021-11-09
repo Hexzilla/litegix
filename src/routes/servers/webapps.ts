@@ -148,6 +148,76 @@ router.get(
   }
 )
 
+router.get(
+  '/:webappId/filemanager/create/file/:name',
+  async function (req: Request, res: Response) {
+    try {
+      const response = await webappService.createFile(
+        req.server,
+        req.params.webappId,
+        req.params.name
+      )
+      return res.json(response)
+    } catch (e) {
+      return catchError(res, e)
+    }
+  }
+)
+
+router.get(
+  '/:webappId/filemanager/create/folder/:name',
+  async function (req: Request, res: Response) {
+    try {
+      const response = await webappService.createFolder(
+        req.server,
+        req.params.webappId,
+        req.params.name
+      )
+      return res.json(response)
+    } catch (e) {
+      return catchError(res, e)
+    }
+  }
+)
+
+router.post(
+  '/:webappId/filemanager/changename',
+  body('oldname').isString(),
+  body('newname').isString(),
+  validate,
+  async function (req: Request, res: Response) {
+    try {
+      const response = await webappService.changeFileName(
+        req.server,
+        req.params.webappId,
+        req.body.oldname,
+        req.body.newname
+      )
+      return res.json(response)
+    } catch (e) {
+      return catchError(res, e)
+    }
+  }
+)
+
+router.post(
+  '/:webappId/filemanager/change_permission',
+  body('permission').isString(),
+  validate,
+  async function (req: Request, res: Response) {
+    try {
+      const response = await webappService.changeFilePermission(
+        req.server,
+        req.params.webappId,
+        req.body.permission,
+      )
+      return res.json(response)
+    } catch (e) {
+      return catchError(res, e)
+    }
+  }
+)
+
 // router.post(
 //   '/store/custom',
 //   auth.required,

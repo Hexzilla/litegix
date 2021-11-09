@@ -136,6 +136,7 @@ var WebappSchema = new Schema<Webapp>(
   {
     toJSON: {
       transform: function (doc, ret) {
+        ret.id = ret._id
         delete ret._id
         delete ret.server
         delete ret.__v
