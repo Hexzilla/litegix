@@ -20,12 +20,25 @@ const getDomainSuffix = function () {
 }
 
 export async function getWebApplications(server: Server) {
-  const apps = await WebappModel.find({ server })
+  const apps = await WebappModel.find({ server }).populate('owner')
   return {
     success: true,
     data: {
-      apps,
+      apps: apps.map(it => {
+        return {
+          ...it.toJSON(),
+          owner: it.owner.name
+        }
+      }),
     },
+  }
+}
+
+export async function findWebappById(id: string) {
+  const webapp = await WebappModel.findById(id)
+  return {
+    success: true,
+    data: { webapp, },
   }
 }
 
@@ -84,7 +97,7 @@ export async function storeCustomWebApplication(server: Server, payload: any) {
     domainName,
     webType: 'custom',
     server: server,
-    systemUser: systemUser,
+    owner: systemUser,
     publicPath: `/home/${systemUser.name}/webapps/${payload.suffixName}`,
   }
   /*const data = {
@@ -210,7 +223,7 @@ export async function storeWordpressApplication(server: Server, payload: any) {
     domainName,
     webType: 'wordpress',
     server: server,
-    systemUser: systemUser,
+    owner: systemUser,
   }
 
   const webapp = new WebappModel(data)
@@ -283,7 +296,7 @@ export async function storePhpMyAdmin(server: Server, payload: any) {
     domainName,
     webType: 'phpmyadmin',
     server: server,
-    systemUser: systemUser,
+    owner: systemUser,
   }
 
   const webapp = new WebappModel(data)

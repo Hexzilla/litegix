@@ -23,6 +23,15 @@ router.get('/', auth.required, async function (req: Request, res: Response) {
   }
 })
 
+router.get('/:webappId', auth.required, async function (req: Request, res: Response) {
+  try {
+    const response = await webappService.findWebappById(req.params.webappId)
+    return res.json(response)
+  } catch (e) {
+    return catchError(res, e)
+  }
+})
+
 router.get(
   '/custom',
   auth.required,
@@ -113,7 +122,7 @@ router.post(
 )
 
 router.post(
-  '/:webappId/git',
+  '/:webappId/deploy',
   body('provider').isString(),
   body('repository').isString(),
   body('branch').isString(),

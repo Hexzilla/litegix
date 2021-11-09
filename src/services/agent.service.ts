@@ -380,7 +380,7 @@ export async function createGitRepository(address: string, payload: any) {
     if (process.env.NODE_ENV !== 'production') {
       return { error: 0 }
     }
-    const res = await axios.post(`http://${address}:21000/webapp/git`, payload)
+    const res = await axios.post(`http://${address}:21000/webapp/deploy`, payload)
     console.log('createGitRepository', res.data)
     return res.data
   } catch (e) {

@@ -21,7 +21,7 @@ export interface Webapp extends Document {
   name: string
   rootPath: string
   server: Server
-  systemUser: SystemUser
+  owner: SystemUser
   domainType: string
   git: GitRepository
   wordpress: Wordpress
@@ -33,7 +33,7 @@ var WebappSchema = new Schema<Webapp>(
       type: Schema.Types.ObjectId,
       ref: 'Server',
     },
-    systemUser: {
+    owner: {
       type: Schema.Types.ObjectId,
       ref: 'SystemUser',
     },
