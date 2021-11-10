@@ -90,11 +90,11 @@ const ServerSchema = new Schema<Server>(
   },
   {
     timestamps: true,
-    autoIndex: false,
   }
 )
 
-ServerSchema.index({ name: 1, type: -1 }) // schema level
+ServerSchema.index({ user: 1, name: 1 }, { unique: true });
+ServerSchema.index({ user: 1, address: 1 }, { unique: true });
 
 ServerSchema.methods.toSummaryJSON = function () {
   return {

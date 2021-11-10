@@ -690,7 +690,7 @@ function setup_firewall {
 }
 
 function install_composer {
-    ln -s  /usr/bin/$PHP_CLI_VERSION /etc/alternatives/php
+    ln -sf /usr/bin/$PHP_CLI_VERSION /etc/alternatives/php
 
     source /etc/profile.d/litegixpath.sh
     wget -4 https://getcomposer.org/installer -O composer-setup.php

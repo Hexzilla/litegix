@@ -155,35 +155,23 @@ export async function storeServer(
 ) {
   const user = await UserModel.findById(userId)
   if (!user) {
-    return {
-      success: false,
-      errors: { message: 'Invalid user' },
-    }
+    throw new Error('Invalid user')
   }
 
   const searchByAddress = await ServerModel.findOne({
+    user: user,
     address: data.address,
   })
   if (searchByAddress) {
-    return {
-      success: false,
-      errors: {
-        message: 'Server address has already been taken.',
-      },
-    }
+    throw new Error('Server address has already been taken.')
   }
 
   const searchByName = await ServerModel.findOne({
+    user: user,
     name: data.name,
-    userId: userId,
   })
   if (searchByName) {
-    return {
-      success: false,
-      errors: {
-        message: 'Server name has already been taken.',
-      },
-    }
+    throw new Error('Server name has already been taken.')
   }
 
   const server = new ServerModel({
