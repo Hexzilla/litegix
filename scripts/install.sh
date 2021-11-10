@@ -88,7 +88,7 @@ function bootstrap {
     echo "bootstrap"
     apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y
     apt-get install software-properties-common apt-transport-https -y
-    add-apt-repository ppa:ondrej/php
+    LC_ALL=en_US.UTF-8 add-apt-repository ppa:ondrej/php -y
 
     # install nodejs
     curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
