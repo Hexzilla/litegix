@@ -97,27 +97,32 @@ function bootstrap {
     if [[ "$OS_CODE_NAME" == 'xenial' ]]; then
         echo -e "bootstrap_installer_add_packages_1"
         PIPEXEC="pip"
-        INSTALL_PACKAGE+="libmysqlclient20 python-pip php55 php55-essentials php56 php56-essentials php70 php70-essentials php71 php71-essentials php72 php72-essentials php73 php73-essentials php74 php74-essentials php80 php80-essentials"
+        INSTALL_PACKAGE+="libmysqlclient20 python-pip "
+        INSTALL_PACKAGE+="php5.5-bcmath php5.5-bz2 php5.5-intl php5.5-gd php5.5-mbstring php5.5-mysql php5.5-zip php5.5-common php5.5-fpm "
+        INSTALL_PACKAGE+="php5.6-bcmath php5.6-bz2 php5.6-intl php5.6-gd php5.6-mbstring php5.6-mysql php5.6-zip php5.6-common php5.6-fpm "
+        INSTALL_PACKAGE+="php7.0-bcmath php7.0-bz2 php7.0-intl php7.0-gd php7.0-mbstring php7.0-mysql php7.0-zip php7.0-common php7.0-fpm "
+        INSTALL_PACKAGE+="php7.1-bcmath php7.1-bz2 php7.1-intl php7.1-gd php7.1-mbstring php7.1-mysql php7.1-zip php7.1-common php7.1-fpm "
 
     # Ubuntu 18.04
     elif [[ "$OS_CODE_NAME" == 'bionic' ]]; then
         echo -e "bootstrap_installer_add_packages_2"
         PIPEXEC="pip"
-        INSTALL_PACKAGE+="libmysqlclient20 python-pip php70 php70-essentials php71 php71-essentials php72 php72-essentials php73 php73-essentials php74 php74-essentials php80 php80-essentials"
+        INSTALL_PACKAGE+="libmysqlclient20 python-pip "
+        INSTALL_PACKAGE+="php7.0-bcmath php7.0-bz2 php7.0-intl php7.0-gd php7.0-mbstring php7.0-mysql php7.0-zip php7.0-common php7.0-fpm "
+        INSTALL_PACKAGE+="php7.1-bcmath php7.1-bz2 php7.1-intl php7.1-gd php7.1-mbstring php7.1-mysql php7.1-zip php7.1-common php7.1-fpm "
 
     # Ubuntu 20.04
     elif [[ "$OS_CODE_NAME" == 'focal' ]]; then
         echo -e "bootstrap_installer_add_packages_3"
         PIPEXEC="pip3"
-        #INSTALL_PACKAGE+="libmysqlclient21 python3-pip php72 php72-essentials php73 php73-essentials php74 php74-essentials php80 php80-essentials dirmngr gnupg libmagic-dev"
-        INSTALL_PACKAGE+="libmysqlclient21 python3-pip "
-        INSTALL_PACKAGE+="php7.2-{bcmath,bz2,intl,gd,mbstring,mysql,zip,common,fpm} "
-        INSTALL_PACKAGE+="php7.3-{bcmath,bz2,intl,gd,mbstring,mysql,zip,common,fpm} "
-        INSTALL_PACKAGE+="php8.0-{bcmath,bz2,intl,gd,mbstring,mysql,zip,common,fpm} "
-        INSTALL_PACKAGE+="php7.4-{bcmath,bz2,intl,gd,mbstring,mysql,zip,common,fpm} "
-        INSTALL_PACKAGE+="dirmngr gnupg libmagic-dev "
-        echo -e $INSTALL_PACKAGE
+        INSTALL_PACKAGE+="libmysqlclient21 python3-pip dirmngr gnupg libmagic-dev "
     fi
+    
+    INSTALL_PACKAGE+="php7.2-bcmath php7.2-bz2 php7.2-intl php7.2-gd php7.2-mbstring php7.2-mysql php7.2-zip php7.2-common php7.2-fpm "
+    INSTALL_PACKAGE+="php7.3-bcmath php7.3-bz2 php7.3-intl php7.3-gd php7.3-mbstring php7.3-mysql php7.3-zip php7.3-common php7.3-fpm "
+    INSTALL_PACKAGE+="php7.4-bcmath php7.4-bz2 php7.4-intl php7.4-gd php7.4-mbstring php7.4-mysql php7.4-zip php7.4-common php7.4-fpm "
+    INSTALL_PACKAGE+="php8.0-bcmath php8.0-bz2 php8.0-intl php8.0-gd php8.0-mbstring php8.0-mysql php8.0-zip php8.0-common php8.0-fpm "
+    echo -e $INSTALL_PACKAGE
 }
 
 function enable_swap {
