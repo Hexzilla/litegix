@@ -88,22 +88,35 @@ function bootstrap {
     echo "bootstrap"
     apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y
     apt-get install software-properties-common apt-transport-https -y
-    
+    add-apt-repository ppa:ondrej/php
+
     # install nodejs
     curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
 
+    # Ubuntu 16.04
     if [[ "$OS_CODE_NAME" == 'xenial' ]]; then
-        echo "bootstrap_installer_add_packages"
+        echo -e "bootstrap_installer_add_packages_1"
         PIPEXEC="pip"
         INSTALL_PACKAGE+="libmysqlclient20 python-pip php55 php55-essentials php56 php56-essentials php70 php70-essentials php71 php71-essentials php72 php72-essentials php73 php73-essentials php74 php74-essentials php80 php80-essentials"
 
+    # Ubuntu 18.04
     elif [[ "$OS_CODE_NAME" == 'bionic' ]]; then
+        echo -e "bootstrap_installer_add_packages_2"
         PIPEXEC="pip"
         INSTALL_PACKAGE+="libmysqlclient20 python-pip php70 php70-essentials php71 php71-essentials php72 php72-essentials php73 php73-essentials php74 php74-essentials php80 php80-essentials"
 
+    # Ubuntu 20.04
     elif [[ "$OS_CODE_NAME" == 'focal' ]]; then
+        echo -e "bootstrap_installer_add_packages_3"
         PIPEXEC="pip3"
-        INSTALL_PACKAGE+="libmysqlclient21 python3-pip php72 php72-essentials php73 php73-essentials php74 php74-essentials php80 php80-essentials dirmngr gnupg libmagic-dev"
+        #INSTALL_PACKAGE+="libmysqlclient21 python3-pip php72 php72-essentials php73 php73-essentials php74 php74-essentials php80 php80-essentials dirmngr gnupg libmagic-dev"
+        INSTALL_PACKAGE+="libmysqlclient21 python3-pip "
+        INSTALL_PACKAGE+="php7.2-{bcmath,bz2,intl,gd,mbstring,mysql,zip,common,fpm} "
+        INSTALL_PACKAGE+="php7.3-{bcmath,bz2,intl,gd,mbstring,mysql,zip,common,fpm} "
+        INSTALL_PACKAGE+="php8.0-{bcmath,bz2,intl,gd,mbstring,mysql,zip,common,fpm} "
+        INSTALL_PACKAGE+="php7.4-{bcmath,bz2,intl,gd,mbstring,mysql,zip,common,fpm} "
+        INSTALL_PACKAGE+="dirmngr gnupg libmagic-dev "
+        echo -e $INSTALL_PACKAGE
     fi
 }
 
