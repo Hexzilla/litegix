@@ -7,13 +7,24 @@ const router = Router()
 
 router.get('/', auth.required, async function (req: Request, res: Response) {
   try {
-    const response = await serverSvc.getServers(req.payload.id)
-    return res.json(response)
+    const ret = await serverSvc.getServers(req.payload.id)
+    return res.json(ret)
   } catch (e) {
     console.error(e)
     return res.status(501).json({ success: false })
   }
 })
+
+router.get('/create', async function (req: Request, res: Response) {
+    try {
+      const ret = await serverSvc.createServer()
+      return res.json(ret)
+    } catch (e) {
+      console.error(e)
+      return res.status(501).json({ success: false })
+    }
+  }
+)
 
 router.post(
   '/',
@@ -26,8 +37,8 @@ router.post(
   validate,
   async function (req: Request, res: Response) {
     try {
-      const response = await serverSvc.storeServer(req.payload.id, req.body)
-      return res.json(response)
+      const ret = await serverSvc.storeServer(req.payload.id, req.body)
+      return res.json(ret)
     } catch (e) {
       console.error(e)
       return res.status(501).json({ success: false })

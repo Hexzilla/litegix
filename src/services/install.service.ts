@@ -44,7 +44,6 @@ export async function getAgentInstallScript(encryptedToken: string) {
     throw Error('Invalid Token')
   }
 
-  const phpVersion = server.phpVersion.replace('php5', 'php5.').replace('php7', 'php7.').replace('php8', 'php8.');
   const filePath = path.join(__dirname, '../../scripts/install.sh')
   const text = await readFile(filePath, 'utf8')
   return text
@@ -54,7 +53,7 @@ export async function getAgentInstallScript(encryptedToken: string) {
     .replace('SERVERKEY=""', `SERVERKEY=\"${server.securityKey}\"`)
     .replace('WEBSERVER=""', `WEBSERVER=\"${server.webserver}\"`)
     .replace('DATABASE=""', `DATABASE=\"${server.database}\"`)
-    .replace('PHP_CLI_VERSION=""', `PHP_CLI_VERSION=\"${phpVersion}\"`)
+    .replace('PHP_CLI_VERSION=""', `PHP_CLI_VERSION=\"${server.phpVersion}\"`)
 }
 
 export async function getInstallState(server: Server) {

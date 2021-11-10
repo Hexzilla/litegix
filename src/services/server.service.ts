@@ -1,6 +1,7 @@
 import randomstring from 'randomstring'
 import { model } from 'mongoose'
 import { User, Server } from 'models'
+import { webservers, php_versions, databases } from './constants'
 const UserModel = model<User>('User')
 const ServerModel = model<Server>('Server')
 import * as activitySvc from 'services/activity.service'
@@ -127,6 +128,17 @@ export async function getServers(userId: string) {
           database: it.database,
         }
       }),
+    },
+  }
+}
+
+export async function createServer() {
+  return {
+    success: true,
+    data: {
+      webservers,
+      php_versions,      
+      databases,
     },
   }
 }

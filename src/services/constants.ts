@@ -1,20 +1,54 @@
 const php_versions: Array<object> = [
   {
-    value: 'php72',
+    value: 'php7.2',
     text: 'PHP 7.2',
   },
   {
-    value: 'php73',
+    value: 'php7.3',
     text: 'PHP 7.3',
   },
   {
-    value: 'php74',
+    value: 'php7.4',
     text: 'PHP 7.4',
   },
   {
-    value: 'php80',
+    value: 'php8.0',
     text: 'PHP 8.0',
   },
+]
+
+const webservers: Array<object> = [
+  {
+    text: "Nginx",
+    value: "nginx"
+  },
+  {
+    text: "OpenLiteSpeed",
+    value: "openlitespeed"
+  }
+]
+
+const databases: Array<object> = [
+  {
+    text: "MySQL 5.7",
+    value: "mysql"
+  },
+  {
+    text: "MariaDB 10.3",
+    value: "mariadb"
+  },
+  {
+    text: "PostgreSQL 10.9",
+    value: "postgresql"
+  },
+  {
+    text: "PostgreSQL 13",
+    value: "postgresql13"
+  },
+  {
+    text: "None (do not install a database)",
+    value: "none"
+  }
 ]
 
 const web_application_stacks: Array<object> = [
@@ -57,19 +91,19 @@ const web_ssl_methods: Array<object> = [
 const vendor_binaries: Array<object> = [
   {
     value: 'php72',
-    text: '/Litegix/Packages/php72/bin/php',
+    text: '/usr/bin/php7.2',
   },
   {
     value: 'php73',
-    text: '/Litegix/Packages/php73/bin/php',
+    text: '/usr/bin/php7.3',
   },
   {
     value: 'php74',
-    text: '/Litegix/Packages/php74/bin/php',
+    text: '/usr/bin/php7.4',
   },
   {
     value: 'php80',
-    text: '/Litegix/Packages/php80/bin/php',
+    text: '/usr/bin/php8.0',
   },
   {
     value: 'node',
@@ -448,5 +482,7 @@ export {
   web_application_stacks,
   web_environments,
   web_ssl_methods,
+  webservers,
+  databases,
   database_encodings,
 }

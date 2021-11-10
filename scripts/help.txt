@@ -21,6 +21,10 @@ rm /etc/apparmor.d/abstractions/mysql
 rm /usr/share/bash-completion/completions/mysql
 rm -rf /etc/mysql/conf.d/root.cnf
 
+apt-get remove --purge php5*
+apt-get remove --purge php7*
+apt-get remove --purge php8*
+
 systemctl stop lsws
 /usr/local/lsws/admin/misc/uninstall.sh
 
