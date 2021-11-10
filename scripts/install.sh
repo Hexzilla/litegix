@@ -5,7 +5,7 @@ LITEGIX_TOKEN=""
 LITEGIX_URL=""
 INSTALL_STATE_URL="$LITEGIX_URL/api/installation/status/$LITEGIX_TOKEN"
 SUPPORTED_VERSIONS="16.04 18.04 20.04"
-PHP_CLI_VERSION="php74"
+PHP_CLI_VERSION=""
 
 SERVERID=""
 SERVERKEY=""
@@ -98,18 +98,18 @@ function bootstrap {
         echo -e "bootstrap_installer_add_packages_1"
         PIPEXEC="pip"
         INSTALL_PACKAGE+="libmysqlclient20 python-pip "
-        INSTALL_PACKAGE+="php5.5-bcmath php5.5-bz2 php5.5-intl php5.5-gd php5.5-mbstring php5.5-mysql php5.5-zip php5.5-common php5.5-fpm "
-        INSTALL_PACKAGE+="php5.6-bcmath php5.6-bz2 php5.6-intl php5.6-gd php5.6-mbstring php5.6-mysql php5.6-zip php5.6-common php5.6-fpm "
-        INSTALL_PACKAGE+="php7.0-bcmath php7.0-bz2 php7.0-intl php7.0-gd php7.0-mbstring php7.0-mysql php7.0-zip php7.0-common php7.0-fpm "
-        INSTALL_PACKAGE+="php7.1-bcmath php7.1-bz2 php7.1-intl php7.1-gd php7.1-mbstring php7.1-mysql php7.1-zip php7.1-common php7.1-fpm "
+        INSTALL_PACKAGE+="php5.5-bcmath php5.5-bz2 php5.5-intl php5.5-gd php5.5-xml php5.5-mbstring php5.5-mysql php5.5-zip php5.5-common php5.5-fpm "
+        INSTALL_PACKAGE+="php5.6-bcmath php5.6-bz2 php5.6-intl php5.6-gd php5.6-xml php5.6-mbstring php5.6-mysql php5.6-zip php5.6-common php5.6-fpm "
+        INSTALL_PACKAGE+="php7.0-bcmath php7.0-bz2 php7.0-intl php7.0-gd php7.0-xml php7.0-mbstring php7.0-mysql php7.0-zip php7.0-common php7.0-fpm "
+        INSTALL_PACKAGE+="php7.1-bcmath php7.1-bz2 php7.1-intl php7.1-gd php7.1-xml php7.1-mbstring php7.1-mysql php7.1-zip php7.1-common php7.1-fpm "
 
     # Ubuntu 18.04
     elif [[ "$OS_CODE_NAME" == 'bionic' ]]; then
         echo -e "bootstrap_installer_add_packages_2"
         PIPEXEC="pip"
         INSTALL_PACKAGE+="libmysqlclient20 python-pip "
-        INSTALL_PACKAGE+="php7.0-bcmath php7.0-bz2 php7.0-intl php7.0-gd php7.0-mbstring php7.0-mysql php7.0-zip php7.0-common php7.0-fpm "
-        INSTALL_PACKAGE+="php7.1-bcmath php7.1-bz2 php7.1-intl php7.1-gd php7.1-mbstring php7.1-mysql php7.1-zip php7.1-common php7.1-fpm "
+        INSTALL_PACKAGE+="php7.0-bcmath php7.0-bz2 php7.0-intl php7.0-gd php7.0-xml php7.0-mbstring php7.0-mysql php7.0-zip php7.0-common php7.0-fpm "
+        INSTALL_PACKAGE+="php7.1-bcmath php7.1-bz2 php7.1-intl php7.1-gd php7.1-xml php7.1-mbstring php7.1-mysql php7.1-zip php7.1-common php7.1-fpm "
 
     # Ubuntu 20.04
     elif [[ "$OS_CODE_NAME" == 'focal' ]]; then
@@ -117,11 +117,11 @@ function bootstrap {
         PIPEXEC="pip3"
         INSTALL_PACKAGE+="libmysqlclient21 python3-pip dirmngr gnupg libmagic-dev "
     fi
-    
-    INSTALL_PACKAGE+="php7.2-bcmath php7.2-bz2 php7.2-intl php7.2-gd php7.2-mbstring php7.2-mysql php7.2-zip php7.2-common php7.2-fpm "
-    INSTALL_PACKAGE+="php7.3-bcmath php7.3-bz2 php7.3-intl php7.3-gd php7.3-mbstring php7.3-mysql php7.3-zip php7.3-common php7.3-fpm "
-    INSTALL_PACKAGE+="php7.4-bcmath php7.4-bz2 php7.4-intl php7.4-gd php7.4-mbstring php7.4-mysql php7.4-zip php7.4-common php7.4-fpm "
-    INSTALL_PACKAGE+="php8.0-bcmath php8.0-bz2 php8.0-intl php8.0-gd php8.0-mbstring php8.0-mysql php8.0-zip php8.0-common php8.0-fpm "
+
+    INSTALL_PACKAGE+="php7.2-bcmath php7.2-bz2 php7.2-intl php7.2-gd php7.2-xml php7.2-mbstring php7.2-mysql php7.2-zip php7.2-common php7.2-fpm "
+    INSTALL_PACKAGE+="php7.3-bcmath php7.3-bz2 php7.3-intl php7.3-gd php7.3-xml php7.3-mbstring php7.3-mysql php7.3-zip php7.3-common php7.3-fpm "
+    INSTALL_PACKAGE+="php7.4-bcmath php7.4-bz2 php7.4-intl php7.4-gd php7.4-xml php7.4-mbstring php7.4-mysql php7.4-zip php7.4-common php7.4-fpm "
+    INSTALL_PACKAGE+="php8.0-bcmath php8.0-bz2 php8.0-intl php8.0-gd php8.0-xml php8.0-mbstring php8.0-mysql php8.0-zip php8.0-common php8.0-fpm "
     echo -e $INSTALL_PACKAGE
 }
 
@@ -690,10 +690,9 @@ function setup_firewall {
 }
 
 function install_composer {
-    ln -s /litegix/packages/$PHP_CLI_VERSION/bin/php /usr/bin/php
+    ln -s  /usr/bin/$PHP_CLI_VERSION /etc/alternatives/php
 
     source /etc/profile.d/litegixpath.sh
-    # php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
     wget -4 https://getcomposer.org/installer -O composer-setup.php
     php composer-setup.php
     php -r "unlink('composer-setup.php');"
