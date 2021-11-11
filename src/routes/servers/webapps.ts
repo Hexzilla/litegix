@@ -23,15 +23,6 @@ router.get('/', auth.required, async function (req: Request, res: Response) {
   }
 })
 
-router.get('/:webappId', auth.required, async function (req: Request, res: Response) {
-  try {
-    const response = await webappService.findWebappById(req.params.webappId)
-    return res.json(response)
-  } catch (e) {
-    return catchError(res, e)
-  }
-})
-
 router.get(
   '/custom',
   auth.required,
@@ -100,13 +91,12 @@ router.post(
   body('owner').isString(),
   body('phpVersion').isString(),
   body('webAppStack').isString(),
-  body('stackMode').isString(),
   body('sslMode').isString(),
   body('enableAutoSSL').isBoolean(),
-  body('siteTitle').isString(),
-  body('adminName').isString(),
-  body('adminPassword').isString(),
-  body('adminEmail').isString(),
+  body('wordpress.siteTitle').isString(),
+  body('wordpress.adminUserName').isString(),
+  body('wordpress.adminPassword').isString(),
+  body('wordpress.adminEmail').isString(),
   validate,
   async function (req: Request, res: Response) {
     try {
@@ -226,6 +216,15 @@ router.post(
     }
   }
 )
+
+router.get('/:webappId', auth.required, async function (req: Request, res: Response) {
+  try {
+    const response = await webappService.findWebappById(req.params.webappId)
+    return res.json(response)
+  } catch (e) {
+    return catchError(res, e)
+  }
+})
 
 // router.post(
 //   '/store/custom',

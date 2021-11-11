@@ -133,7 +133,7 @@ export async function createWebApplication(address: string, payload: any) {
       return { error: 0 }
     }
     const res = await axios.post(
-      `http://${address}:21000/database/webapps/custom`,
+      `http://${address}:21000/webapps/custom`,
       payload
     )
     console.log('createWebApplication', res.data)
@@ -146,11 +146,12 @@ export async function createWebApplication(address: string, payload: any) {
 
 export async function createWordpress(address: string, payload: any) {
   try {
+    console.log("agent->payload:", payload)
     if (process.env.NODE_ENV !== 'production') {
       return { error: 0 }
     }
     const res = await axios.post(
-      `http://${address}:21000/database/webapps/wordpress`,
+      `http://${address}:21000/webapps/wordpress`,
       payload
     )
     console.log('createWebApplication', res.data)
@@ -167,7 +168,7 @@ export async function createPhpMyAdmin(address: string, payload: any) {
       return { error: 0 }
     }
     const res = await axios.post(
-      `http://${address}:21000/database/webapps/phpmyadmin`,
+      `http://${address}:21000/webapps/phpmyadmin`,
       payload
     )
     console.log('createWebApplication', res.data)

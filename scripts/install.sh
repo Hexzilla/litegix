@@ -492,7 +492,7 @@ function install_mysql {
     rm -rf $MYSQLDIR
     mkdir -p $MYSQLDIR
 
-    ROOTPASS="!$(get_random_string 64)"
+    ROOTPASS="$(get_random_string 54)"
 
     # Install MySQL
     echo debconf mysql-server/root_password password $ROOTPASS | debconf-set-selections
@@ -561,7 +561,7 @@ function install_mariadb {
     sudo apt update
     sudo apt install mariadb-server
 
-    ROOTPASS="!$(get_random_string 64)"
+    ROOTPASS="!$(get_random_string 54)"
 
     # Start mariadb
     systemctl start mysql

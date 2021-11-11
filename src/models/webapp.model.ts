@@ -59,7 +59,6 @@ var WebappSchema = new Schema<Webapp>(
     },
     publicPath: {
       type: String,
-      required: [true, "can't be blank"],
     },
     phpVersion: {
       type: String,
@@ -73,7 +72,6 @@ var WebappSchema = new Schema<Webapp>(
     stackMode: {
       //"production" or "development"
       type: String,
-      required: [true, "can't be blank"],
     },
     sslMode: {
       type: String,
@@ -118,9 +116,18 @@ var WebappSchema = new Schema<Webapp>(
       mimeSniffingProtection: Boolean,
     },
     wordpress: {
-      adminName: String,
-      adminPassword: String,
-      adminEmail: String,
+      adminUserName: {
+        type: String,
+        required: [true, "can't be blank"],
+      },
+      adminPassword: {
+        type: String,
+        required: [true, "can't be blank"],
+      },
+      adminEmail: {
+        type: String,
+        required: [true, "can't be blank"],
+      },
       databaseUser: String,
       databasePassword: String,
       databaseName: String,

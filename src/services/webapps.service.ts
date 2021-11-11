@@ -19,6 +19,10 @@ const getDomainSuffix = function () {
   return `kc${randomBytes(12).toString('hex')}`
 }
 
+function getRandomInt(max: number) {
+  return Math.floor(Math.random() * max);
+}
+
 export async function getWebApplications(server: Server) {
   const apps = await WebappModel.find({ server }).populate('owner')
   return {
@@ -209,24 +213,36 @@ export async function storeWordpressApplication(server: Server, payload: any) {
   if (payload.domainType == 'litegix') {
     domainName = `${payload.domainName}${payload.domainSuffix}`
   }
+
+  const rand = function() {
+    return 1000000 + getRandomInt(1000000);
+  }
+
+  const wp = payload.wordpress
+  const wordpress = {
+    ...wp,
+    databaseUser: wp.databaseUser || `${payload.name}_${rand()}`,
+    databasePass: wp.databasePass || `${payload.name}!_${rand()}`,
+    databaseName: wp.databaseName || `${payload.name}_${rand()}`,
+  }
   const postData = {
-    ...payload,
-    domainName,
+    name: payload.name,
+    userName: payload.owner,
+    phpVersion: payload.phpVersion,
+    ...wordpress
   }
   const res = await agentSvc.createWordpress(server.address, postData)
   if (res.error != 0) {
     throw new Error(`Agent error ${res.error}`)
   }
 
-  const data = {
+  const webapp = new WebappModel({
     ...payload,
     domainName,
     webType: 'wordpress',
     server: server,
     owner: systemUser,
-  }
-
-  const webapp = new WebappModel(data)
+  })
   await webapp.save()
 
   /**let domain = new Domains(domain_data)
