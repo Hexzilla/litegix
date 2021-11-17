@@ -33,7 +33,7 @@ systemctl status litegix-agent
 apt remove --purge litegix-agent
 apt-get purge litegix-agent
 rm -rf /litegix/litegix-agent
-
+rm -f /usr/local/bin/wp
 
 ##############################################################################################################
 # All users

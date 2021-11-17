@@ -224,13 +224,15 @@ export async function storeWordpressApplication(server: Server, payload: any) {
     databaseUser: wp.databaseUser || `${payload.name}_${rand()}`,
     databasePass: wp.databasePass || `${payload.name}!_${rand()}`,
     databaseName: wp.databaseName || `${payload.name}_${rand()}`,
+    siteTitle: wp.siteTitle || `${payload.name}_${rand()}`,
   }
   const postData = {
     name: payload.name,
-    userName: payload.owner,
+    userName: systemUser.name,
     phpVersion: payload.phpVersion,
     ...wordpress
   }
+  console.log("wordpress", postData)
   const res = await agentSvc.createWordpress(server.address, postData)
   if (res.error != 0) {
     throw new Error(`Agent error ${res.error}`)
