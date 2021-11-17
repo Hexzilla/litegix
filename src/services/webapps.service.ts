@@ -228,11 +228,11 @@ export async function storeWordpressApplication(server: Server, payload: any) {
   }
   const postData = {
     name: payload.name,
+    domainName,
     userName: systemUser.name,
     phpVersion: payload.phpVersion,
     ...wordpress
   }
-  console.log("wordpress", postData)
   const res = await agentSvc.createWordpress(server.address, postData)
   if (res.error != 0) {
     throw new Error(`Agent error ${res.error}`)

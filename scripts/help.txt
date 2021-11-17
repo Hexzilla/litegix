@@ -27,13 +27,13 @@ apt-get remove --purge php8*
 
 systemctl stop lsws
 /usr/local/lsws/admin/misc/uninstall.sh
+rm -f /usr/local/bin/wp
 
 systemctl stop litegix-agent
 systemctl status litegix-agent
 apt remove --purge litegix-agent
 apt-get purge litegix-agent
 rm -rf /litegix/litegix-agent
-rm -f /usr/local/bin/wp
 
 ##############################################################################################################
 # All users
