@@ -223,7 +223,7 @@ export async function storeWordpressApplication(server: Server, payload: any) {
   const wordpress = {
     ...wp,
     databaseUser: wp.databaseUser || `${payload.name}_${rand()}`,
-    databasePass: wp.databasePass || `Litegix_${uuidv4()}_${uuidv4()}`,
+    databasePass: wp.databasePass || `Litegix_${uuidv4().replace(/-/g, "")}`,
     databaseName: wp.databaseName || `${payload.name}_${rand()}`,
     siteTitle: wp.siteTitle || `${payload.name}_${rand()}`,
   }
