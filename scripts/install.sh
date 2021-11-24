@@ -461,6 +461,7 @@ EOF
 
 function install_nginx_default {
     apt install nginx
+    cp /etc/nginx/sites-available/default /litegix/nginx.conf
 }
 
 function install_openlitespeed {

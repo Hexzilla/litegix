@@ -1,4 +1,5 @@
 import { randomBytes } from 'crypto'
+import { v4 as uuidv4 } from 'uuid'
 import { model } from 'mongoose'
 import { Server, Webapp, SystemUser } from 'models'
 import * as activitySvc from 'services/activity.service'
@@ -222,7 +223,7 @@ export async function storeWordpressApplication(server: Server, payload: any) {
   const wordpress = {
     ...wp,
     databaseUser: wp.databaseUser || `${payload.name}_${rand()}`,
-    databasePass: wp.databasePass || `${payload.name}!_${rand()}`,
+    databasePass: wp.databasePass || `Litegix_${uuidv4()}_${uuidv4()}`,
     databaseName: wp.databaseName || `${payload.name}_${rand()}`,
     siteTitle: wp.siteTitle || `${payload.name}_${rand()}`,
   }
