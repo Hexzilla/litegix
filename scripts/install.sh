@@ -461,7 +461,6 @@ EOF
 
 function install_nginx_default {
     apt install nginx
-    cp /etc/nginx/sites-available/default /litegix/nginx.conf
 }
 
 function install_openlitespeed {
@@ -648,6 +647,7 @@ function install_agent {
 
     chmod 600 $AGENTDIR/config.json
     mkdir -p $AGENTDIR/ssl/
+    cp /etc/nginx/sites-available/default /litegix/nginx.conf
 }
 
 function setup_firewall {
