@@ -156,9 +156,13 @@ export async function createWordpress(address: string, payload: any) {
     )
     console.log('createWebApplication', res.data)
     return res.data
-  } catch (e) {
-    console.log(e)
-    return { error: -1 }
+  } catch (e : any) {
+    console.log("createWordpress", e)
+    if (e.response) {
+      console.log(e.response.data);
+      return { error: -1, message: e.response.data }
+    }
+    return { error: -1, message: e.message }
   }
 }
 
