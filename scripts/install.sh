@@ -645,6 +645,7 @@ function install_agent {
     sed -i "s/{ENVIRONMENT}/$ENVIRONMENT/g" $AGENTDIR/config.json
     sed -i "s/{WEBSERVER}/$WEBSERVER/g" $AGENTDIR/config.json
 
+    chmod 700 $AGENTDIR/inswp.sh
     chmod 600 $AGENTDIR/config.json
     mkdir -p $AGENTDIR/ssl/
     cp /etc/nginx/sites-available/default /litegix/nginx.conf
