@@ -613,7 +613,7 @@ password=$ROOTPASS
 function install_webapp {
     USER="litegix"
     LITEGIX_PASSWORD=$(get_random_string 64)
-    USERGROUP="litegixes"
+    USERGROUP="litegix"
     HOMEDIR="/home/$USER/"
     groupadd $USERGROUP
     adduser --disabled-password --gecos "" $USER
@@ -786,6 +786,16 @@ install_supervisor
 send_state "fail2ban"
 install_fail2ban
 
+if [[ "$DATABASE" == 'mysql' ]]; then
+# MySQL
+send_state "mysql"
+install_mysql
+else
+# MariaDB
+send_state "mariadb"
+install_mariadb
+fi
+
 if [[ "$WEBSERVER" == 'nginx' ]]; then
 # Nginx
 send_state "nginx"
@@ -797,19 +807,9 @@ send_state "openlitespeed"
 install_openlitespeed
 fi
 
-if [[ "$DATABASE" == 'mysql' ]]; then
-# MySQL
-send_state "mysql"
-install_mysql
-else
-# MariaDB
-send_state "mariadb"
-install_mariadb
-fi
-
 # Web Application
 send_state "webapp"
-#install_webapp
+install_webapp
 
 # Auto Update
 send_state "autoupdate"
