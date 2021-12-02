@@ -787,16 +787,6 @@ install_supervisor
 send_state "fail2ban"
 install_fail2ban
 
-if [[ "$DATABASE" == 'mysql' ]]; then
-# MySQL
-send_state "mysql"
-install_mysql
-else
-# MariaDB
-send_state "mariadb"
-install_mariadb
-fi
-
 if [[ "$WEBSERVER" == 'nginx' ]]; then
 # Nginx
 send_state "nginx"
@@ -806,6 +796,16 @@ else
 # Openlitespeed
 send_state "openlitespeed"
 install_openlitespeed
+fi
+
+if [[ "$DATABASE" == 'mysql' ]]; then
+# MySQL
+send_state "mysql"
+install_mysql
+else
+# MariaDB
+send_state "mariadb"
+install_mariadb
 fi
 
 # Web Application
