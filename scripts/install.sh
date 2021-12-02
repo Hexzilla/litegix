@@ -461,7 +461,8 @@ EOF
 
 function install_nginx_default {
     apt-get update
-    apt install nginx
+    apt-get -qq install nginx > /dev/null
+    echo -e "install_nginx_default_complete"
 }
 
 function install_openlitespeed {
