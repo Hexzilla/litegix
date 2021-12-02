@@ -460,6 +460,7 @@ EOF
 }
 
 function install_nginx_default {
+    apt-get update
     apt install nginx
 }
 
