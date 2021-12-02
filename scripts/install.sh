@@ -554,6 +554,8 @@ password=$ROOTPASS
 }
 
 function install_mariadb {
+    ROOTPASS="!$(get_random_string 54)"
+
     #https://downloads.mariadb.org/mariadb/repositories/#distro=Ubuntu&distro_release=focal--ubuntu_focal&mirror=truenetwork&version=10.6
     apt-get install software-properties-common apt-transport-https -y
     apt-key adv --fetch-keys 'https://mariadb.org/mariadb_release_signing_key.asc'
@@ -561,9 +563,10 @@ function install_mariadb {
     add-apt-repository "deb [arch=amd64] http://sfo1.mirrors.digitalocean.com/mariadb/repo/10.6/ubuntu $OS_CODE_NAME main"
 
     sudo apt update
-    sudo apt install mariadb-server
+    sudo apt-get -qq install mariadb-server
 
-    ROOTPASS="!$(get_random_string 54)"
+    # Install Expect
+    apt-get -qq install expect > /dev/null
 
     # Start mariadb
     systemctl start mysql
