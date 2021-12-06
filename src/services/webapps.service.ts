@@ -478,3 +478,31 @@ export async function changeFilePermission(server: Server, webappId: string, per
     success: true,
   }
 }
+
+export async function storeWebSSL(server: Server, webAppId: string, payload: any) {
+  const webapp = await WebappModel.findById(webAppId)
+  if (!webapp) {
+    throw new Error('The web application does not exists.')
+  }
+
+  const postData = {
+    domain: webapp.domainName,
+    email: 'admin@litegix.com',
+  }
+  console.log("storeWebSSL, to agent", postData);
+  const res = await agentSvc.createWebSSL(server.address, postData)
+  if (res.error != 0) {
+    throw new Error(`Agent error ${res.error}`)
+  }
+
+  //webapp.sslMode =
+  //await webapp.save()
+
+  const message = `Added new web application ${payload.name}`
+  await activitySvc.createServerActivityLogInfo(server, message)
+
+  return {
+    success: true,
+    data: { application: webapp },
+  }
+}

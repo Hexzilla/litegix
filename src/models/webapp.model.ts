@@ -23,6 +23,7 @@ export interface Webapp extends Document {
   server: Server
   owner: SystemUser
   domainType: string
+  domainName: string
   git: GitRepository
   wordpress: Wordpress
 }

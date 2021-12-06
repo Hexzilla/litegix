@@ -112,6 +112,26 @@ router.post(
 )
 
 router.post(
+  '/:webappId/ssl',
+  body('mode').isString(),
+  body('provider').isString(),
+  body('authMethod').isString(),
+  validate,
+  async function (req: Request, res: Response) {
+    try {
+      const response = await webappService.storeWebSSL(
+        req.server,
+        req.params.webappId,
+        req.body
+      )
+      return res.json(response)
+    } catch (e) {
+      return catchError(res, e)
+    }
+  }
+)
+
+router.post(
   '/:webappId/deploy',
   body('provider').isString(),
   body('repository').isString(),

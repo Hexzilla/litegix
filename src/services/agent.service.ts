@@ -480,3 +480,17 @@ export async function changeFilePermission(address: string, webapp: string, perm
     return { error: -1 }
   }
 }
+
+export async function createWebSSL(address: string, payload: any) {
+  try {
+    if (process.env.NODE_ENV !== 'production') {
+      return { error: 0 }
+    }
+    const res = await axios.post(`http://${address}:21000/webapps/ssl`, payload)
+    console.log('createWebSSL', res.data)
+    return res.data
+  } catch (e) {
+    console.log(e)
+    return { error: -1 }
+  }
+}
