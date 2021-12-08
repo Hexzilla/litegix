@@ -205,17 +205,23 @@ export async function storeWordpressApplication(server: Server, payload: any) {
   }
 
   // check parameters
-  let systemUser = await SystemUserModel.findById(payload.owner)
-  if (!systemUser) {
-    if (payload.useExistUser) {
+  let systemUser: SystemUser | null = null;
+  if (payload.useExistUser) {
+    systemUser = await SystemUserModel.findById(payload.owner)
+    if (!systemUser) {
       throw new Error('The user doen not exists.')
     }
-    systemUser = new SystemUserModel({
-      name: payload.owner,
-      password: 'litegix'
-    })
-    systemUser.server = server
-    await systemUser.save()
+  }
+  else {
+    systemUser = await SystemUserModel.findOne({name: payload.owner})
+    if (!systemUser) {
+      systemUser = new SystemUserModel({
+        name: payload.owner,
+        password: 'litegix'
+      })
+      systemUser.server = server
+      await systemUser.save()
+    }
   }
 
   let domainName = payload.domainName
@@ -238,7 +244,7 @@ export async function storeWordpressApplication(server: Server, payload: any) {
   const postData = {
     name: payload.name,
     domainName,
-    userName: systemUser.name,
+    userName: systemUser?.name,
     phpVersion: payload.phpVersion,
     webserver: server.webserver,
     ...wordpress
