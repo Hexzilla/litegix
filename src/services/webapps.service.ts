@@ -232,6 +232,7 @@ export async function storeWordpressApplication(server: Server, payload: any) {
     domainName,
     userName: systemUser.name,
     phpVersion: payload.phpVersion,
+    webserver: server.webserver,
     ...wordpress
   }
   const res = await agentSvc.createWordpress(server.address, postData)
