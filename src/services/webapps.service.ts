@@ -205,9 +205,17 @@ export async function storeWordpressApplication(server: Server, payload: any) {
   }
 
   // check parameters
-  const systemUser = await SystemUserModel.findById(payload.owner)
+  let systemUser = await SystemUserModel.findById(payload.owner)
   if (!systemUser) {
-    throw new Error('The user doen not exists.')
+    if (payload.useExistUser) {
+      throw new Error('The user doen not exists.')
+    }
+    systemUser = new SystemUserModel({
+      name: payload.owner,
+      password: 'litegix'
+    })
+    systemUser.server = server
+    await systemUser.save()
   }
 
   let domainName = payload.domainName
