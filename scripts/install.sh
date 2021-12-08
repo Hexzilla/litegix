@@ -488,6 +488,8 @@ function install_openlitespeed {
     rm -rf $TEMP_DIR/openlitespeed
     rm -f $TEMP_DIR/openlitespeed-${OLS_VERSION}.tgz
     cp /usr/local/lsws/conf/httpd_config.conf /usr/local/lsws/conf/httpd_config_default.conf
+
+    systemctl start lsws
 }
 
 function install_mysql {
