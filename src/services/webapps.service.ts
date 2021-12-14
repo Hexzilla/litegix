@@ -494,6 +494,29 @@ export async function changeFilePermission(server: Server, webappId: string, per
   }
 }
 
+export async function getSummary(server: Server, webAppId: string) {
+  const webapp = await WebappModel.findById(webAppId)
+  if (!webapp) {
+    throw new Error('The web application does not exists.')
+  }
+
+  return {
+    success: true,
+    data: {
+      owner: 'aaaaaaa',
+      totalDomainName: 1,
+      phpVersion: 'php8.0',
+      webAppStack: 'native_nginx',
+      rootPath: '/home/litegix/webapps/app-boyle',
+      publicPath: '/home/litegix/webapps/app-boyle',
+      tdty: 16390,
+      tdtm: 6390,
+      dirSize: 6920301,
+      sslMethod: 'Basic'
+    },
+  }
+}
+
 export async function storeWebSSL(server: Server, webAppId: string, payload: any) {
   const webapp = await WebappModel.findById(webAppId)
   if (!webapp) {

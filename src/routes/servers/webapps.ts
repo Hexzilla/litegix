@@ -111,8 +111,17 @@ router.post(
   }
 )
 
+router.get('/:webappId/summary', auth.required, async function (req: Request, res: Response) {
+  try {
+    return res.json(await webappService.getSummary(req.server, req.params.webappId))
+  } catch (e) {
+    return catchError(res, e)
+  }
+})
+
 router.post(
   '/:webappId/ssl',
+  auth.required,
   body('mode').isString(),
   body('provider').isString(),
   body('authMethod').isString(),
