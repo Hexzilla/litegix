@@ -66,6 +66,8 @@ router.delete(
   }
 )
 
+// router.get('/:databaseId/grant', auth.required, database.getUngrantedDBuser)
+
 router.post(
   '/:databaseId/grant',
   auth.required,
