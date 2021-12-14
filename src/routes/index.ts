@@ -3,7 +3,7 @@ import { body } from 'express-validator'
 import api from './api'
 import settings from './settings'
 import servers from './servers'
-// import subscriptions from './subscriptions'
+import webapps from './feature/webapp'
 import payment from './payment'
 import * as authService from 'services/auth.service'
 
@@ -15,7 +15,7 @@ router.get('/', (req: Request, res: Response) => {
 router.use('/api', api)
 router.use('/settings', settings)
 router.use('/servers', servers)
-// router.use('/subscriptions', subscriptions)
+router.use('/webapps', webapps)
 router.use('/payment', payment)
 
 router.post(
@@ -35,9 +35,6 @@ router.post(
 
 router.get('/logout', authService.logout)
 
-// request user verify
-//router.post('/verify/:userId/:verifyCode', authService.userVerify)
-
 router.use(function (
   err: any,
   req: Request,
@@ -52,10 +49,5 @@ router.use(function (
 
   return next(err)
 })
-
-/*const cryptoService = require('../services/crypto')
-const encrypted = cryptoService.encrypt("Hello World. www.maazone.com!!!192020$$$###")
-const decrypted = cryptoService.decrypt(encrypted)
-console.log('crypto', encrypted, decrypted)*/
 
 export default router
