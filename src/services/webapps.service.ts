@@ -1,7 +1,7 @@
 import { randomBytes } from 'crypto'
 import { v4 as uuidv4 } from 'uuid'
 import { model } from 'mongoose'
-import { Server, Webapp, SystemUser } from 'models'
+import { Server, Webapp, SystemUser, Domain } from 'models'
 import * as activitySvc from 'services/activity.service'
 import * as agentSvc from 'services/agent.service'
 import {
@@ -11,12 +11,10 @@ import {
   web_ssl_methods,
 } from './constants'
 const WebappModel = model<Webapp>('Webapp')
+const DomainModel = model<Domain>('Domain')
 const SystemUserModel = model<SystemUser>('SystemUser')
 
 const getDomainSuffix = function () {
-  // const rs1 = randomBytes(5).toString('hex')
-  // const rs2 = randomBytes(7).toString('hex')
-  // return `${rs1}-${rs2}`
   return `kc${randomBytes(12).toString('hex')}`
 }
 
@@ -254,8 +252,15 @@ export async function storeWordpressApplication(server: Server, payload: any) {
     throw new Error(`Agent error ${res.error}`)
   }
 
+  const domainModel = new DomainModel({
+    name: domainName,
+    type: payload.domainType
+  })
+  const domain = await domainModel.save()
+
   const webapp = new WebappModel({
     ...payload,
+    domains: [domain],
     domainName,
     webType: 'wordpress',
     server: server,
@@ -398,6 +403,79 @@ export async function storeGitRepository(server: Server, webappId: string, paylo
   return {
     success: true,
     data: { id: webappId },
+  }
+}
+
+/**
+ */
+ export async function getDomains(webappId: string) {
+  const webapp = await WebappModel.findById(webappId).populate('domains')
+  if (!webapp) {
+    throw new Error('The app does not exists.')
+  }
+
+  return {
+    success: true,
+    data: {
+      domains: webapp.domains,
+    },
+  }
+}
+
+
+/**
+ */
+ export async function addDomain(webappId: string, data: any) {
+  const webapp = await WebappModel.findById(webappId).populate('domains')
+  if (!webapp) {
+    throw new Error('The app does not exists.')
+  }
+
+  const exists = webapp.domains.find(it => it.name == data.name)
+  if (exists) {
+    throw new Error('Name is already taken')
+  }
+
+  const domainModel = new DomainModel(data)
+  domainModel.webapp = webapp
+  const domain = await domainModel.save()
+
+  webapp.domains.push(domain)
+  await webapp.save()
+
+  return {
+    success: true,
+    data: {
+      domainId: domain.id
+    }
+  }
+}
+
+/**
+ */
+ export async function deleteDomain(webappId: string, domainId: string) {
+  const webapp = await WebappModel.findById(webappId).populate('domains')
+  if (!webapp) {
+    throw new Error('The app does not exists.')
+  }
+
+  const domain = webapp.domains.find(it => it.id == domainId)
+  if (!domain) {
+    throw new Error('The domain does not exists')
+  }
+
+  const index = webapp.domains.indexOf(domain)
+  if (index >= 0) {
+    webapp.domains.splice(index, 1)
+  }
+
+  await domain.delete()
+
+  return {
+    success: true,
+    data: {
+      domainId: domain.id
+    }
   }
 }
 

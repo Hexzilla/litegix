@@ -1,41 +1,25 @@
 import { body } from 'express-validator'
-import { Router, Request, Response } from 'express'
+import { Router } from 'express'
 import auth from '../auth'
 import validate from 'routes/validate'
-import errorMessage from 'routes/errors'
+import { handler } from 'utils'
 import * as webappService from 'services/webapps.service'
 const router = Router()
 
-const catchError = function (res: Response, e: any) {
-  console.error(e)
-  return res.status(501).json({
-    success: false,
-    errors: errorMessage(e),
+router.get(
+  '/',
+  auth.required,
+  handler(async ({ server }) => {
+    return await webappService.getWebApplications(server)
   })
-}
-
-router.get('/', auth.required, async function (req: Request, res: Response) {
-  try {
-    const response = await webappService.getWebApplications(req.server)
-    return res.json(response)
-  } catch (e) {
-    return catchError(res, e)
-  }
-})
+)
 
 router.get(
   '/custom',
   auth.required,
-  async function (req: Request, res: Response) {
-    try {
-      const response = await webappService.createCustomWebApplication(
-        req.server
-      )
-      return res.json(response)
-    } catch (e) {
-      return catchError(res, e)
-    }
-  }
+  handler(async ({ server }) => {
+    return await webappService.createCustomWebApplication(server)
+  })
 )
 
 router.post(
@@ -53,32 +37,17 @@ router.post(
   body('sslMode').isString(),
   body('enableAutoSSL').isBoolean(),
   validate,
-  async function (req: Request, res: Response) {
-    try {
-      const response = await webappService.storeCustomWebApplication(
-        req.server,
-        req.body
-      )
-      return res.json(response)
-    } catch (e) {
-      return catchError(res, e)
-    }
-  }
+  handler(async ({ server, body }) => {
+    return await webappService.storeCustomWebApplication(server, body)
+  })
 )
 
 router.get(
   '/wordpress',
   auth.required,
-  async function (req: Request, res: Response) {
-    try {
-      const response = await webappService.createWordpressApplication(
-        req.server
-      )
-      return res.json(response)
-    } catch (e) {
-      return catchError(res, e)
-    }
-  }
+  handler(async ({ server }) => {
+    return await webappService.createWordpressApplication(server)
+  })
 )
 
 router.post(
@@ -98,26 +67,18 @@ router.post(
   body('wordpress.adminPassword').isString(),
   body('wordpress.adminEmail').isString(),
   validate,
-  async function (req: Request, res: Response) {
-    try {
-      const response = await webappService.storeWordpressApplication(
-        req.server,
-        req.body
-      )
-      return res.json(response)
-    } catch (e) {
-      return catchError(res, e)
-    }
-  }
+  handler(async ({ server, body }) => {
+    return await webappService.storeWordpressApplication(server, body)
+  })
 )
 
-router.get('/:webappId/summary', auth.required, async function (req: Request, res: Response) {
-  try {
-    return res.json(await webappService.getSummary(req.server, req.params.webappId))
-  } catch (e) {
-    return catchError(res, e)
-  }
-})
+router.get(
+  '/:webappId/summary',
+  auth.required,
+  handler(async ({ server, params }) => {
+    return await webappService.getSummary(server, params.webappId)
+  })
+)
 
 router.post(
   '/:webappId/ssl',
@@ -126,205 +87,120 @@ router.post(
   body('provider').isString(),
   body('authMethod').isString(),
   validate,
-  async function (req: Request, res: Response) {
-    try {
-      const response = await webappService.storeWebSSL(
-        req.server,
-        req.params.webappId,
-        req.body
-      )
-      return res.json(response)
-    } catch (e) {
-      return catchError(res, e)
-    }
-  }
+  handler(async ({ server, params, body }) => {
+    return await webappService.storeWebSSL(server, params.webappId, body)
+  })
 )
 
 router.post(
   '/:webappId/deploy',
+  auth.required,
   body('provider').isString(),
   body('repository').isString(),
   body('branch').isString(),
   validate,
-  async function (req: Request, res: Response) {
-    try {
-      const response = await webappService.storeGitRepository(
-        req.server,
-        req.params.webappId,
-        req.body
-      )
-      return res.json(response)
-    } catch (e) {
-      return catchError(res, e)
-    }
-  }
+  handler(async ({ server, params, body }) => {
+    return await webappService.storeGitRepository(server, params.webappId, body)
+  })
+)
+
+router.get(
+  '/:webappId/domains',
+  auth.required,
+  handler(async ({ params }) => {
+    return await webappService.getDomains(params.webappId)
+  })
+)
+
+router.post(
+  '/:webappId/domains',
+  auth.required,
+  body('redirect').isString(),
+  body('type').isString(),
+  body('name').isString(),
+  body('www').isBoolean(),
+  body('dnsIntegration').isString(),
+  handler(async ({ params, body }) => {
+    return await webappService.addDomain(params.webappId, body)
+  })
+)
+
+router.delete(
+  '/:webappId/domains/:domainId',
+  auth.required,
+  handler(async ({ params }) => {
+    return await webappService.deleteDomain(params.webappId, params.domainId)
+  })
 )
 
 router.get(
   '/:webappId/filemanager/list/:folder',
-  async function (req: Request, res: Response) {
-    try {
-      const response = await webappService.getFileList(
-        req.server,
-        req.params.webappId,
-        req.params.folder
-      )
-      return res.json(response)
-    } catch (e) {
-      return catchError(res, e)
-    }
-  }
+  auth.required,
+  handler(async ({ server, params }) => {
+    return await webappService.getFileList(
+      server,
+      params.webappId,
+      params.folder
+    )
+  })
 )
 
 router.get(
   '/:webappId/filemanager/create/file/:name',
-  async function (req: Request, res: Response) {
-    try {
-      const response = await webappService.createFile(
-        req.server,
-        req.params.webappId,
-        req.params.name
-      )
-      return res.json(response)
-    } catch (e) {
-      return catchError(res, e)
-    }
-  }
+  auth.required,
+  handler(async ({ server, params }) => {
+    return await webappService.createFile(server, params.webappId, params.name)
+  })
 )
 
 router.get(
   '/:webappId/filemanager/create/folder/:name',
-  async function (req: Request, res: Response) {
-    try {
-      const response = await webappService.createFolder(
-        req.server,
-        req.params.webappId,
-        req.params.name
-      )
-      return res.json(response)
-    } catch (e) {
-      return catchError(res, e)
-    }
-  }
+  auth.required,
+  handler(async ({ server, params }) => {
+    return await webappService.createFolder(
+      server,
+      params.webappId,
+      params.name
+    )
+  })
 )
 
 router.post(
   '/:webappId/filemanager/changename',
+  auth.required,
   body('oldname').isString(),
   body('newname').isString(),
   validate,
-  async function (req: Request, res: Response) {
-    try {
-      const response = await webappService.changeFileName(
-        req.server,
-        req.params.webappId,
-        req.body.oldname,
-        req.body.newname
-      )
-      return res.json(response)
-    } catch (e) {
-      return catchError(res, e)
-    }
-  }
+  handler(async ({ server, params, body }) => {
+    return await webappService.changeFileName(
+      server,
+      params.webappId,
+      body.oldname,
+      body.newname
+    )
+  })
 )
 
 router.post(
   '/:webappId/filemanager/change_permission',
+  auth.required,
   body('permission').isString(),
   validate,
-  async function (req: Request, res: Response) {
-    try {
-      const response = await webappService.changeFilePermission(
-        req.server,
-        req.params.webappId,
-        req.body.permission,
-      )
-      return res.json(response)
-    } catch (e) {
-      return catchError(res, e)
-    }
-  }
+  handler(async ({ server, params, body }) => {
+    return await webappService.changeFilePermission(
+      server,
+      params.webappId,
+      body.permission
+    )
+  })
 )
 
-router.get('/:webappId', auth.required, async function (req: Request, res: Response) {
-  try {
-    const response = await webappService.findWebappById(req.params.webappId)
-    return res.json(response)
-  } catch (e) {
-    return catchError(res, e)
-  }
-})
-
-// router.post(
-//   '/store/custom',
-//   auth.required,
-//   body('serverId').isString(),
-//   body('name').isString(),
-//   body('domainSelection').isString(),
-//   body('domainName').isString(),
-//   body('useExistingUser').isBoolean(),
-//   body('user').isString(),
-//   body('newUser').isString(),
-//   body('publicPath').isString(),
-//   body('phpVersion').isString(),
-//   body('stack').isString(),
-//   body('stackMode').isString(),
-//   body('advanceSetting').isBoolean(),
-//   /*body('clickjackingProtection').isBoolean(),
-//   body('xssProtection').isBoolean(),
-//   body('mimeSniffingProtection').isBoolean(),
-//   body('proxyProtocol').isBoolean(),
-//   body('processManager').isString(),
-//   body('processManagerStartServers').isNumeric(),
-//   body('processManagerMinSpareServers').isNumeric(),
-//   body('processManagerMaxSpareServers').isNumeric(),
-//   body('processManagerMaxChildren').isNumeric(),
-//   body('processManagerMaxRequests').isNumeric(),
-//   body('openBasedir').isString(),
-//   body('timezone').isString(),
-//   body('disableFunctions').isString(),
-//   body('maxExecutionTime').isNumeric(),*/
-//   application.storeCustomWebApplication
-// )
-
-// router.post(
-//   '/store/wordpress',
-//   auth.required,
-//   body('serverId').isString(),
-//   body('name').isString(),
-//   body('domainSelection').isString(),
-//   body('domainName').isString(),
-//   body('useExistingUser').isBoolean(),
-//   body('user').isString(),
-//   body('newUser').isString(),
-//   body('publicPath').isString(),
-//   body('phpVersion').isString(),
-//   body('stack').isString(),
-//   body('stackMode').isString(),
-//   body('advanceSetting').isBoolean(),
-//   /*body('clickjackingProtection').isBoolean(),
-//   body('xssProtection').isBoolean(),
-//   body('mimeSniffingProtection').isBoolean(),
-//   body('proxyProtocol').isBoolean(),
-//   body('processManager').isString(),
-//   body('processManagerStartServers').isNumeric(),
-//   body('processManagerMinSpareServers').isNumeric(),
-//   body('processManagerMaxSpareServers').isNumeric(),
-//   body('processManagerMaxChildren').isNumeric(),
-//   body('processManagerMaxRequests').isNumeric(),
-//   body('openBasedir').isString(),
-//   body('timezone').isString(),
-//   body('disableFunctions').isString(),
-//   body('maxExecutionTime').isNumeric(),*/
-//   application.storeWordpressWebApplication
-// )
-
-// router.delete(
-//   '/',
-//   auth.required,
-//   body('serverId').isString(),
-//   body('name').isString(),
-//   application.deleteWebApplication
-// )
+router.get(
+  '/:webappId',
+  auth.required,
+  handler(async ({ params }) => {
+    return await webappService.findWebappById(params.webappId)
+  })
+)
 
 export default router

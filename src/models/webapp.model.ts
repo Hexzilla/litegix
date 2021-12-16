@@ -1,6 +1,7 @@
 import { Document, Schema, model } from 'mongoose'
 import { Server } from './server.model'
 import { SystemUser } from './systemUser.model'
+import { Domain } from './domain.model'
 
 export interface Wordpress {
   adminName: string
@@ -22,6 +23,7 @@ export interface Webapp extends Document {
   rootPath: string
   server: Server
   owner: SystemUser
+  domains: Array<Domain>
   domainType: string
   domainName: string
   git: GitRepository
@@ -46,6 +48,10 @@ var WebappSchema = new Schema<Webapp>(
       type: String,
       required: [true, "can't be blank"],
     },
+    domains: [{
+      type: Schema.Types.ObjectId,
+      ref: 'Domain'
+    }],
     domainType: {
       type: String,
       required: [true, "can't be blank"],

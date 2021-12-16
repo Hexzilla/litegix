@@ -3,7 +3,12 @@ import { Webapp } from './webapp.model'
 
 export interface Domain extends Document {
   name: string
-  rootPath: string
+  type: string
+  www: boolean
+  redirection: boolean
+  wildcard: boolean
+  dnsIntegration: string
+  status: string
   webapp: Webapp
 }
 
@@ -13,11 +18,23 @@ const DomainSchema = new Schema<Domain>(
       type: String,
       required: [true, "can't be blank"],
     },
-    type: { type: String, required: [true, "can't be blank"] },
-    www: { type: Boolean, default: true },
-    redirection: String,
-    wildcard: { type: Boolean, default: false },
-    dns_integration: String,
+    type: {
+      type: String,
+      required: [true, "can't be blank"]
+    },
+    www: {
+      type: Boolean,
+      default: false
+    },
+    redirection: {
+      type: Boolean,
+      default: false
+    },
+    wildcard: {
+      type: Boolean,
+      default: false
+    },
+    dnsIntegration: String,
     status: String,
     webapp: {
       type: Schema.Types.ObjectId,
@@ -25,8 +42,15 @@ const DomainSchema = new Schema<Domain>(
     },
   },
   {
+    toJSON: {
+      transform: function (doc, ret) {
+        ret.id = ret._id
+        delete ret._id
+        delete ret.__v
+      },
+    },
     timestamps: false,
   }
 )
 
-export default model<Domain>('Domains', DomainSchema)
+export default model<Domain>('Domain', DomainSchema)
