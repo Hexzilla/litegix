@@ -19,7 +19,7 @@ const getDomainSuffix = function () {
 }
 
 function getRandomInt(max: number) {
-  return Math.floor(Math.random() * max);
+  return Math.floor(Math.random() * max)
 }
 
 export async function getWebApplications(server: Server) {
@@ -27,10 +27,10 @@ export async function getWebApplications(server: Server) {
   return {
     success: true,
     data: {
-      apps: apps.map(it => {
+      apps: apps.map((it) => {
         return {
           ...it.toJSON(),
-          owner: it.owner.name
+          owner: it.owner.name,
         }
       }),
     },
@@ -41,7 +41,7 @@ export async function findWebappById(id: string) {
   const webapp = await WebappModel.findById(id)
   return {
     success: true,
-    data: { webapp, },
+    data: { webapp },
   }
 }
 
@@ -203,19 +203,18 @@ export async function storeWordpressApplication(server: Server, payload: any) {
   }
 
   // check parameters
-  let systemUser: SystemUser | null = null;
+  let systemUser: SystemUser | null = null
   if (payload.useExistUser) {
     systemUser = await SystemUserModel.findById(payload.owner)
     if (!systemUser) {
       throw new Error('The user doen not exists.')
     }
-  }
-  else {
-    systemUser = await SystemUserModel.findOne({name: payload.owner})
+  } else {
+    systemUser = await SystemUserModel.findOne({ name: payload.owner })
     if (!systemUser) {
       systemUser = new SystemUserModel({
         name: payload.owner,
-        password: 'litegix'
+        password: 'litegix',
       })
       systemUser.server = server
       await systemUser.save()
@@ -227,15 +226,15 @@ export async function storeWordpressApplication(server: Server, payload: any) {
     domainName = `${payload.domainName}${payload.domainSuffix}`
   }
 
-  const rand = function() {
-    return 1000000 + getRandomInt(1000000);
+  const rand = function () {
+    return 1000000 + getRandomInt(1000000)
   }
 
   const wp = payload.wordpress
   const wordpress = {
     ...wp,
     databaseUser: wp.databaseUser || `${payload.name}_${rand()}`,
-    databasePass: wp.databasePass || `Litegix_${uuidv4().replace(/-/g, "")}`,
+    databasePass: wp.databasePass || `Litegix_${uuidv4().replace(/-/g, '')}`,
     databaseName: wp.databaseName || `${payload.name}_${rand()}`,
     siteTitle: wp.siteTitle || `${payload.name}_${rand()}`,
   }
@@ -245,7 +244,7 @@ export async function storeWordpressApplication(server: Server, payload: any) {
     userName: systemUser?.name,
     phpVersion: payload.phpVersion,
     webserver: server.webserver,
-    ...wordpress
+    ...wordpress,
   }
   const res = await agentSvc.createWordpress(server.address, postData)
   if (res.error != 0) {
@@ -254,7 +253,7 @@ export async function storeWordpressApplication(server: Server, payload: any) {
 
   const domainModel = new DomainModel({
     name: domainName,
-    type: payload.domainType
+    type: payload.domainType,
   })
   const domain = await domainModel.save()
 
@@ -356,7 +355,11 @@ export async function storePhpMyAdmin(server: Server, payload: any) {
 
 /**
  */
-export async function storeGitRepository(server: Server, webappId: string, payload: any) {
+export async function storeGitRepository(
+  server: Server,
+  webappId: string,
+  payload: any
+) {
   const webapp = await WebappModel.findById(webappId)
   if (!webapp) {
     throw new Error('The app does not exists.')
@@ -380,10 +383,10 @@ export async function storeGitRepository(server: Server, webappId: string, paylo
     githost = payload.githost
   }
 
+  const url = `git@${githost}:${payload.repository}.git`
   const res = await agentSvc.createGitRepository(server.address, {
-    ...payload,
-    webapp: webapp.name,
-    githost,
+    url,
+    branch: payload.branch,
   })
   if (res.error != 0) {
     throw new Error(`Agent error ${res.error}`)
@@ -402,13 +405,13 @@ export async function storeGitRepository(server: Server, webappId: string, paylo
 
   return {
     success: true,
-    data: { id: webappId },
+    data: { webappId: webappId },
   }
 }
 
 /**
  */
- export async function getDomains(webappId: string) {
+export async function getDomains(webappId: string) {
   const webapp = await WebappModel.findById(webappId).populate('domains')
   if (!webapp) {
     throw new Error('The app does not exists.')
@@ -422,16 +425,15 @@ export async function storeGitRepository(server: Server, webappId: string, paylo
   }
 }
 
-
 /**
  */
- export async function addDomain(webappId: string, data: any) {
+export async function addDomain(webappId: string, data: any) {
   const webapp = await WebappModel.findById(webappId).populate('domains')
   if (!webapp) {
     throw new Error('The app does not exists.')
   }
 
-  const exists = webapp.domains.find(it => it.name == data.name)
+  const exists = webapp.domains.find((it) => it.name == data.name)
   if (exists) {
     throw new Error('Name is already taken')
   }
@@ -446,20 +448,20 @@ export async function storeGitRepository(server: Server, webappId: string, paylo
   return {
     success: true,
     data: {
-      domainId: domain.id
-    }
+      domainId: domain.id,
+    },
   }
 }
 
 /**
  */
- export async function deleteDomain(webappId: string, domainId: string) {
+export async function deleteDomain(webappId: string, domainId: string) {
   const webapp = await WebappModel.findById(webappId).populate('domains')
   if (!webapp) {
     throw new Error('The app does not exists.')
   }
 
-  const domain = webapp.domains.find(it => it.id == domainId)
+  const domain = webapp.domains.find((it) => it.id == domainId)
   if (!domain) {
     throw new Error('The domain does not exists')
   }
@@ -474,14 +476,18 @@ export async function storeGitRepository(server: Server, webappId: string, paylo
   return {
     success: true,
     data: {
-      domainId: domain.id
-    }
+      domainId: domain.id,
+    },
   }
 }
 
 /**
  */
-export async function getFileList(server: Server, webappId: string, folder: string) {
+export async function getFileList(
+  server: Server,
+  webappId: string,
+  folder: string
+) {
   const webapp = await WebappModel.findById(webappId)
   if (!webapp) {
     throw new Error('The app does not exists.')
@@ -502,7 +508,11 @@ export async function getFileList(server: Server, webappId: string, folder: stri
 
 /**
  */
-export async function createFile(server: Server, webappId: string, fileName: string) {
+export async function createFile(
+  server: Server,
+  webappId: string,
+  fileName: string
+) {
   const webapp = await WebappModel.findById(webappId)
   if (!webapp) {
     throw new Error('The app does not exists.')
@@ -520,7 +530,11 @@ export async function createFile(server: Server, webappId: string, fileName: str
 
 /**
  */
-export async function createFolder(server: Server, webappId: string, fileName: string) {
+export async function createFolder(
+  server: Server,
+  webappId: string,
+  fileName: string
+) {
   const webapp = await WebappModel.findById(webappId)
   if (!webapp) {
     throw new Error('The app does not exists.')
@@ -538,13 +552,23 @@ export async function createFolder(server: Server, webappId: string, fileName: s
 
 /**
  */
-export async function changeFileName(server: Server, webappId: string, oldname: string, newname: string) {
+export async function changeFileName(
+  server: Server,
+  webappId: string,
+  oldname: string,
+  newname: string
+) {
   const webapp = await WebappModel.findById(webappId)
   if (!webapp) {
     throw new Error('The app does not exists.')
   }
 
-  const res = await agentSvc.changeFileName(server.address, webapp.name, oldname, newname)
+  const res = await agentSvc.changeFileName(
+    server.address,
+    webapp.name,
+    oldname,
+    newname
+  )
   if (res.error != 0) {
     throw new Error(`Agent error ${res.error}`)
   }
@@ -556,13 +580,21 @@ export async function changeFileName(server: Server, webappId: string, oldname: 
 
 /**
  */
-export async function changeFilePermission(server: Server, webappId: string, permission: string) {
+export async function changeFilePermission(
+  server: Server,
+  webappId: string,
+  permission: string
+) {
   const webapp = await WebappModel.findById(webappId)
   if (!webapp) {
     throw new Error('The app does not exists.')
   }
 
-  const res = await agentSvc.changeFilePermission(server.address, webapp.name, permission)
+  const res = await agentSvc.changeFilePermission(
+    server.address,
+    webapp.name,
+    permission
+  )
   if (res.error != 0) {
     throw new Error(`Agent error ${res.error}`)
   }
@@ -590,12 +622,16 @@ export async function getSummary(server: Server, webAppId: string) {
       tdty: 16390,
       tdtm: 6390,
       dirSize: 6920301,
-      sslMethod: 'Basic'
+      sslMethod: 'Basic',
     },
   }
 }
 
-export async function storeWebSSL(server: Server, webAppId: string, payload: any) {
+export async function storeWebSSL(
+  server: Server,
+  webAppId: string,
+  payload: any
+) {
   const webapp = await WebappModel.findById(webAppId)
   if (!webapp) {
     throw new Error('The web application does not exists.')
@@ -605,7 +641,7 @@ export async function storeWebSSL(server: Server, webAppId: string, payload: any
     domain: webapp.domainName,
     email: 'admin@litegix.com',
   }
-  console.log("storeWebSSL, to agent", postData);
+  console.log('storeWebSSL, to agent', postData)
   const res = await agentSvc.createWebSSL(server.address, postData)
   if (res.error != 0) {
     throw new Error(`Agent error ${res.error}`)

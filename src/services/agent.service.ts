@@ -87,7 +87,11 @@ export async function deleteDatabaseUser(address: string, name: string) {
   }
 }
 
-export async function grantDatabaseUser(address: string, database: string, userName: string) {
+export async function grantDatabaseUser(
+  address: string,
+  database: string,
+  userName: string
+) {
   try {
     if (process.env.NODE_ENV !== 'production') {
       return { error: 0 }
@@ -107,7 +111,11 @@ export async function grantDatabaseUser(address: string, database: string, userN
   }
 }
 
-export async function removeDatabaseUserGrant(address: string, database: string, userName: string) {
+export async function removeDatabaseUserGrant(
+  address: string,
+  database: string,
+  userName: string
+) {
   try {
     if (process.env.NODE_ENV !== 'production') {
       return { error: 0 }
@@ -146,7 +154,7 @@ export async function createWebApplication(address: string, payload: any) {
 
 export async function createWordpress(address: string, payload: any) {
   try {
-    console.log("agent->payload:", payload)
+    console.log('agent->payload:', payload)
     if (process.env.NODE_ENV !== 'production') {
       return { error: 0 }
     }
@@ -156,10 +164,10 @@ export async function createWordpress(address: string, payload: any) {
     )
     console.log('createWebApplication', res.data)
     return res.data
-  } catch (e : any) {
-    console.log("createWordpress", e)
+  } catch (e: any) {
+    console.log('createWordpress', e)
     if (e.response) {
-      console.log(e.response.data);
+      console.log(e.response.data)
       return { error: -1, message: e.response.data }
     }
     return { error: -1, message: e.message }
@@ -235,7 +243,11 @@ export async function deleteSystemUser(address: string, name: string) {
   }
 }
 
-export async function changeSystemUserPassword(address: string, name: string, password: string) {
+export async function changeSystemUserPassword(
+  address: string,
+  name: string,
+  password: string
+) {
   try {
     if (process.env.NODE_ENV !== 'production') {
       return { error: 0 }
@@ -254,7 +266,11 @@ export async function changeSystemUserPassword(address: string, name: string, pa
   }
 }
 
-export async function createSSHKey(address: string, userName: string, pubKey: string) {
+export async function createSSHKey(
+  address: string,
+  userName: string,
+  pubKey: string
+) {
   try {
     if (process.env.NODE_ENV !== 'production') {
       return { error: 0 }
@@ -271,7 +287,11 @@ export async function createSSHKey(address: string, userName: string, pubKey: st
   }
 }
 
-export async function deleteSSHKey(address: string, usreName: string, pubKey: string) {
+export async function deleteSSHKey(
+  address: string,
+  usreName: string,
+  pubKey: string
+) {
   try {
     if (process.env.NODE_ENV !== 'production') {
       return { error: 0 }
@@ -380,12 +400,18 @@ export async function rebuildCronJob() {
   return null
 }
 
-export async function createGitRepository(address: string, payload: any) {
+export async function createGitRepository(
+  address: string,
+  payload: { url: string; branch: string }
+) {
   try {
     if (process.env.NODE_ENV !== 'production') {
       return { error: 0 }
     }
-    const res = await axios.post(`http://${address}:21000/webapp/deploy`, payload)
+    const res = await axios.post(
+      `http://${address}:21000/webapp/deploy`,
+      payload
+    )
     console.log('createGitRepository', res.data)
     return res.data
   } catch (e) {
@@ -394,7 +420,11 @@ export async function createGitRepository(address: string, payload: any) {
   }
 }
 
-export async function getFileList(address: string, webapp: string, folder: string) {
+export async function getFileList(
+  address: string,
+  webapp: string,
+  folder: string
+) {
   try {
     if (process.env.NODE_ENV !== 'production') {
       return { error: 0 }
@@ -410,7 +440,11 @@ export async function getFileList(address: string, webapp: string, folder: strin
   }
 }
 
-export async function createFile(address: string, webapp: string, fileName: string) {
+export async function createFile(
+  address: string,
+  webapp: string,
+  fileName: string
+) {
   try {
     if (process.env.NODE_ENV !== 'production') {
       return { error: 0 }
@@ -426,7 +460,11 @@ export async function createFile(address: string, webapp: string, fileName: stri
   }
 }
 
-export async function createFolder(address: string, webapp: string, folderName: string) {
+export async function createFolder(
+  address: string,
+  webapp: string,
+  folderName: string
+) {
   try {
     if (process.env.NODE_ENV !== 'production') {
       return { error: 0 }
@@ -442,7 +480,12 @@ export async function createFolder(address: string, webapp: string, folderName: 
   }
 }
 
-export async function changeFileName(address: string, webapp: string, oldname: string, newname: string) {
+export async function changeFileName(
+  address: string,
+  webapp: string,
+  oldname: string,
+  newname: string
+) {
   try {
     if (process.env.NODE_ENV !== 'production') {
       return { error: 0 }
@@ -462,7 +505,11 @@ export async function changeFileName(address: string, webapp: string, oldname: s
   }
 }
 
-export async function changeFilePermission(address: string, webapp: string, permission: string) {
+export async function changeFilePermission(
+  address: string,
+  webapp: string,
+  permission: string
+) {
   try {
     if (process.env.NODE_ENV !== 'production') {
       return { error: 0 }

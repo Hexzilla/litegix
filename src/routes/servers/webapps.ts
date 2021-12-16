@@ -1,8 +1,8 @@
 import { body } from 'express-validator'
 import { Router } from 'express'
+import { handler } from 'utils'
 import auth from '../auth'
 import validate from 'routes/validate'
-import { handler } from 'utils'
 import * as webappService from 'services/webapps.service'
 const router = Router()
 
