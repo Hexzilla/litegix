@@ -9,7 +9,9 @@ const router = Router()
 
 router.get('/', async function (req: Request, res: Response) {
   const explorers = await ExplorerModel.find()
-  return res.json(explorers)
+  return res.json({
+    explorers: explorers.map((it) => it.toAccount()),
+  })
 })
 
 router.post(

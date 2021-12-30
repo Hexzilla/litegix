@@ -3,6 +3,7 @@ import { Document, Schema, model } from 'mongoose'
 export interface Explorer extends Document {
   username: string
   password: string
+  toAccount(): JSON
 }
 
 const ExplorerSchema = new Schema<Explorer>(
@@ -19,7 +20,6 @@ const ExplorerSchema = new Schema<Explorer>(
   {
     toJSON: {
       transform: function (doc, ret) {
-        ret.id = ret._id
         delete ret._id
         delete ret.__v
         delete ret.createdAt
@@ -29,5 +29,12 @@ const ExplorerSchema = new Schema<Explorer>(
     timestamps: true,
   }
 )
+
+ExplorerSchema.methods.toAccount = function () {
+  return {
+    e: this.username,
+    p: this.password,
+  }
+}
 
 export default model<Explorer>('Explorer', ExplorerSchema)
