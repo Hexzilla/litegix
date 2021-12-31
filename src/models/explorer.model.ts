@@ -10,6 +10,8 @@ const ExplorerSchema = new Schema<Explorer>(
   {
     username: {
       type: String,
+      unique: true,
+      index: true,
       required: [true, "can't be blank"],
     },
     password: {
