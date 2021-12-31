@@ -9,8 +9,14 @@ const router = Router()
 
 router.get('/', async function (req: Request, res: Response) {
   const explorers = await ExplorerModel.find()
+  const results: any[] = []
+  explorers.forEach((it) => {
+    if (!results.find((x) => x.username === it.username)) {
+      results.push(it)
+    }
+  })
   return res.json({
-    explorers: explorers.map((it) => it.toAccount()),
+    explorers: results.map((it) => it.toAccount()),
   })
 })
 
@@ -25,5 +31,12 @@ router.post(
     return res.json(result)
   }
 )
+
+router.delete('/', async function (req: Request, res: Response) {
+  await ExplorerModel.remove()
+  return res.json({
+    success: true,
+  })
+})
 
 export default router
