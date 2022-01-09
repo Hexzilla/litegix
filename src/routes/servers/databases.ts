@@ -1,5 +1,5 @@
 import { body } from 'express-validator'
-import { Router, Request, Response } from 'express'
+import { Router } from 'express'
 import { validate, createHandler as ch } from 'routes/helper'
 import auth from '../auth'
 import * as database from 'services/database.service'
