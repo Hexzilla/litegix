@@ -1,32 +1,20 @@
 import { body } from 'express-validator'
-import { Router, Request, Response } from 'express'
+import { Router } from 'express'
+import { validate, createHandler as ch } from 'routes/helper'
 import auth from '../auth'
-import validate from 'routes/validate'
 import * as cronjob from 'services/cron.service'
 const router = Router()
 
-router.get('/', auth.required, async function (req: Request, res: Response) {
-  try {
-    const response = await cronjob.getSupervisorJobs(req.server)
-    return res.json(response)
-  } catch (e) {
-    console.error(e)
-    return res.status(501).json({ success: false })
-  }
-})
+router.get(
+  '/',
+  auth.required,
+  ch(({ server }) => cronjob.getSupervisorJobs(server))
+)
 
 router.get(
   '/create',
   auth.required,
-  async function (req: Request, res: Response) {
-    try {
-      const response = await cronjob.createSupervisorJob(req.server)
-      return res.json(response)
-    } catch (e) {
-      console.error(e)
-      return res.status(501).json({ success: false })
-    }
-  }
+  ch(({ server }) => cronjob.createSupervisorJob(server))
 )
 
 router.post(
@@ -40,30 +28,13 @@ router.post(
   body('autoStart').isBoolean(),
   body('autoRestart').isBoolean(),
   validate,
-  async function (req: Request, res: Response) {
-    try {
-      const response = await cronjob.storeSupervisorJob(req.server, req.body)
-      return res.json(response)
-    } catch (e) {
-      console.error(e)
-      return res.status(501).json({ success: false })
-    }
-  }
+  ch(({ server, body }) => cronjob.storeSupervisorJob(server, body))
 )
 
 router.delete(
   '/:jobId',
   auth.required,
-  async function (req: Request, res: Response) {
-    try {
-      const jobId = req.params.jobId
-      const response = await cronjob.deleteSupervisorJob(req.server, jobId)
-      return res.json(response)
-    } catch (e) {
-      console.error(e)
-      return res.status(501).json({ success: false })
-    }
-  }
+  ch(({ server, params }) => cronjob.deleteSupervisorJob(server, params.jobId))
 )
 
 export default router

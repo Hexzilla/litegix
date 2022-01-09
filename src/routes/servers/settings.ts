@@ -1,8 +1,7 @@
 import { Router, Request, Response } from 'express'
 import { body } from 'express-validator'
+import { validate, createHandler as ch } from 'routes/helper'
 import auth from '../auth'
-import validate from 'routes/validate'
-import errorMessage from 'routes/errors'
 import * as serverSvc from 'services/server.service'
 const router = Router()
 
@@ -26,23 +25,9 @@ router.put(
   body('name').notEmpty(),
   body('provider').notEmpty(),
   validate,
-  async function (req: Request, res: Response) {
-    try {
-      const response = await serverSvc.updateServerName(
-        req.payload.id,
-        req.server,
-        req.body.name,
-        req.body.provider
-      )
-      return res.json(response)
-    } catch (e) {
-      console.error(e)
-      return res.status(501).json({
-        success: false,
-        errors: errorMessage(e),
-      })
-    }
-  }
+  ch(({ server, body, payload }) =>
+    serverSvc.updateServerName(payload.id, server, body.name, body.provider)
+  )
 )
 
 router.put(
@@ -50,22 +35,9 @@ router.put(
   auth.required,
   body('address').isIP(4),
   validate,
-  async function (req: Request, res: Response) {
-    try {
-      const response = await serverSvc.updateServerAddress(
-        req.payload.id,
-        req.server,
-        req.body.address
-      )
-      return res.json(response)
-    } catch (e) {
-      console.error(e)
-      return res.status(501).json({
-        success: false,
-        errors: errorMessage(e),
-      })
-    }
-  }
+  ch(({ server, body, payload }) =>
+    serverSvc.updateServerAddress(payload.id, server, body.address)
+  )
 )
 
 export default router
