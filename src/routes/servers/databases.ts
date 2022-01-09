@@ -1,39 +1,20 @@
 import { body } from 'express-validator'
 import { Router, Request, Response } from 'express'
+import { validate, createHandler as ch } from 'routes/helper'
 import auth from '../auth'
-import validate from 'routes/validate'
-import errorMessage from 'routes/errors'
 import * as database from 'services/database.service'
 const router = Router()
 
-const catchError = function (res: Response, e: any) {
-  console.error(e)
-  return res.status(501).json({
-    success: false,
-    errors: errorMessage(e),
-  })
-}
-
-router.get('/', auth.required, async function (req: Request, res: Response) {
-  try {
-    const response = await database.getDatabases(req.server)
-    return res.json(response)
-  } catch (e) {
-    return catchError(res, e)
-  }
-})
+router.get(
+  '/',
+  auth.required,
+  ch(({ server }) => database.getDatabases(server))
+)
 
 router.get(
   '/create',
   auth.required,
-  async function (req: Request, res: Response) {
-    try {
-      const response = await database.createDatabase(req.server)
-      res.json(response)
-    } catch (e) {
-      return catchError(res, e)
-    }
-  }
+  ch(({ server }) => database.createDatabase(server))
 )
 
 router.post(
@@ -42,28 +23,13 @@ router.post(
   body('name').isString(),
   body('userId').isString(),
   validate,
-  async function (req: Request, res: Response) {
-    try {
-      const response = await database.storeDatabase(req.server, req.body)
-      res.json(response)
-    } catch (e) {
-      return catchError(res, e)
-    }
-  }
+  ch(({ server, body }) => database.storeDatabase(server, body))
 )
 
 router.delete(
   '/:databaseId',
   auth.required,
-  async function (req: Request, res: Response) {
-    try {
-      const databaseId = req.params.databaseId
-      const response = await database.deleteDatabase(req.server, databaseId)
-      res.json(response)
-    } catch (e) {
-      return catchError(res, e)
-    }
-  }
+  ch(({ server, params }) => database.deleteDatabase(server, params.databaseId))
 )
 
 // router.get('/:databaseId/grant', auth.required, database.getUngrantedDBuser)
@@ -72,80 +38,38 @@ router.post(
   '/:databaseId/grant',
   auth.required,
   body('dbuserId').isString(),
-  async function (req: Request, res: Response) {
-    try {
-      const databaseId = req.params.databaseId
-      const dbuserId = req.body.dbuserId
-      const r = await database.grantDatabaseUser(
-        req.server,
-        databaseId,
-        dbuserId
-      )
-      res.json(r)
-    } catch (e) {
-      return catchError(res, e)
-    }
-  }
+  validate,
+  ch(({ server, body, params }) =>
+    database.grantDatabaseUser(server, params.databaseId, body.dbuserId)
+  )
 )
 
 router.delete(
   '/:databaseId/grant/:dbuserId',
   auth.required,
-  async function (req: Request, res: Response) {
-    try {
-      const databaseId = req.params.databaseId
-      const dbuserId = req.params.dbuserId
-      const r = await database.revokeDatabaseUser(
-        req.server,
-        databaseId,
-        dbuserId
-      )
-      res.json(r)
-    } catch (e) {
-      return catchError(res, e)
-    }
-  }
+  ch(({ server, params }) =>
+    database.revokeDatabaseUser(server, params.databaseId, params.dbuserId)
+  )
 )
 
 router.get(
   '/:databaseId/users/ungranted',
   auth.required,
-  async function (req: Request, res: Response) {
-    try {
-      const databaseId = req.params.databaseId
-      const r = await database.getUngrantedDBUsers(req.server, databaseId)
-      res.json(r)
-    } catch (e) {
-      return catchError(res, e)
-    }
-  }
+  ch(({ server, params }) =>
+    database.getUngrantedDBUsers(server, params.databaseId)
+  )
 )
 
 router.get(
   '/users',
   auth.required,
-  async function (req: Request, res: Response) {
-    try {
-      const response = await database.getDatabaseUserList(req.server)
-      return res.json(response)
-    } catch (e) {
-      return catchError(res, e)
-    }
-  }
+  ch(({ server }) => database.getDatabaseUserList(server))
 )
 
 router.get(
   '/users/:dbuserId',
   auth.required,
-  async function (req: Request, res: Response) {
-    try {
-      const dbuserId = req.params.dbuserId
-      const response = await database.getDatabaseUser(dbuserId)
-      return res.json(response)
-    } catch (e) {
-      return catchError(res, e)
-    }
-  }
+  ch(({ params }) => database.getDatabaseUser(params.dbuserId))
 )
 
 router.post(
@@ -154,14 +78,7 @@ router.post(
   body('name').isString(),
   body('password').isString(),
   validate,
-  async function (req: Request, res: Response) {
-    try {
-      const response = await database.storeDatabaseUser(req.server, req.body)
-      return res.json(response)
-    } catch (e) {
-      return catchError(res, e)
-    }
-  }
+  ch(({ server, body }) => database.storeDatabaseUser(server, body))
 )
 
 router.put(
@@ -169,33 +86,15 @@ router.put(
   auth.required,
   body('password').isString(),
   validate,
-  async function (req: Request, res: Response) {
-    try {
-      const dbuserId = req.params.dbuserId
-      const response = await database.changePassword(
-        req.server,
-        dbuserId,
-        req.body.password
-      )
-      return res.json(response)
-    } catch (e) {
-      return catchError(res, e)
-    }
-  }
+  ch(({ server, body, params }) =>
+    database.changePassword(server, params.dbuserId, body.password)
+  )
 )
 
 router.delete(
   '/users/:userId',
   auth.required,
-  async function (req: Request, res: Response) {
-    try {
-      const userId = req.params.userId
-      const response = await database.deleteDatabaseUser(req.server, userId)
-      return res.json(response)
-    } catch (e) {
-      return catchError(res, e)
-    }
-  }
+  ch(({ server, params }) => database.deleteDatabaseUser(server, params.userId))
 )
 
 export default router
