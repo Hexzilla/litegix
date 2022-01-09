@@ -3,19 +3,16 @@ import { Router, Request, Response } from 'express'
 import auth from '../auth'
 import validate from 'routes/validate'
 import errorMessage from 'routes/errors'
+import { createHandler } from 'routes/helper'
 import * as serverService from 'services/server.service'
 import * as systemSvc from 'services/system.service'
 const router = Router()
 
-router.delete('/', auth.required, async function (req: Request, res: Response) {
-  try {
-    const json = await serverService.deleteServer(req.server)
-    return res.json(json)
-  } catch (e) {
-    console.error(e)
-    return res.status(501).json({ success: false })
-  }
-})
+router.delete(
+  '/',
+  auth.required,
+  createHandler(({ server }) => serverService.deleteServer(server))
+)
 
 router.post(
   '/summary',

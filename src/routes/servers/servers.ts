@@ -1,36 +1,21 @@
 import { body } from 'express-validator'
-import { Router, Request, Response } from 'express'
+import { Router } from 'express'
 import auth from '../auth'
 import validate from 'routes/validate'
-import errorMessage from 'routes/errors'
+import { createHandler } from 'routes/helper'
 import * as serverSvc from 'services/server.service'
 const router = Router()
 
-const catchError = function (res: Response, e: any) {
-  console.error(e)
-  return res.status(501).json({
-    success: false,
-    errors: errorMessage(e),
-  })
-}
+router.get(
+  '/',
+  auth.required,
+  createHandler(({ payload }) => serverSvc.getServers(payload.id))
+)
 
-router.get('/', auth.required, async function (req: Request, res: Response) {
-  try {
-    const ret = await serverSvc.getServers(req.payload.id)
-    return res.json(ret)
-  } catch (e) {
-    return catchError(res, e)
-  }
-})
-
-router.get('/create', async function (req: Request, res: Response) {
-    try {
-      const ret = await serverSvc.createServer()
-      return res.json(ret)
-    } catch (e) {
-      return catchError(res, e)
-    }
-  }
+router.get(
+  '/create',
+  auth.required,
+  createHandler(() => serverSvc.createServer())
 )
 
 router.post(
@@ -42,14 +27,7 @@ router.post(
   body('database').notEmpty(),
   body('phpVersion').notEmpty(),
   validate,
-  async function (req: Request, res: Response) {
-    try {
-      const ret = await serverSvc.storeServer(req.payload.id, req.body)
-      return res.json(ret)
-    } catch (e) {
-      return catchError(res, e)
-    }
-  }
+  createHandler(({ payload, body }) => serverSvc.storeServer(payload.id, body))
 )
 
 export default router
