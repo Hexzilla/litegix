@@ -1,3 +1,4 @@
+#!/bin/bash
 systemctl stop nginx
 sudo apt-get remove nginx nginx-common
 sudo apt-get purge nginx nginx-common
