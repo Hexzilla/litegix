@@ -427,7 +427,7 @@ export async function getDomains(webappId: string) {
 
 /**
  */
-export async function addDomain(webappId: string, data: any) {
+export async function addDomain(webappId: string, data: Domain) {
   const webapp = await WebappModel.findById(webappId).populate('domains')
   if (!webapp) {
     throw new Error('The app does not exists.')

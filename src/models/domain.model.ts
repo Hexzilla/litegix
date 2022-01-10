@@ -5,11 +5,10 @@ export interface Domain extends Document {
   name: string
   type: string
   www: boolean
-  redirection: boolean
-  wildcard: boolean
-  dnsIntegration: string
-  status: string
-  webapp: Webapp
+  preferedDomain?: number
+  dnsIntegration?: string
+  status?: string
+  webapp?: Webapp
 }
 
 const DomainSchema = new Schema<Domain>(
@@ -20,21 +19,20 @@ const DomainSchema = new Schema<Domain>(
     },
     type: {
       type: String,
-      required: [true, "can't be blank"]
+      required: [true, "can't be blank"],
     },
     www: {
       type: Boolean,
-      default: false
+      default: false,
     },
-    redirection: {
-      type: Boolean,
-      default: false
+    preferedDomain: {
+      type: Number,
+      default: false,
     },
-    wildcard: {
-      type: Boolean,
-      default: false
+    dnsIntegration: {
+      type: String,
+      default: false,
     },
-    dnsIntegration: String,
     status: String,
     webapp: {
       type: Schema.Types.ObjectId,

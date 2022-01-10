@@ -104,10 +104,10 @@ router.get(
 router.post(
   '/:webappId/domains',
   auth.required,
-  body('redirect').isString(),
   body('type').isString(),
   body('name').isString(),
   body('www').isBoolean(),
+  body('preferedDomain').isNumeric(),
   body('dnsIntegration').isString(),
   ch(({ params, body }) => webappService.addDomain(params.webappId, body))
 )
