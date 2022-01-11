@@ -3,11 +3,17 @@ import { Webapp } from './webapp.model'
 
 export type DomainType = 'primay' | 'atlas'
 
+export enum PreferedDomain {
+  NOWN,
+  WWW,
+  NON_WWW,
+}
+
 export interface Domain extends Document {
   name: string
   type: DomainType
   www: boolean
-  preferedDomain?: number
+  preferedDomain?: PreferedDomain
   dnsIntegration?: string
   status?: string
   webapp?: Webapp

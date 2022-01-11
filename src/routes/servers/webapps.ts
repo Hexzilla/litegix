@@ -112,8 +112,8 @@ router.post(
   ch(({ params, body }) => webappService.addDomain(params.webappId, body))
 )
 
-router.post(
-  '/:webappId/domains/:domainId/update',
+router.put(
+  '/:webappId/domains/:domainId',
   auth.required,
   body('type').isString(),
   ch(({ params, body }) =>
