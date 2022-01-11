@@ -12,6 +12,8 @@ export enum PreferedDomain {
 export interface Domain extends Document {
   name: string
   type: DomainType
+  testDomain: boolean
+  suffix?: string
   www: boolean
   preferedDomain?: PreferedDomain
   dnsIntegration?: string
@@ -29,17 +31,20 @@ const DomainSchema = new Schema<Domain>(
       type: String,
       required: [true, "can't be blank"],
     },
+    testDomain: {
+      type: Boolean,
+      default: false,
+    },
     www: {
       type: Boolean,
       default: false,
     },
     preferedDomain: {
       type: Number,
-      default: false,
+      default: 0,
     },
     dnsIntegration: {
       type: String,
-      default: false,
     },
     status: String,
     webapp: {
@@ -51,6 +56,7 @@ const DomainSchema = new Schema<Domain>(
     toJSON: {
       transform: function (doc, ret) {
         ret.id = ret._id
+        delete ret.webapp
         delete ret._id
         delete ret.__v
       },

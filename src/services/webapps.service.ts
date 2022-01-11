@@ -427,18 +427,29 @@ export async function getDomains(webappId: string) {
 
 /**
  */
-export async function addDomain(webappId: string, data: Domain) {
+export async function addDomain(webappId: string, payload: any) {
   const webapp = await WebappModel.findById(webappId).populate('domains')
   if (!webapp) {
     throw new Error('The app does not exists.')
   }
 
-  const exists = webapp.domains.find((it) => it.name == data.name)
+  let domainName = payload.name
+  if (payload.testDomain) {
+    if (!payload.suffix) {
+      throw new Error('Invalid suffix name for test domain')
+    }
+    domainName = `${payload.name}${payload.suffix}`
+  }
+
+  const exists = webapp.domains.find((it) => it.name == domainName)
   if (exists) {
     throw new Error('Name is already taken')
   }
 
-  const domainModel = new DomainModel(data)
+  const domainModel = new DomainModel({
+    ...payload,
+    name: domainName,
+  })
   domainModel.webapp = webapp
   const domain = await domainModel.save()
 

@@ -106,9 +106,11 @@ router.post(
   auth.required,
   body('type').isString(),
   body('name').isString(),
+  body('testDomain').isBoolean(),
   body('www').isBoolean(),
   body('preferedDomain').isNumeric(),
   body('dnsIntegration').isString(),
+  validate,
   ch(({ params, body }) => webappService.addDomain(params.webappId, body))
 )
 
@@ -116,6 +118,7 @@ router.put(
   '/:webappId/domains/:domainId',
   auth.required,
   body('type').isString(),
+  validate,
   ch(({ params, body }) =>
     webappService.updateDomain(params.webappId, params.domainId, body)
   )
