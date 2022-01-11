@@ -1,9 +1,11 @@
 import { Document, Schema, model } from 'mongoose'
 import { Webapp } from './webapp.model'
 
+export type DomainType = 'primay' | 'atlas'
+
 export interface Domain extends Document {
   name: string
-  type: string
+  type: DomainType
   www: boolean
   preferedDomain?: number
   dnsIntegration?: string

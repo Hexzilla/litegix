@@ -1,7 +1,7 @@
 import { randomBytes } from 'crypto'
 import { v4 as uuidv4 } from 'uuid'
 import { model } from 'mongoose'
-import { Server, Webapp, SystemUser, Domain } from 'models'
+import { Server, Webapp, SystemUser, Domain, DomainType } from 'models'
 import * as activitySvc from 'services/activity.service'
 import * as agentSvc from 'services/agent.service'
 import {
@@ -458,7 +458,7 @@ export async function addDomain(webappId: string, data: Domain) {
 export async function updateDomain(
   webappId: string,
   domainId: string,
-  { type }: { type: string }
+  { type }: { type: DomainType }
 ) {
   const webapp = await WebappModel.findById(webappId).populate('domains')
   if (!webapp) {
