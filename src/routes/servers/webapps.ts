@@ -117,7 +117,6 @@ router.post(
 router.put(
   '/:webappId/domains/:domainId',
   auth.required,
-  body('type').isString(),
   validate,
   ch(({ params, body }) =>
     webappService.updateDomain(params.webappId, params.domainId, body)

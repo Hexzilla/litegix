@@ -1,7 +1,7 @@
 import { randomBytes } from 'crypto'
 import { v4 as uuidv4 } from 'uuid'
 import { model } from 'mongoose'
-import { Server, Webapp, SystemUser, Domain, DomainType } from 'models'
+import { Server, Webapp, SystemUser, Domain } from 'models'
 import * as activitySvc from 'services/activity.service'
 import * as agentSvc from 'services/agent.service'
 import {
@@ -469,8 +469,9 @@ export async function addDomain(webappId: string, payload: any) {
 export async function updateDomain(
   webappId: string,
   domainId: string,
-  { type }: { type: DomainType }
+  payload: Domain
 ) {
+  console.log('payload', payload)
   const webapp = await WebappModel.findById(webappId).populate('domains')
   if (!webapp) {
     throw new Error('The app does not exists.')
@@ -481,14 +482,18 @@ export async function updateDomain(
     throw new Error("Domain doesn't exists")
   }
 
-  domain.type = type
+  if (payload.type !== undefined) {
+    domain.type = payload.type
+  }
+  if (payload.www !== undefined) {
+    domain.www = payload.www
+  }
   await domain.save()
 
   return {
     success: true,
     data: {
       domainId: domain.id,
-      type: type,
     },
   }
 }
