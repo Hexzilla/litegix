@@ -48,10 +48,12 @@ var WebappSchema = new Schema<Webapp>(
       type: String,
       required: [true, "can't be blank"],
     },
-    domains: [{
-      type: Schema.Types.ObjectId,
-      ref: 'Domain'
-    }],
+    domains: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Domain',
+      },
+    ],
     domainType: {
       type: String,
       required: [true, "can't be blank"],

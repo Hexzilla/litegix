@@ -1,4 +1,4 @@
-import { Server, Channel } from 'models/server.model'
+import { Server, Channel, Webapp } from 'models'
 
 interface Payload {
   id: string
@@ -13,6 +13,7 @@ declare global {
       server: Server
       payload: Payload
       channel: Channel
+      webapp: Webapp
     }
   }
 }

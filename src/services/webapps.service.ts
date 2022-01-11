@@ -45,6 +45,15 @@ export async function findWebappById(id: string) {
   }
 }
 
+export async function getWebapp(webapp: Webapp) {
+  return new Promise((resolve) => {
+    resolve({
+      success: true,
+      data: { webapp },
+    })
+  })
+}
+
 /**
  */
 export async function createCustomWebApplication(server: Server) {
@@ -357,14 +366,9 @@ export async function storePhpMyAdmin(server: Server, payload: any) {
  */
 export async function storeGitRepository(
   server: Server,
-  webappId: string,
+  webapp: Webapp,
   payload: any
 ) {
-  const webapp = await WebappModel.findById(webappId)
-  if (!webapp) {
-    throw new Error('The app does not exists.')
-  }
-
   let githost = ''
   const provider = payload.provider
   if (provider == 'github') {
@@ -405,17 +409,14 @@ export async function storeGitRepository(
 
   return {
     success: true,
-    data: { webappId: webappId },
+    data: { webappId: webapp._id },
   }
 }
 
 /**
  */
-export async function getDomains(webappId: string) {
-  const webapp = await WebappModel.findById(webappId).populate('domains')
-  if (!webapp) {
-    throw new Error('The app does not exists.')
-  }
+export async function getDomains(webapp: Webapp) {
+  webapp = await webapp.populate('domains').execPopulate()
 
   return {
     success: true,
@@ -427,11 +428,8 @@ export async function getDomains(webappId: string) {
 
 /**
  */
-export async function addDomain(webappId: string, payload: any) {
-  const webapp = await WebappModel.findById(webappId).populate('domains')
-  if (!webapp) {
-    throw new Error('The app does not exists.')
-  }
+export async function addDomain(webapp: Webapp, payload: any) {
+  webapp = await webapp.populate('domains').execPopulate()
 
   let domainName = payload.name
   if (payload.testDomain) {
@@ -467,12 +465,11 @@ export async function addDomain(webappId: string, payload: any) {
 /**
  */
 export async function updateDomain(
-  webappId: string,
+  webapp: Webapp,
   domainId: string,
   payload: Domain
 ) {
-  console.log('payload', payload)
-  const webapp = await WebappModel.findById(webappId).populate('domains')
+  webapp = await webapp.populate('domains').execPopulate()
   if (!webapp) {
     throw new Error('The app does not exists.')
   }
@@ -500,8 +497,8 @@ export async function updateDomain(
 
 /**
  */
-export async function deleteDomain(webappId: string, domainId: string) {
-  const webapp = await WebappModel.findById(webappId).populate('domains')
+export async function deleteDomain(webapp: Webapp, domainId: string) {
+  webapp = await webapp.populate('domains').execPopulate()
   if (!webapp) {
     throw new Error('The app does not exists.')
   }
@@ -530,14 +527,9 @@ export async function deleteDomain(webappId: string, domainId: string) {
  */
 export async function getFileList(
   server: Server,
-  webappId: string,
+  webapp: Webapp,
   folder: string
 ) {
-  const webapp = await WebappModel.findById(webappId)
-  if (!webapp) {
-    throw new Error('The app does not exists.')
-  }
-
   const res = await agentSvc.getFileList(server.address, webapp.name, folder)
   if (res.error != 0) {
     throw new Error(`Agent error ${res.error}`)
@@ -555,14 +547,9 @@ export async function getFileList(
  */
 export async function createFile(
   server: Server,
-  webappId: string,
+  webapp: Webapp,
   fileName: string
 ) {
-  const webapp = await WebappModel.findById(webappId)
-  if (!webapp) {
-    throw new Error('The app does not exists.')
-  }
-
   const res = await agentSvc.createFile(server.address, webapp.name, fileName)
   if (res.error != 0) {
     throw new Error(`Agent error ${res.error}`)
@@ -577,14 +564,9 @@ export async function createFile(
  */
 export async function createFolder(
   server: Server,
-  webappId: string,
+  webapp: Webapp,
   fileName: string
 ) {
-  const webapp = await WebappModel.findById(webappId)
-  if (!webapp) {
-    throw new Error('The app does not exists.')
-  }
-
   const res = await agentSvc.createFolder(server.address, webapp.name, fileName)
   if (res.error != 0) {
     throw new Error(`Agent error ${res.error}`)
@@ -599,15 +581,10 @@ export async function createFolder(
  */
 export async function changeFileName(
   server: Server,
-  webappId: string,
+  webapp: Webapp,
   oldname: string,
   newname: string
 ) {
-  const webapp = await WebappModel.findById(webappId)
-  if (!webapp) {
-    throw new Error('The app does not exists.')
-  }
-
   const res = await agentSvc.changeFileName(
     server.address,
     webapp.name,
@@ -627,14 +604,9 @@ export async function changeFileName(
  */
 export async function changeFilePermission(
   server: Server,
-  webappId: string,
+  webapp: Webapp,
   permission: string
 ) {
-  const webapp = await WebappModel.findById(webappId)
-  if (!webapp) {
-    throw new Error('The app does not exists.')
-  }
-
   const res = await agentSvc.changeFilePermission(
     server.address,
     webapp.name,
@@ -649,15 +621,11 @@ export async function changeFilePermission(
   }
 }
 
-export async function getSummary(server: Server, webAppId: string) {
-  const webapp = await WebappModel.findById(webAppId)
-  if (!webapp) {
-    throw new Error('The web application does not exists.')
-  }
-
+export async function getSummary(server: Server, webapp: Webapp) {
   return {
     success: true,
     data: {
+      id: webapp._id,
       owner: 'aaaaaaa',
       totalDomainName: 1,
       phpVersion: 'php8.0',
@@ -674,14 +642,9 @@ export async function getSummary(server: Server, webAppId: string) {
 
 export async function storeWebSSL(
   server: Server,
-  webAppId: string,
+  webapp: Webapp,
   payload: any
 ) {
-  const webapp = await WebappModel.findById(webAppId)
-  if (!webapp) {
-    throw new Error('The web application does not exists.')
-  }
-
   const postData = {
     domain: webapp.domainName,
     email: 'admin@litegix.com',

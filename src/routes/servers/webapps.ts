@@ -1,9 +1,28 @@
 import { body } from 'express-validator'
-import { Router } from 'express'
+import { Router, Request, Response, NextFunction } from 'express'
+import { model } from 'mongoose'
+import { Webapp } from 'models'
 import { validate, createHandler as ch } from 'routes/helper'
 import auth from '../auth'
 import * as webappService from 'services/webapps.service'
+const WebappModel = model<Webapp>('Webapp')
 const router = Router()
+
+// Preload server on routes with ':serverId'
+router.param(
+  'webappId',
+  function (req: Request, res: Response, next: NextFunction, webappId: string) {
+    WebappModel.findById(webappId)
+      .then(function (webapp) {
+        if (!webapp) {
+          return res.sendStatus(404)
+        }
+        req.webapp = webapp
+        return next()
+      })
+      .catch(next)
+  }
+)
 
 router.get(
   '/',
@@ -68,7 +87,7 @@ router.post(
 router.get(
   '/:webappId/summary',
   auth.required,
-  ch(({ server, params }) => webappService.getSummary(server, params.webappId))
+  ch(({ server, webapp }) => webappService.getSummary(server, webapp))
 )
 
 router.post(
@@ -78,8 +97,8 @@ router.post(
   body('provider').isString(),
   body('authMethod').isString(),
   validate,
-  ch(({ server, params, body }) =>
-    webappService.storeWebSSL(server, params.webappId, body)
+  ch(({ server, webapp, body }) =>
+    webappService.storeWebSSL(server, webapp, body)
   )
 )
 
@@ -90,15 +109,15 @@ router.post(
   body('repository').isString(),
   body('branch').isString(),
   validate,
-  ch(({ server, params, body }) =>
-    webappService.storeGitRepository(server, params.webappId, body)
+  ch(({ server, webapp, body }) =>
+    webappService.storeGitRepository(server, webapp, body)
   )
 )
 
 router.get(
   '/:webappId/domains',
   auth.required,
-  ch(({ params }) => webappService.getDomains(params.webappId))
+  ch(({ webapp }) => webappService.getDomains(webapp))
 )
 
 router.post(
@@ -111,47 +130,47 @@ router.post(
   body('preferedDomain').isNumeric(),
   body('dnsIntegration').isString(),
   validate,
-  ch(({ params, body }) => webappService.addDomain(params.webappId, body))
+  ch(({ webapp, body }) => webappService.addDomain(webapp, body))
 )
 
 router.put(
   '/:webappId/domains/:domainId',
   auth.required,
   validate,
-  ch(({ params, body }) =>
-    webappService.updateDomain(params.webappId, params.domainId, body)
+  ch(({ webapp, params, body }) =>
+    webappService.updateDomain(webapp, params.domainId, body)
   )
 )
 
 router.delete(
   '/:webappId/domains/:domainId',
   auth.required,
-  ch(({ params }) =>
-    webappService.deleteDomain(params.webappId, params.domainId)
+  ch(({ webapp, params }) =>
+    webappService.deleteDomain(webapp, params.domainId)
   )
 )
 
 router.get(
   '/:webappId/filemanager/list/:folder',
   auth.required,
-  ch(({ server, params }) =>
-    webappService.getFileList(server, params.webappId, params.folder)
+  ch(({ server, webapp, params }) =>
+    webappService.getFileList(server, webapp, params.folder)
   )
 )
 
 router.get(
   '/:webappId/filemanager/create/file/:name',
   auth.required,
-  ch(({ server, params }) =>
-    webappService.createFile(server, params.webappId, params.name)
+  ch(({ server, webapp, params }) =>
+    webappService.createFile(server, webapp, params.name)
   )
 )
 
 router.get(
   '/:webappId/filemanager/create/folder/:name',
   auth.required,
-  ch(({ server, params }) =>
-    webappService.createFolder(server, params.webappId, params.name)
+  ch(({ server, webapp, params }) =>
+    webappService.createFolder(server, webapp, params.name)
   )
 )
 
@@ -161,13 +180,8 @@ router.post(
   body('oldname').isString(),
   body('newname').isString(),
   validate,
-  ch(({ server, params, body }) =>
-    webappService.changeFileName(
-      server,
-      params.webappId,
-      body.oldname,
-      body.newname
-    )
+  ch(({ server, webapp, body }) =>
+    webappService.changeFileName(server, webapp, body.oldname, body.newname)
   )
 )
 
@@ -176,15 +190,15 @@ router.post(
   auth.required,
   body('permission').isString(),
   validate,
-  ch(({ server, params, body }) =>
-    webappService.changeFilePermission(server, params.webappId, body.permission)
+  ch(({ server, webapp, body }) =>
+    webappService.changeFilePermission(server, webapp, body.permission)
   )
 )
 
 router.get(
   '/:webappId',
   auth.required,
-  ch(({ params }) => webappService.findWebappById(params.webappId))
+  ch(({ webapp }) => webappService.getWebapp(webapp))
 )
 
 export default router
