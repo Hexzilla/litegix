@@ -455,6 +455,35 @@ export async function addDomain(webappId: string, data: Domain) {
 
 /**
  */
+export async function updateDomain(
+  webappId: string,
+  domainId: string,
+  { type }: { type: string }
+) {
+  const webapp = await WebappModel.findById(webappId).populate('domains')
+  if (!webapp) {
+    throw new Error('The app does not exists.')
+  }
+
+  const domain = webapp.domains.find((it) => it.id == domainId)
+  if (!domain) {
+    throw new Error("Domain doesn't exists")
+  }
+
+  domain.type = type
+  await domain.save()
+
+  return {
+    success: true,
+    data: {
+      domainId: domain.id,
+      type: type,
+    },
+  }
+}
+
+/**
+ */
 export async function deleteDomain(webappId: string, domainId: string) {
   const webapp = await WebappModel.findById(webappId).populate('domains')
   if (!webapp) {

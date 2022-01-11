@@ -112,6 +112,15 @@ router.post(
   ch(({ params, body }) => webappService.addDomain(params.webappId, body))
 )
 
+router.post(
+  '/:webappId/domains/:domainId/update',
+  auth.required,
+  body('type').isString(),
+  ch(({ params, body }) =>
+    webappService.updateDomain(params.webappId, params.domainId, body)
+  )
+)
+
 router.delete(
   '/:webappId/domains/:domainId',
   auth.required,
