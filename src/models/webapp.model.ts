@@ -3,13 +3,20 @@ import { Server } from './server.model'
 import { SystemUser } from './systemUser.model'
 import { Domain } from './domain.model'
 
+export type PhpVersions = 'php7.2' | 'php7.3' | 'php7.4' | 'php8.0'
+
+export type WebAppStack = 'nginx_apache2' | 'native_nginx' | 'nginx_custom'
+
+export type SSLMethod = 'basic' | 'advanced'
+
 export interface Wordpress {
+  siteTitle: string
   adminName: string
   adminPassword: string
-  adminEmail: string
-  databaseUser: string
-  databasePassword: string
+  adminEmail: String
   databaseName: string
+  databasePass: string
+  databaseUser: string
   tablePrefix: string
 }
 export interface GitRepository {
@@ -18,15 +25,32 @@ export interface GitRepository {
   repository: string
   branch: string
 }
+
+export interface WebappRequest {
+  name: string
+  owner: string
+  isUserExists: boolean
+  domain: Domain
+  phpVersion: PhpVersions
+  webAppStack: WebAppStack
+  publicPath: string
+  rootPath: string
+  sslMethod: SSLMethod
+  wordpress: Wordpress
+}
+
 export interface Webapp extends Document {
   name: string
-  rootPath: string
   server: Server
   owner: SystemUser
+  isUserExists: boolean
   domains: Array<Domain>
-  domainType: string
-  domainName: string
   git: GitRepository
+  phpVersion: PhpVersions
+  webAppStack: WebAppStack
+  publicPath: string
+  rootPath: string
+  sslMethod: SSLMethod
   userEmail: string //we'll use this to update ssl for domains
   wordpress: Wordpress
   findDomain: (domainId: string) => Domain
@@ -42,7 +66,7 @@ var WebappSchema = new Schema<Webapp>(
       type: Schema.Types.ObjectId,
       ref: 'SystemUser',
     },
-    webType: {
+    appType: {
       type: String,
       required: [true, "can't be blank"],
     },
@@ -56,18 +80,6 @@ var WebappSchema = new Schema<Webapp>(
         ref: 'Domain',
       },
     ],
-    domainType: {
-      type: String,
-      required: [true, "can't be blank"],
-    },
-    domainName: {
-      type: String,
-      required: [true, "can't be blank"],
-    },
-    enableW3Version: {
-      type: Boolean,
-      required: [true, "can't be blank"],
-    },
     publicPath: {
       type: String,
     },
@@ -76,15 +88,13 @@ var WebappSchema = new Schema<Webapp>(
       required: [true, "can't be blank"],
     },
     webAppStack: {
-      // "hybrid", "nativenginx", or "customnginx"
       type: String,
       required: [true, "can't be blank"],
     },
     stackMode: {
-      //"production" or "development"
       type: String,
     },
-    sslMode: {
+    sslMethod: {
       type: String,
       required: [true, "can't be blank"],
     },
@@ -128,6 +138,10 @@ var WebappSchema = new Schema<Webapp>(
       mimeSniffingProtection: Boolean,
     },
     wordpress: {
+      siteTitle: {
+        type: String,
+        required: [true, "can't be blank"],
+      },
       adminUserName: {
         type: String,
         required: [true, "can't be blank"],
@@ -140,9 +154,9 @@ var WebappSchema = new Schema<Webapp>(
         type: String,
         required: [true, "can't be blank"],
       },
-      databaseUser: String,
-      databasePassword: String,
       databaseName: String,
+      databasePass: String,
+      databaseUser: String,
       tablePrefix: String,
     },
     git: {

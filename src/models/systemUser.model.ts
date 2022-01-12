@@ -21,6 +21,14 @@ const SystemUserSchema = new Schema<SystemUser>(
     deploymentKey: { type: String },
   },
   {
+    toJSON: {
+      transform: function (doc, ret) {
+        ret.id = ret._id
+        delete ret._id
+        delete ret.server
+        delete ret.__v
+      },
+    },
     timestamps: false,
   }
 )

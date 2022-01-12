@@ -3,7 +3,9 @@ import { Webapp } from './webapp.model'
 
 export type DomainType = 'primay' | 'atlas'
 
-export enum PreferedDomain {
+export type DomainSelection = 'LitegixDomain' | 'CustomDomain'
+
+export enum W3DomainVersion {
   NOWN,
   WWW,
   NON_WWW,
@@ -12,10 +14,9 @@ export enum PreferedDomain {
 export interface Domain extends Document {
   name: string
   type: DomainType
-  testDomain: boolean
-  suffix?: string
-  www: boolean
-  preferedDomain?: PreferedDomain
+  selection: DomainSelection
+  wwwEnabled: boolean
+  wwwVersion?: W3DomainVersion
   dnsIntegration?: string
   status?: string
   webapp?: Webapp
@@ -31,15 +32,15 @@ const DomainSchema = new Schema<Domain>(
       type: String,
       required: [true, "can't be blank"],
     },
-    testDomain: {
+    litegix_domain: {
       type: Boolean,
       default: false,
     },
-    www: {
+    wwwEnabled: {
       type: Boolean,
       default: false,
     },
-    preferedDomain: {
+    wwwVersion: {
       type: Number,
       default: 0,
     },

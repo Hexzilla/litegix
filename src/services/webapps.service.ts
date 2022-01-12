@@ -1,7 +1,7 @@
 import { randomBytes } from 'crypto'
 import { v4 as uuidv4 } from 'uuid'
 import { model } from 'mongoose'
-import { Server, Webapp, SystemUser, Domain } from 'models'
+import { Server, Webapp, WebappRequest, SystemUser, Domain } from 'models'
 import * as activitySvc from 'services/activity.service'
 import * as agentSvc from 'services/agent.service'
 import {
@@ -202,10 +202,13 @@ export async function createWordpressApplication(server: Server) {
 
 /**
  */
-export async function storeWordpressApplication(server: Server, payload: any) {
+export async function storeWordpressApplication(
+  server: Server,
+  data: WebappRequest
+) {
   const exists = await WebappModel.findOne({
     server: server,
-    name: payload.name,
+    name: data.name,
   })
   if (exists) {
     throw new Error('The name has already been taken.')
@@ -213,16 +216,16 @@ export async function storeWordpressApplication(server: Server, payload: any) {
 
   // check parameters
   let systemUser: SystemUser | null = null
-  if (payload.useExistUser) {
-    systemUser = await SystemUserModel.findById(payload.owner)
+  if (data.isUserExists) {
+    systemUser = await SystemUserModel.findById(data.owner)
     if (!systemUser) {
       throw new Error('The user doen not exists.')
     }
   } else {
-    systemUser = await SystemUserModel.findOne({ name: payload.owner })
+    systemUser = await SystemUserModel.findOne({ name: data.owner })
     if (!systemUser) {
       systemUser = new SystemUserModel({
-        name: payload.owner,
+        name: data.owner,
         password: 'litegix',
       })
       systemUser.server = server
@@ -230,28 +233,23 @@ export async function storeWordpressApplication(server: Server, payload: any) {
     }
   }
 
-  let domainName = payload.domainName
-  if (payload.domainType == 'litegix') {
-    domainName = `${payload.domainName}${payload.domainSuffix}`
-  }
-
   const rand = function () {
     return 1000000 + getRandomInt(1000000)
   }
 
-  const wp = payload.wordpress
+  const wp = data.wordpress
   const wordpress = {
     ...wp,
-    databaseUser: wp.databaseUser || `${payload.name}_${rand()}`,
+    databaseName: wp.databaseName || `${data.name}_${rand()}`,
     databasePass: wp.databasePass || `Litegix_${uuidv4().replace(/-/g, '')}`,
-    databaseName: wp.databaseName || `${payload.name}_${rand()}`,
-    siteTitle: wp.siteTitle || `${payload.name}_${rand()}`,
+    databaseUser: wp.databaseUser || `${data.name}_${rand()}`,
+    siteTitle: wp.siteTitle || `${data.name}_${rand()}`,
   }
   const postData = {
-    name: payload.name,
-    domainName,
+    name: data.name,
+    domainName: data.domain.name,
     userName: systemUser?.name,
-    phpVersion: payload.phpVersion,
+    phpVersion: data.phpVersion,
     webserver: server.webserver,
     ...wordpress,
   }
@@ -260,17 +258,14 @@ export async function storeWordpressApplication(server: Server, payload: any) {
     throw new Error(`Agent error ${res.error}`)
   }
 
-  const domainModel = new DomainModel({
-    name: domainName,
-    type: payload.domainType,
-  })
+  const domainModel = new DomainModel(data.domain)
   const domain = await domainModel.save()
 
   const webapp = new WebappModel({
-    ...payload,
+    ...data,
     domains: [domain],
-    domainName,
-    webType: 'wordpress',
+    appType: 'wordpress',
+    sslMethod: 'basic',
     server: server,
     owner: systemUser,
   })
@@ -280,7 +275,7 @@ export async function storeWordpressApplication(server: Server, payload: any) {
   domain.applicationId = application.id
   await domain.save()*/
 
-  const message = `Added new web application ${payload.name}`
+  const message = `Added new web application ${data.name}`
   await activitySvc.createServerActivityLogInfo(server, message)
 
   return {
@@ -474,8 +469,8 @@ export async function updateDomain(
   if (payload.type !== undefined) {
     domain.type = payload.type
   }
-  if (payload.www !== undefined) {
-    domain.www = payload.www
+  if (payload.wwwEnabled !== undefined) {
+    domain.wwwEnabled = payload.wwwEnabled
   }
   await domain.save()
 
@@ -606,20 +601,23 @@ export async function changeFilePermission(
 }
 
 export async function getSummary(server: Server, webapp: Webapp) {
+  await webapp.populate('owner').execPopulate()
+  await webapp.populate('domain').execPopulate()
+
   return {
     success: true,
     data: {
       id: webapp._id,
-      owner: 'aaaaaaa',
-      totalDomainName: 1,
-      phpVersion: 'php8.0',
-      webAppStack: 'native_nginx',
-      rootPath: '/home/litegix/webapps/app-boyle',
-      publicPath: '/home/litegix/webapps/app-boyle',
+      owner: webapp.owner?.name,
+      totalDomainName: webapp.domains?.length,
+      phpVersion: webapp.phpVersion,
+      webAppStack: webapp.webAppStack,
+      rootPath: webapp.rootPath,
+      publicPath: webapp.publicPath,
       tdty: 16390,
       tdtm: 6390,
       dirSize: 6920301,
-      sslMethod: 'Basic',
+      sslMethod: webapp.sslMethod,
     },
   }
 }
@@ -642,7 +640,7 @@ export async function storeWebSSL(
     throw new Error(`Agent error ${res.error}`)
   }
 
-  //webapp.sslMode =
+  //webapp.sslMethod =
   //await webapp.save()
 
   const message = `Added new web application ${payload.name}`
