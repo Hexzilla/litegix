@@ -12,6 +12,12 @@ router.get(
 )
 
 router.get(
+  '/search/:name',
+  auth.required,
+  ch(({ server, params }) => database.searchDatabase(server, params.name))
+)
+
+router.get(
   '/create',
   auth.required,
   ch(({ server }) => database.createDatabase(server))

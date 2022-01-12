@@ -51,6 +51,8 @@ export interface Webapp extends Document {
   publicPath: string
   rootPath: string
   sslMethod: SSLMethod
+  enableAutoSSL: boolean
+  appType: string
   userEmail: string //we'll use this to update ssl for domains
   wordpress: Wordpress
   findDomain: (domainId: string) => Domain

@@ -163,6 +163,24 @@ router.delete(
 )
 
 router.get(
+  '/:webappId/settings',
+  auth.required,
+  ch(({ webapp }) => webappService.getSettings(webapp))
+)
+
+router.put(
+  '/:webappId/settings',
+  auth.required,
+  body('type').isString(),
+  body('name').isString(),
+  body('selection').isString(),
+  body('wwwEnabled').isBoolean(),
+  body('wwwVersion').isNumeric(),
+  body('dnsIntegration').isString(),
+  ch(({ webapp }) => webappService.getSettings(webapp))
+)
+
+router.get(
   '/:webappId/filemanager/list/:folder',
   auth.required,
   ch(({ server, webapp, params }) =>

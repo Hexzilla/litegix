@@ -16,6 +16,17 @@ export async function getDatabases(server: Server) {
   }
 }
 
+export async function searchDatabase(server: Server, name: string) {
+  const users = await DatabaseUserModel.find({ server })
+  return {
+    success: true,
+    data: {
+      db_users: users,
+      database_encodings,
+    },
+  }
+}
+
 export async function createDatabase(server: Server) {
   const users = await DatabaseUserModel.find({ server })
   return {
