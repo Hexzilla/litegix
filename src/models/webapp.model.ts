@@ -27,7 +27,9 @@ export interface Webapp extends Document {
   domainType: string
   domainName: string
   git: GitRepository
+  userEmail: string //we'll use this to update ssl for domains
   wordpress: Wordpress
+  findDomain: (domainId: string) => Domain
 }
 
 var WebappSchema = new Schema<Webapp>(
@@ -90,6 +92,7 @@ var WebappSchema = new Schema<Webapp>(
       type: Boolean,
       required: [true, "can't be blank"],
     },
+    userEmail: String,
     /*pullKey1: {
       type: String,
       required: [true, "can't be blank"],
@@ -161,5 +164,21 @@ var WebappSchema = new Schema<Webapp>(
     timestamps: false,
   }
 )
+
+WebappSchema.methods.findDomain = async function (
+  domainId: string
+): Promise<Domain> {
+  const webapp = await this.populate('domains').execPopulate()
+  if (!webapp) {
+    throw new Error('The app does not exists.')
+  }
+
+  const domain = webapp.domains.find((it) => it.id == domainId)
+  if (!domain) {
+    throw new Error("Domain doesn't exists")
+  }
+
+  return domain
+}
 
 export default model<Webapp>('Webapp', WebappSchema)

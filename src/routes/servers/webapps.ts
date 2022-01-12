@@ -93,9 +93,11 @@ router.get(
 router.post(
   '/:webappId/ssl',
   auth.required,
+  body('domainId').isString(),
   body('mode').isString(),
   body('provider').isString(),
   body('authMethod').isString(),
+  body('httpRedirection').isNumberic(),
   validate,
   ch(({ server, webapp, body }) =>
     webappService.storeWebSSL(server, webapp, body)

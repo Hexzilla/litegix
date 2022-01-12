@@ -469,15 +469,7 @@ export async function updateDomain(
   domainId: string,
   payload: Domain
 ) {
-  webapp = await webapp.populate('domains').execPopulate()
-  if (!webapp) {
-    throw new Error('The app does not exists.')
-  }
-
-  const domain = webapp.domains.find((it) => it.id == domainId)
-  if (!domain) {
-    throw new Error("Domain doesn't exists")
-  }
+  const domain = await webapp.findDomain(domainId)
 
   if (payload.type !== undefined) {
     domain.type = payload.type
@@ -498,15 +490,7 @@ export async function updateDomain(
 /**
  */
 export async function deleteDomain(webapp: Webapp, domainId: string) {
-  webapp = await webapp.populate('domains').execPopulate()
-  if (!webapp) {
-    throw new Error('The app does not exists.')
-  }
-
-  const domain = webapp.domains.find((it) => it.id == domainId)
-  if (!domain) {
-    throw new Error('The domain does not exists')
-  }
+  const domain = await webapp.findDomain(domainId)
 
   const index = webapp.domains.indexOf(domain)
   if (index >= 0) {
@@ -645,10 +629,13 @@ export async function storeWebSSL(
   webapp: Webapp,
   payload: any
 ) {
+  const domain = await webapp.findDomain(payload.domainId)
+
   const postData = {
-    domain: webapp.domainName,
-    email: 'admin@litegix.com',
+    domain: domain.name,
+    email: webapp.userEmail,
   }
+
   console.log('storeWebSSL, to agent', postData)
   const res = await agentSvc.createWebSSL(server.address, postData)
   if (res.error != 0) {
