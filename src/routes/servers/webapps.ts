@@ -67,7 +67,7 @@ router.post(
   auth.required,
   body('name').isString(),
   body('domain.name').isString(),
-  body('domain.selection').isNumeric(),
+  body('domain.selection').isString(),
   body('domain.wwwEnabled').isBoolean(),
   body('domain.wwwVersion').isNumeric(),
   body('isUserExists').isBoolean(),
@@ -124,14 +124,22 @@ router.get(
   ch(({ webapp }) => webappService.getDomains(webapp))
 )
 
+router.get(
+  '/:webappId/domains/:domainId',
+  auth.required,
+  ch(({ webapp, params }) =>
+    webappService.getDomainById(webapp, params.domainId)
+  )
+)
+
 router.post(
   '/:webappId/domains',
   auth.required,
   body('type').isString(),
   body('name').isString(),
-  body('testDomain').isBoolean(),
-  body('www').isBoolean(),
-  body('preferedDomain').isNumeric(),
+  body('selection').isString(),
+  body('wwwEnabled').isBoolean(),
+  body('wwwVersion').isNumeric(),
   body('dnsIntegration').isString(),
   validate,
   ch(({ webapp, body }) => webappService.addDomain(webapp, body))

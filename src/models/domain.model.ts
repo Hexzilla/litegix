@@ -3,7 +3,9 @@ import { Webapp } from './webapp.model'
 
 export type DomainType = 'primay' | 'atlas'
 
-export type DomainSelection = 'LitegixDomain' | 'CustomDomain'
+export type DomainSelection = 'litegix_domain' | 'custom_domain'
+
+export type DomainIntegration = 'None' | 'Cloudflare'
 
 export enum W3DomainVersion {
   NOWN,
@@ -17,7 +19,7 @@ export interface Domain extends Document {
   selection: DomainSelection
   wwwEnabled: boolean
   wwwVersion?: W3DomainVersion
-  dnsIntegration?: string
+  dnsIntegration?: DomainIntegration
   status?: string
   webapp?: Webapp
 }

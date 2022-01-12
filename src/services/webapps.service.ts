@@ -410,6 +410,17 @@ export async function storeGitRepository(
 
 /**
  */
+export async function getDomainById(webapp: Webapp, domainId: string) {
+  const domain = await webapp.findDomain(domainId)
+
+  return {
+    success: true,
+    data: { domain },
+  }
+}
+
+/**
+ */
 export async function getDomains(webapp: Webapp) {
   webapp = await webapp.populate('domains').execPopulate()
 
@@ -423,26 +434,13 @@ export async function getDomains(webapp: Webapp) {
 
 /**
  */
-export async function addDomain(webapp: Webapp, payload: any) {
-  webapp = await webapp.populate('domains').execPopulate()
-
-  let domainName = payload.name
-  if (payload.testDomain) {
-    if (!payload.suffix) {
-      throw new Error('Invalid suffix name for test domain')
-    }
-    domainName = `${payload.name}${payload.suffix}`
-  }
-
-  const exists = webapp.domains.find((it) => it.name == domainName)
+export async function addDomain(webapp: Webapp, data: Domain) {
+  const exists = await webapp.findDomainByName(data.name)
   if (exists) {
     throw new Error('Name is already taken')
   }
 
-  const domainModel = new DomainModel({
-    ...payload,
-    name: domainName,
-  })
+  const domainModel = new DomainModel(data)
   domainModel.webapp = webapp
   const domain = await domainModel.save()
 
@@ -452,7 +450,7 @@ export async function addDomain(webapp: Webapp, payload: any) {
   return {
     success: true,
     data: {
-      domainId: domain.id,
+      id: domain.id,
     },
   }
 }
@@ -477,7 +475,7 @@ export async function updateDomain(
   return {
     success: true,
     data: {
-      domainId: domain.id,
+      id: domain.id,
     },
   }
 }
@@ -490,6 +488,7 @@ export async function deleteDomain(webapp: Webapp, domainId: string) {
   const index = webapp.domains.indexOf(domain)
   if (index >= 0) {
     webapp.domains.splice(index, 1)
+    await webapp.save()
   }
 
   await domain.delete()
@@ -497,7 +496,7 @@ export async function deleteDomain(webapp: Webapp, domainId: string) {
   return {
     success: true,
     data: {
-      domainId: domain.id,
+      id: domain.id,
     },
   }
 }

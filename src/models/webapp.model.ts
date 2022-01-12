@@ -54,6 +54,7 @@ export interface Webapp extends Document {
   userEmail: string //we'll use this to update ssl for domains
   wordpress: Wordpress
   findDomain: (domainId: string) => Domain
+  findDomainByName: (name: string) => Domain
 }
 
 var WebappSchema = new Schema<Webapp>(
@@ -193,6 +194,17 @@ WebappSchema.methods.findDomain = async function (
   }
 
   return domain
+}
+
+WebappSchema.methods.findDomainByName = async function (
+  name: string
+): Promise<Domain | undefined> {
+  const webapp = await this.populate('domains').execPopulate()
+  if (!webapp) {
+    throw new Error('The app does not exists.')
+  }
+
+  return webapp.domains.find((it) => it.name == name)
 }
 
 export default model<Webapp>('Webapp', WebappSchema)
