@@ -17,12 +17,16 @@ export async function getDatabases(server: Server) {
 }
 
 export async function searchDatabase(server: Server, name: string) {
-  const users = await DatabaseUserModel.find({ server })
+  const databases = await DatabaseModel.find({
+    server,
+    name: {
+      $regex: name,
+    },
+  })
   return {
     success: true,
     data: {
-      db_users: users,
-      database_encodings,
+      databases,
     },
   }
 }

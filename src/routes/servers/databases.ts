@@ -12,9 +12,11 @@ router.get(
 )
 
 router.get(
-  '/search/:name',
+  '/search',
   auth.required,
-  ch(({ server, params }) => database.searchDatabase(server, params.name))
+  ch(({ server, query }) =>
+    database.searchDatabase(server, query.name as string)
+  )
 )
 
 router.get(
