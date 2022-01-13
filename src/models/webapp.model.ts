@@ -39,6 +39,13 @@ export interface WebappRequest {
   wordpress: Wordpress
 }
 
+export interface Firewall {
+  state: boolean
+  paranoiaLevel: number
+  anomalyThreshold: number
+  exclutions: Array<string>
+}
+
 export interface Webapp extends Document {
   name: string
   server: Server
@@ -55,6 +62,7 @@ export interface Webapp extends Document {
   appType: string
   userEmail: string //we'll use this to update ssl for domains
   wordpress: Wordpress
+  firewall: Firewall
   findDomain: (domainId: string) => Domain
   findDomainByName: (name: string) => Domain
 }
@@ -117,6 +125,15 @@ var WebappSchema = new Schema<Webapp>(
     advancedSSL: {
       advancedSSL: { type: Boolean, default: false },
       autoSSL: { type: Boolean, default: false },
+    },
+    firewall: {
+      state: {
+        type: Boolean,
+        default: false,
+      },
+      paranoiaLevel: Number,
+      anomalyThreshold: Number,
+      exclutions: [],
     },
     settings: {
       disableFunctions: String,

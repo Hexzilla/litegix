@@ -181,6 +181,12 @@ router.put(
 )
 
 router.get(
+  '/:webappId/firewall',
+  auth.required,
+  ch(({ webapp }) => webappService.getFirewall(webapp))
+)
+
+router.get(
   '/:webappId/filemanager/list/:folder',
   auth.required,
   ch(({ server, webapp, params }) =>

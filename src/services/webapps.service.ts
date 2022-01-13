@@ -538,6 +538,15 @@ export async function updateWebappSettings(webapp: Webapp, updated: any) {
   }
 }
 
+export async function getFirewall(webapp: Webapp) {
+  return {
+    success: true,
+    data: {
+      firewall: webapp.firewall,
+    },
+  }
+}
+
 /**
  */
 export async function getFileList(
