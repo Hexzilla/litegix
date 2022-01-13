@@ -171,13 +171,13 @@ router.get(
 router.put(
   '/:webappId/settings',
   auth.required,
-  body('type').isString(),
-  body('name').isString(),
-  body('selection').isString(),
-  body('wwwEnabled').isBoolean(),
-  body('wwwVersion').isNumeric(),
-  body('dnsIntegration').isString(),
-  ch(({ webapp }) => webappService.getSettings(webapp))
+  body('phpVersion').isString(),
+  body('publicPath').isString(),
+  body('sslMethod').isString(),
+  body('webAppStack').isBoolean(),
+  body('stackMode').isNumeric(),
+  body('appType').isString(),
+  ch(({ webapp, body }) => webappService.updateWebappSettings(webapp, body))
 )
 
 router.get(

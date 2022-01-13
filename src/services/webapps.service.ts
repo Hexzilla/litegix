@@ -500,6 +500,7 @@ export async function deleteDomain(webapp: Webapp, domainId: string) {
     },
   }
 }
+
 export async function getSettings(webapp: Webapp) {
   return {
     success: true,
@@ -516,6 +517,23 @@ export async function getSettings(webapp: Webapp) {
       phpSettings: {
         timezone: 'UTC',
       },
+    },
+  }
+}
+
+export async function updateWebappSettings(webapp: Webapp, updated: any) {
+  webapp.phpVersion = updated.phpVersion
+  webapp.publicPath = updated.publicPath
+  webapp.sslMethod = updated.sslMethod
+  webapp.webAppStack = updated.webAppStack
+  //webapp.stackMode = updated.stackMode
+  webapp.appType = updated.appType
+  await webapp.save()
+
+  return {
+    success: true,
+    data: {
+      id: webapp.id,
     },
   }
 }
