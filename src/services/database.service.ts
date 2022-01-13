@@ -222,6 +222,21 @@ export async function getDatabaseUser(databaseUserId: string) {
   }
 }
 
+export async function searchDatabaseUser(server: Server, name: string) {
+  const databaseUsers = await DatabaseUserModel.find({
+    server,
+    name: {
+      $regex: name,
+    },
+  })
+  return {
+    success: true,
+    data: {
+      users: databaseUsers,
+    },
+  }
+}
+
 export async function getDatabaseUserList(server: Server) {
   const users = await DatabaseUserModel.find({ server })
   return {

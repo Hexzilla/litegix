@@ -80,6 +80,14 @@ router.get(
   ch(({ params }) => database.getDatabaseUser(params.dbuserId))
 )
 
+router.get(
+  '/users/search',
+  auth.required,
+  ch(({ server, query }) =>
+    database.searchDatabaseUser(server, query.name as string)
+  )
+)
+
 router.post(
   '/users',
   auth.required,
