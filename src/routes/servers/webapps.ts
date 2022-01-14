@@ -174,8 +174,8 @@ router.put(
   body('phpVersion').isString(),
   body('publicPath').isString(),
   body('sslMethod').isString(),
-  body('webAppStack').isBoolean(),
-  body('stackMode').isNumeric(),
+  body('webAppStack').isString(),
+  body('stackMode').isString(),
   body('appType').isString(),
   validate,
   ch(({ webapp, body }) => webappService.updateWebappSettings(webapp, body))
