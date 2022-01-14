@@ -199,7 +199,13 @@ router.put(
 )
 
 router.get(
-  '/:webappId/filemanager/list/:folder',
+  '/:webappId/fm/list',
+  auth.required,
+  ch(({ server, webapp }) => webappService.getFileList(server, webapp, ''))
+)
+
+router.get(
+  '/:webappId/fm/list/:folder',
   auth.required,
   ch(({ server, webapp, params }) =>
     webappService.getFileList(server, webapp, params.folder)
@@ -207,7 +213,7 @@ router.get(
 )
 
 router.get(
-  '/:webappId/filemanager/create/file/:name',
+  '/:webappId/fm/create/file/:name',
   auth.required,
   ch(({ server, webapp, params }) =>
     webappService.createFile(server, webapp, params.name)
@@ -215,15 +221,15 @@ router.get(
 )
 
 router.get(
-  '/:webappId/filemanager/create/folder/:name',
+  '/:webappId/fm/create/folder/:name',
   auth.required,
   ch(({ server, webapp, params }) =>
     webappService.createFolder(server, webapp, params.name)
   )
 )
 
-router.post(
-  '/:webappId/filemanager/changename',
+router.put(
+  '/:webappId/fm/change_name',
   auth.required,
   body('oldname').isString(),
   body('newname').isString(),
@@ -233,9 +239,10 @@ router.post(
   )
 )
 
-router.post(
-  '/:webappId/filemanager/change_permission',
+router.put(
+  '/:webappId/fm/change_permission',
   auth.required,
+  body('filename').isString(),
   body('permission').isString(),
   validate,
   ch(({ server, webapp, body }) =>
