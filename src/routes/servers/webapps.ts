@@ -251,6 +251,54 @@ router.put(
 )
 
 router.get(
+  '/:webappId/tools/clone',
+  auth.required,
+  ch(({ server, webapp }) =>
+    webappService.getCloneWebApplication(server, webapp)
+  )
+)
+
+router.post(
+  '/:webappId/tools/clone',
+  auth.required,
+  body('targetServer').isString(),
+  body('database.clone').isBoolean(),
+  body('database.from').isString(),
+  body('database.to').isString(),
+  body('appName').isString(),
+  body('useExistUser').isBoolean(),
+  body('appName').isString(),
+  body('userName').isString(),
+  body('domainName').isString(),
+  body('wwwEnabled').isBoolean(),
+  body('wwwVersion').isNumeric(),
+  body('dnsIntegration').isString(),
+  body('sslMethod').isString(),
+  body('enableAutoSSL').isBoolean(),
+  validate,
+  ch(({ server, webapp, body }) =>
+    webappService.createCloneWebApplication(server, webapp, body)
+  )
+)
+
+router.put(
+  '/:webappId/tools/change-owner',
+  auth.required,
+  body('owner').isString(),
+  validate,
+  ch(({ webapp, body }) => webappService.changeOwner(webapp, body.owner))
+)
+
+router.put(
+  '/:webappId/tools/auth',
+  auth.required,
+  body('username').isString().isLength({ min: 6, max: 24 }),
+  body('password').isString().isLength({ min: 8, max: 256 }),
+  validate,
+  ch(({ webapp, body }) => webappService.updateAuthentication(webapp, body))
+)
+
+router.get(
   '/:webappId',
   auth.required,
   ch(({ webapp }) => webappService.getWebapp(webapp))

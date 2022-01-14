@@ -715,3 +715,49 @@ export async function storeWebSSL(
     data: { application: webapp },
   }
 }
+
+export async function getCloneWebApplication(server: Server, webapp: Webapp) {
+  return {
+    success: true,
+    data: {
+      webappId: webapp.id,
+    },
+  }
+}
+
+export async function createCloneWebApplication(
+  server: Server,
+  webapp: Webapp,
+  data: any
+) {
+  return {
+    success: true,
+    data: {
+      webappId: webapp.id,
+    },
+  }
+}
+
+export async function changeOwner(webapp: Webapp, owner: string) {
+  // check parameters
+  const systemUser = await SystemUserModel.findById(owner)
+  if (!systemUser) {
+    throw new Error('The user doen not exists.')
+  }
+
+  webapp.owner = systemUser
+  await webapp.save()
+
+  return {
+    success: true,
+  }
+}
+
+export async function updateAuthentication(
+  webapp: Webapp,
+  { username, password }: { username: string; password: string }
+) {
+  return {
+    success: true,
+  }
+}
