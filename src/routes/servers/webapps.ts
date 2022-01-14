@@ -177,6 +177,7 @@ router.put(
   body('webAppStack').isBoolean(),
   body('stackMode').isNumeric(),
   body('appType').isString(),
+  validate,
   ch(({ webapp, body }) => webappService.updateWebappSettings(webapp, body))
 )
 
@@ -184,6 +185,17 @@ router.get(
   '/:webappId/firewall',
   auth.required,
   ch(({ webapp }) => webappService.getFirewall(webapp))
+)
+
+router.put(
+  '/:webappId/firewall',
+  auth.required,
+  body('state').isBoolean(),
+  body('paranoiaLevel').isNumeric(),
+  body('anomalyThreshold').isNumeric(),
+  body('exclutions').isArray(),
+  validate,
+  ch(({ webapp, body }) => webappService.updateFirewall(webapp, body))
 )
 
 router.get(
