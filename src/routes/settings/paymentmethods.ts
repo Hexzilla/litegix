@@ -1,23 +1,15 @@
-import { Router, Request, Response } from 'express'
+import { Router } from 'express'
 import { body } from 'express-validator'
+import { validate, createHandler as ch } from 'routes/helper'
 import auth from 'routes/auth'
-import validate from 'routes/validate'
-import errorMessage from 'routes/errors'
-import * as paymentSvc from 'services/payment.service'
+import * as payment from 'services/payment.service'
 const router = Router()
 
-router.get('/', auth.required, async function (req: Request, res: Response) {
-  try {
-    const response = await paymentSvc.getPaymentMethods(req.payload.id)
-    return res.json(response)
-  } catch (e) {
-    console.error(e)
-    return res.status(501).json({
-      success: false,
-      errors: errorMessage(e),
-    })
-  }
-})
+router.get(
+  '/',
+  auth.required,
+  ch(({ payload }) => payment.getPaymentMethods(payload.id))
+)
 
 router.post(
   '/',
@@ -29,19 +21,7 @@ router.post(
   body('expire').isString(),
   body('cvc').isString(),
   validate,
-  async function (req: Request, res: Response) {
-    try {
-      const userId = req.payload.id
-      const response = await paymentSvc.storePaymentMethods(userId, req.body)
-      return res.json(response)
-    } catch (e) {
-      console.error(e)
-      return res.status(501).json({
-        success: false,
-        errors: errorMessage(e),
-      })
-    }
-  }
+  ch(({ payload, body }) => payment.storePaymentMethods(payload.id, body))
 )
 
 export default router
