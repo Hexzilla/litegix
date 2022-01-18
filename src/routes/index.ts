@@ -18,7 +18,7 @@ router.use('/settings', settings)
 router.use('/servers', servers)
 // router.use('/subscriptions', subscriptions)
 router.use('/payment', payment)
-router.use('./backup', backup)
+router.use('/backup', backup)
 
 router.post(
   '/login',
