@@ -6,6 +6,7 @@ import servers from './servers'
 // import subscriptions from './subscriptions'
 import payment from './payment'
 import * as authService from 'services/auth.service'
+import backup from './backup'
 
 const router = Router()
 router.get('/', (req: Request, res: Response) => {
@@ -17,6 +18,7 @@ router.use('/settings', settings)
 router.use('/servers', servers)
 // router.use('/subscriptions', subscriptions)
 router.use('/payment', payment)
+router.use('./backup', backup)
 
 router.post(
   '/login',
