@@ -6,13 +6,13 @@ import * as payment from 'services/payment.service'
 const router = Router()
 
 router.get(
-  '/',
+  '/methods',
   auth.required,
   ch(({ payload }) => payment.getPaymentMethods(payload.id))
 )
 
 router.post(
-  '/',
+  '/methods',
   auth.required,
   body('name').isString(),
   body('country').isString(),

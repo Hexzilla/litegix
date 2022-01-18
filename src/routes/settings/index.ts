@@ -14,6 +14,6 @@ router.use('/apikey', apiKeys)
 router.use('/notifications', notifications)
 router.use('/ipwhitelist', ipwhitelist)
 router.use('/activity', activity)
-router.use('/paymentmethods', paymentmethods)
+router.use('/payment', paymentmethods)
 
 export default router
