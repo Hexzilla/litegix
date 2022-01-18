@@ -541,3 +541,33 @@ export async function createWebSSL(address: string, payload: any) {
     return { error: -1 }
   }
 }
+
+
+export async function backupDatabase(
+  database: string
+) {
+  try {
+    if (process.env.NODE_ENV !== 'production') {
+      return { error: 0 }
+    }
+    return { error: 0 }
+
+  } catch (e) {
+    console.log(e)
+    return { error: -1 }
+  }
+}
+
+export async function backupWebApp(
+  webapp: string
+) {
+  try {
+    if (process.env.NODE_ENV !== 'production') {
+      return { error: 0 }
+    }
+    return { error: 0 }
+  } catch (err: any) {
+    console.log(err)
+    return { error: -1 }
+  }
+}

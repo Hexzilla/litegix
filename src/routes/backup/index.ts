@@ -12,7 +12,7 @@ router.post(
   auth.required,
   body('name').isString(),
   body('backupableWebapp').isString(),
-  body('backupableDb').isString(),
+  body('backupableDb').isNumeric(),
   body('storage').isString(),
   body('retention').isString(),
   body('time').isString(),
