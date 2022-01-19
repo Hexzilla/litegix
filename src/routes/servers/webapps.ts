@@ -299,6 +299,12 @@ router.put(
 )
 
 router.get(
+  '/:webappId/activity',
+  auth.required,
+  ch(({ webapp }) => webappService.getActivityLogs(webapp))
+)
+
+router.get(
   '/:webappId',
   auth.required,
   ch(({ webapp }) => webappService.getWebapp(webapp))

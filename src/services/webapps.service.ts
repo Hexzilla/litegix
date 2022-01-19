@@ -761,3 +761,9 @@ export async function updateAuthentication(
     success: true,
   }
 }
+
+export async function getActivityLogs(webapp: Webapp) {
+  return {
+    success: true,
+  }
+}
