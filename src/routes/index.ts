@@ -3,6 +3,7 @@ import { body } from 'express-validator'
 import api from './api'
 import settings from './settings'
 import servers from './servers'
+import dns from './dns'
 // import subscriptions from './subscriptions'
 import payment from './payment'
 import * as authService from 'services/auth.service'
@@ -17,6 +18,7 @@ router.use('/settings', settings)
 router.use('/servers', servers)
 // router.use('/subscriptions', subscriptions)
 router.use('/payment', payment)
+router.use('/dns', dns)
 
 router.post(
   '/login',
