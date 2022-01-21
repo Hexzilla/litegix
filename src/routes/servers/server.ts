@@ -6,22 +6,16 @@ import * as serverService from 'services/server.service'
 import * as systemService from 'services/system.service'
 const router = Router()
 
-router.delete(
-  '/',
-  auth.required,
-  ch(({ server }) => serverService.deleteServer(server))
-)
-
-router.post(
-  '/summary',
-  auth.required,
-  ch(({ server }) => serverService.getSummary(server))
-)
-
 router.get(
   '/',
   auth.required,
   ch(({ server }) => server)
+)
+
+router.get(
+  '/summary',
+  auth.required,
+  ch(({ server }) => serverService.getSummary(server))
 )
 
 router.get(
@@ -38,6 +32,12 @@ router.put(
   ch(({ server, body }) =>
     systemService.updatePhpVersion(server, body.phpVersion)
   )
+)
+
+router.delete(
+  '/',
+  auth.required,
+  ch(({ server }) => serverService.deleteServer(server))
 )
 
 export default router
