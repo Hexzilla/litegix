@@ -89,12 +89,19 @@ const ServerSchema = new Schema<Server>(
     user: { type: Schema.Types.ObjectId, ref: 'User' },
   },
   {
+    toJSON: {
+      transform: function (doc, ret) {
+        ret.id = ret._id
+        delete ret._id
+        delete ret.__v
+      },
+    },
     timestamps: true,
   }
 )
 
-ServerSchema.index({ user: 1, name: 1 }, { unique: true });
-ServerSchema.index({ user: 1, address: 1 }, { unique: true });
+ServerSchema.index({ user: 1, name: 1 }, { unique: true })
+ServerSchema.index({ user: 1, address: 1 }, { unique: true })
 
 ServerSchema.methods.toSummaryJSON = function () {
   return {

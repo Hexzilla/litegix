@@ -19,6 +19,12 @@ router.post(
 )
 
 router.get(
+  '/',
+  auth.required,
+  ch(({ server }) => server)
+)
+
+router.get(
   '/phpVersion',
   auth.required,
   ch(({ server }) => systemService.getPhpVersion(server))
