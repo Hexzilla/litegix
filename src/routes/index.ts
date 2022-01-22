@@ -1,6 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { body } from 'express-validator'
 import api from './api'
+import admin from './admin'
 import settings from './settings'
 import servers from './servers'
 import subscriptions from './subscriptions'
@@ -13,6 +14,7 @@ router.get('/', (req: Request, res: Response) => {
   res.send('Litegix')
 })
 
+router.use('/admin', admin)
 router.use('/api', api)
 router.use('/settings', settings)
 router.use('/servers', servers)
