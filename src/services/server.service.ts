@@ -111,6 +111,16 @@ export async function updateSetting(userId: string, server: Server) {
   }*/
 }
 
+export async function getAllServers() {
+  const servers = await ServerModel.find({})
+  return {
+    success: true,
+    data: {
+      servers: servers.map((it) => it.toSimpleJSON()),
+    },
+  }
+}
+
 export async function getServers(userId: string) {
   const user: any = userId
   const servers = await ServerModel.find({ user })
@@ -118,16 +128,7 @@ export async function getServers(userId: string) {
     success: true,
     data: {
       userId: userId,
-      servers: servers.map((it) => {
-        return {
-          id: it._id,
-          name: it.name,
-          address: it.address,
-          connected: it.connected,
-          webserver: it.webserver,
-          database: it.database,
-        }
-      }),
+      servers: servers.map((it) => it.toSimpleJSON()),
     },
   }
 }
@@ -137,7 +138,7 @@ export async function createServer() {
     success: true,
     data: {
       webservers,
-      php_versions,      
+      php_versions,
       databases,
     },
   }

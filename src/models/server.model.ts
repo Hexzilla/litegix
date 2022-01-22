@@ -35,6 +35,7 @@ export interface Server extends Document {
   securityKey: string
   installation: Installation
   user: User
+  toSimpleJSON(): JSON
   toSummaryJSON(): JSON
 }
 
@@ -102,6 +103,17 @@ const ServerSchema = new Schema<Server>(
 
 ServerSchema.index({ user: 1, name: 1 }, { unique: true })
 ServerSchema.index({ user: 1, address: 1 }, { unique: true })
+
+ServerSchema.methods.toSimpleJSON = function () {
+  return {
+    id: this.id,
+    name: this.name,
+    address: this.address,
+    connected: this.connected,
+    webserver: this.webserver,
+    database: this.database,
+  }
+}
 
 ServerSchema.methods.toSummaryJSON = function () {
   return {
