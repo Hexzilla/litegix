@@ -29,6 +29,7 @@ export interface User extends Document {
   company: Company
   newsletters: Newsletters
   apiKeys: APIKeys
+  deleted: boolean
   generateJWT(): string
   setPassword(password: string): void
   validPassword(password: string): boolean
@@ -65,7 +66,10 @@ const UserSchema = new Schema<User>(
     timezone: String,
     loginNotification: Boolean,
     ipwhitelisting: Boolean,
-
+    deleted: {
+      type: Boolean,
+      default: false,
+    },
     newsletters: {
       subscription: Boolean,
       announchment: Boolean,
@@ -123,6 +127,7 @@ UserSchema.methods.toAuthJSON = function () {
 
 UserSchema.methods.toJSON = function () {
   return {
+    id: this._id,
     username: this.username,
     email: this.email,
     timezone: this.timezone,

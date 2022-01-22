@@ -1,6 +1,6 @@
-//import { body } from 'express-validator'
+import { body } from 'express-validator'
 import { Router } from 'express'
-import { /*validate,*/ createHandler as ch } from 'routes/helper'
+import { validate, createHandler as ch } from 'routes/helper'
 import auth from '../auth'
 import * as userService from 'services/user.service'
 const router = Router()
@@ -11,21 +11,20 @@ router.get(
   ch(() => userService.getUsers())
 )
 
-/*router.post(
+router.post(
   '/',
   auth.required,
-  body('name').isString(),
-  body('userId').isString(),
+  body('email').isEmail(),
+  body('username').isString().isLength({ min: 4, max: 260 }),
+  body('password').isString().isLength({ min: 8, max: 260 }),
   validate,
-  ch(({ server, body }) => userService.storeDatabase(server, body))
+  ch(({ body }) => userService.createUser(body))
 )
 
 router.delete(
-  '/:databaseId',
+  '/:userId',
   auth.required,
-  ch(({ server, params }) =>
-    userService.deleteDatabase(server, params.databaseId)
-  )
-)*/
+  ch(({ params }) => userService.deleteUser(params.userId))
+)
 
 export default router
