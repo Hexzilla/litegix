@@ -8,7 +8,7 @@
     "dev": "nodemon ./src/app.ts",
     "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register 'tests/*.ts'",
     "postinstall": "tsc && rm -v -rf src",
-    "start": "env NODE_PATH=dist node dist/app.js",
+    "start": "env NODE_PATH=dist pm2 start dist/app.js",
     "tslint": "tslint --project tsconfig.json",
     "prettier:base": "prettier --parser typescript --single-quote",
     "prettier:check": "npm run prettier:base -- --list-different \"src/**/*.{ts,tsx}\"",
