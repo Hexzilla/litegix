@@ -11,9 +11,9 @@ import * as authService from 'services/auth.service'
 import backup from './backup'
 
 const router = Router()
-router.get('/', (req: Request, res: Response) => {
-  res.send('Litegix')
-})
+// router.get('/', (req: Request, res: Response) => {
+//   res.send('Litegix')
+// })
 
 router.use('/admin', admin)
 router.use('/api', api)
