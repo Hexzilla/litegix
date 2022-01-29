@@ -111,8 +111,14 @@ export async function updateSetting(userId: string, server: Server) {
   }*/
 }
 
-export async function getAllServers() {
+export async function getPageServers(page: number, size: number) {
+  page = Math.max(0, isNaN(page) ? 1 : page)
+  size = Math.min(100, isNaN(size) ? 10 : size)
+
   const servers = await ServerModel.find({})
+    .skip((page - 1) * size)
+    .limit(size)
+
   return {
     success: true,
     data: {

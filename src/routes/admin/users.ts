@@ -1,4 +1,4 @@
-import { body } from 'express-validator'
+import { body, query } from 'express-validator'
 import { Router } from 'express'
 import { validate, createHandler as ch } from 'routes/helper'
 import auth from '../auth'
@@ -8,7 +8,12 @@ const router = Router()
 router.get(
   '/',
   auth.required,
-  ch(() => userService.getUsers())
+  query('page').isNumeric(),
+  query('size').isNumeric(),
+  validate,
+  ch(({ query }) =>
+    userService.getUsers(Number(query.page), Number(query.size))
+  )
 )
 
 router.post(

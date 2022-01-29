@@ -1,4 +1,4 @@
-import { body } from 'express-validator'
+import { body, query } from 'express-validator'
 import { Router, Request, Response, NextFunction } from 'express'
 import { model } from 'mongoose'
 import { Server } from 'models/server.model'
@@ -27,7 +27,12 @@ router.param(
 router.get(
   '/',
   auth.required,
-  ch(() => serverSvc.getAllServers())
+  query('page').isNumeric(),
+  query('size').isNumeric(),
+  validate,
+  ch(({ query }) =>
+    serverSvc.getPageServers(Number(query.page), Number(query.size))
+  )
 )
 
 router.post(

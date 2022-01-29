@@ -2,8 +2,13 @@ import { model } from 'mongoose'
 import { User } from 'models'
 const UserModel = model<User>('User')
 
-export async function getUsers() {
+export async function getUsers(page: number, size: number) {
+  page = Math.max(0, isNaN(page) ? 1 : page)
+  size = Math.min(100, isNaN(size) ? 10 : size)
+
   const users = await UserModel.find({})
+    .skip((page - 1) * size)
+    .limit(size)
 
   return {
     success: true,
