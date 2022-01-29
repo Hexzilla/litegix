@@ -1,5 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { body } from 'express-validator'
+import { validate } from 'routes/helper'
 import api from './api'
 import admin from './admin'
 import settings from './settings'
@@ -26,6 +27,7 @@ router.post(
   '/login',
   body('email').notEmpty(),
   body('password').notEmpty(),
+  validate,
   authService.login
 )
 
@@ -34,6 +36,7 @@ router.post(
   body('name').notEmpty(),
   body('email').notEmpty(),
   body('password').notEmpty(),
+  validate,
   authService.signup
 )
 
