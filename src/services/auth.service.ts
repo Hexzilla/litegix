@@ -44,6 +44,18 @@ export function signup(req: Request, res: Response, next: NextFunction) {
   )(req, res, next)
 }
 
+export async function verify(req: Request, res: Response) {
+  const user = await UserModel.findById(req.payload.id)
+  if (!user) {
+    return {
+      success: false,
+      message: 'Invalid User',
+    }
+  }
+
+  return res.json({ user: user.toAuthJSON() })
+}
+
 export async function changePassword(
   userId: string,
   currentPassword: string,

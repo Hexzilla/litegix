@@ -3,6 +3,7 @@ import { body } from 'express-validator'
 import { validate } from 'routes/helper'
 import api from './api'
 import admin from './admin'
+import auth from './auth'
 import settings from './settings'
 import servers from './servers'
 import subscriptions from './subscriptions'
@@ -39,6 +40,8 @@ router.post(
   validate,
   authService.signup
 )
+
+router.get('/verify', auth.required, authService.verify)
 
 router.get('/logout', authService.logout)
 

@@ -103,7 +103,7 @@ UserSchema.methods.validPassword = function (password) {
 UserSchema.methods.generateJWT = function () {
   const today = new Date()
   const exp = new Date(today)
-  exp.setDate(today.getDate() + 60)
+  exp.setDate(today.getDate() + 3)
 
   return jwt.sign(
     {
