@@ -1,5 +1,6 @@
 import { model } from 'mongoose'
 import { User } from 'models'
+import { countries, timezones } from './constants'
 const UserModel = model<User>('User')
 
 export async function getUsers(page: number, size: number) {
@@ -13,6 +14,16 @@ export async function getUsers(page: number, size: number) {
   return {
     success: true,
     data: { users },
+  }
+}
+
+export async function newUser() {
+  return {
+    success: true,
+    data: {
+      countries: countries,
+      timezones: timezones,
+    },
   }
 }
 

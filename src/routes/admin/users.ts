@@ -16,6 +16,12 @@ router.get(
   )
 )
 
+router.get(
+  '/new',
+  auth.required,
+  ch(() => userService.newUser())
+)
+
 router.post(
   '/',
   auth.required,
