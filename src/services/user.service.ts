@@ -4,16 +4,23 @@ import { countries, timezones } from './constants'
 const UserModel = model<User>('User')
 
 export async function getUsers(page: number, size: number) {
-  page = Math.max(0, isNaN(page) ? 1 : page)
+  page = Math.max(1, isNaN(page) ? 1 : page)
   size = Math.min(100, isNaN(size) ? 10 : size)
 
   const users = await UserModel.find({})
     .skip((page - 1) * size)
     .limit(size)
 
+  const total = await UserModel.count()
+
   return {
     success: true,
-    data: { users },
+    data: {
+      total: total,
+      page,
+      size,
+      users,
+    },
   }
 }
 
