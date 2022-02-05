@@ -5,11 +5,13 @@ import { Server } from 'models/server.model'
 import users from './users'
 import servers from './servers'
 import * as authService from 'services/auth.service'
+import plans from './plans'
 const Server = model<Server>('Server')
 const router = Router()
 
 router.use('/users', users)
 router.use('/servers', servers)
+router.use('/plans', plans)
 
 router.post(
   '/login',
