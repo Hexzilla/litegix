@@ -119,7 +119,7 @@ export async function getPageServers(page: number, size: number) {
     .skip((page - 1) * size)
     .limit(size)
 
-  const total = await UserModel.find({ deleted: false }).count()
+  const total = await ServerModel.find({}).count()
 
   return {
     success: true,
