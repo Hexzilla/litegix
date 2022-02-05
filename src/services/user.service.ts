@@ -7,11 +7,11 @@ export async function getUsers(page: number, size: number) {
   page = Math.max(1, isNaN(page) ? 1 : page)
   size = Math.min(100, isNaN(size) ? 10 : size)
 
-  const users = await UserModel.find({})
+  const users = await UserModel.find({ deleted: false })
     .skip((page - 1) * size)
     .limit(size)
 
-  const total = await UserModel.count()
+  const total = await UserModel.find({ deleted: false }).count()
 
   return {
     success: true,
