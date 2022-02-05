@@ -16,7 +16,7 @@ export async function getUsers(page: number, size: number) {
   return {
     success: true,
     data: {
-      total: total,
+      total,
       page,
       size,
       users,
