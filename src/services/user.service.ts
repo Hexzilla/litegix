@@ -74,6 +74,24 @@ export async function createUser({
   }
 }
 
+export async function updateUser(userId: string, data: any) {
+  const user = await UserModel.findById(userId)
+  if (!user) {
+    throw Error('User does not exist')
+  }
+
+  user.email = data.email
+  user.username = data.username
+  user.setPassword(data.password)
+
+  await user.save()
+
+  return {
+    success: true,
+    data: { user },
+  }
+}
+
 export async function deleteUser(userId: string) {
   const user = await UserModel.findById(userId)
   if (!user) {

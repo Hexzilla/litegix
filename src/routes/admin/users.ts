@@ -38,6 +38,16 @@ router.post(
   ch(({ body }) => userService.createUser(body))
 )
 
+router.put(
+  '/:userId',
+  auth.required,
+  body('email').isEmail(),
+  body('username').isString().isLength({ min: 4, max: 260 }),
+  body('password').isString().isLength({ min: 8, max: 260 }),
+  validate,
+  ch(({ params, body }) => userService.updateUser(params.userId, body))
+)
+
 router.delete(
   '/:userId',
   auth.required,
