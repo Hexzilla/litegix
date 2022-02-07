@@ -17,6 +17,12 @@ router.get(
 )
 
 router.get(
+  '/:userId',
+  auth.required,
+  ch(({ params }) => userService.getUserInfo(params.userId))
+)
+
+router.get(
   '/new',
   auth.required,
   ch(() => userService.newUser())

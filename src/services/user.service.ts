@@ -24,6 +24,18 @@ export async function getUsers(page: number, size: number) {
   }
 }
 
+export async function getUserInfo(userId: string) {
+  const user = await UserModel.findById(userId)
+  if (!user) {
+    throw Error("User doesn't exists")
+  }
+
+  return {
+    success: true,
+    data: { user },
+  }
+}
+
 export async function newUser() {
   return {
     success: true,
