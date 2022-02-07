@@ -35,6 +35,12 @@ router.get(
   )
 )
 
+router.get(
+  '/:serverId',
+  auth.required,
+  ch(({ params }) => serverSvc.getServerById(params.serverId))
+)
+
 router.post(
   '/',
   auth.required,

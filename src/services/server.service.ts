@@ -132,6 +132,14 @@ export async function getPageServers(page: number, size: number) {
   }
 }
 
+export async function getServerById(serverId: string) {
+  const server = await ServerModel.findById(serverId)
+  return {
+    success: true,
+    data: { server },
+  }
+}
+
 export async function getServers(userId: string) {
   const user: any = userId
   const servers = await ServerModel.find({ user })

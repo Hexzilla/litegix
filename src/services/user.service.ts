@@ -25,7 +25,7 @@ export async function getUsers(page: number, size: number) {
 }
 
 export async function getUserInfo(userId: string) {
-  const user = await UserModel.findById(userId)
+  const user = await UserModel.findById(userId).populate('company')
   if (!user) {
     throw Error("User doesn't exists")
   }
