@@ -1,18 +1,18 @@
 const php_versions: Array<object> = [
   {
-    v: 'php7.2',
+    value: 'php7.2',
     text: 'PHP 7.2',
   },
   {
-    v: 'php7.3',
+    value: 'php7.3',
     text: 'PHP 7.3',
   },
   {
-    v: 'php7.4',
+    value: 'php7.4',
     text: 'PHP 7.4',
   },
   {
-    v: 'php8.0',
+    value: 'php8.0',
     text: 'PHP 8.0',
   },
 ]
@@ -20,132 +20,132 @@ const php_versions: Array<object> = [
 const webservers: Array<object> = [
   {
     text: 'Nginx',
-    v: 'nginx',
+    value: 'nginx',
   },
   {
     text: 'OpenLiteSpeed',
-    v: 'openlitespeed',
+    value: 'openlitespeed',
   },
 ]
 
 const databases: Array<object> = [
   {
     text: 'MySQL 5.7',
-    v: 'mysql',
+    value: 'mysql',
   },
   {
     text: 'MariaDB 10.3',
-    v: 'mariadb',
+    value: 'mariadb',
   },
   {
     text: 'PostgreSQL 10.9',
-    v: 'postgresql',
+    value: 'postgresql',
   },
   {
     text: 'PostgreSQL 13',
-    v: 'postgresql13',
+    value: 'postgresql13',
   },
   {
     text: 'None (do not install a database)',
-    v: 'none',
+    value: 'none',
   },
 ]
 
 const web_application_stacks: Array<object> = [
   {
-    v: 'nginx_apache2',
+    value: 'nginx_apache2',
     text: 'NGINX + Apache2 Hybrid (You will be able to use .htaccess)',
   },
   {
-    v: 'native_nginx',
+    value: 'native_nginx',
     text: "Native NGINX (You won't be able to use .htaccess but it is faster)",
   },
   {
-    v: 'nginx_custom',
+    value: 'nginx_custom',
     text: 'Native NGINX + Custom config (For power user. Manual Nginx implementation)',
   },
 ]
 
 const web_environments: Array<object> = [
   {
-    v: 'production',
+    value: 'production',
     text: 'Production',
   },
   {
-    v: 'development',
+    value: 'development',
     text: 'Development',
   },
 ]
 
 const web_ssl_methods: Array<object> = [
   {
-    v: 'basic',
+    value: 'basic',
     text: 'Basic (One SSL certificate for all domains on this web app)',
   },
   {
-    v: 'advanced',
+    value: 'advanced',
     text: 'Advanced (Different SSL certificate for every domain on this web app)',
   },
 ]
 
 const vendor_binaries: Array<object> = [
   {
-    v: 'php72',
+    value: 'php72',
     text: '/usr/bin/php7.2',
   },
   {
-    v: 'php73',
+    value: 'php73',
     text: '/usr/bin/php7.3',
   },
   {
-    v: 'php74',
+    value: 'php74',
     text: '/usr/bin/php7.4',
   },
   {
-    v: 'php80',
+    value: 'php80',
     text: '/usr/bin/php8.0',
   },
   {
-    v: 'node',
+    value: 'node',
     text: '/user/bin/node',
   },
   {
-    v: 'bash',
+    value: 'bash',
     text: '/bin/bash',
   },
 ]
 
 const predefined_settings: Array<object> = [
   {
-    v: 'e1',
+    value: 'e1',
     text: 'Every Minutes',
   },
   {
-    v: 'e10',
+    value: 'e10',
     text: 'Every 10 Minutes',
   },
   {
-    v: 'e30',
+    value: 'e30',
     text: 'Every 30 Minutes',
   },
   {
-    v: 'eh',
+    value: 'eh',
     text: 'Every Hours',
   },
   {
-    v: 'mn',
+    value: 'mn',
     text: 'All midnight',
   },
   {
-    v: 'ed',
+    value: 'ed',
     text: 'Every Day',
   },
   {
-    v: 'ew',
+    value: 'ew',
     text: 'Every Week',
   },
   {
-    v: 'em',
+    value: 'em',
     text: 'Every Month',
   },
 ]
