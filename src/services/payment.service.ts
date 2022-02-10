@@ -26,6 +26,49 @@ export async function storePaymentMethods(userId: string, data: any) {
   }
 }
 
+export async function getAllPaymentHistory(page: number, size: number) {
+  page = Math.max(1, isNaN(page) ? 1 : page)
+  size = Math.min(100, isNaN(size) ? 10 : size)
+
+  const payments = await PaymentHistoryModel.find({ deleted: false })
+    .populate('user')
+    .skip((page - 1) * size)
+    .limit(size)
+
+  const total = await PaymentHistoryModel.find({ deleted: false }).count()
+
+  return {
+    success: true,
+    data: {
+      total,
+      page,
+      size,
+      payments,
+    },
+  }
+}
+
+export async function getPageablePaymentHistory(
+  userId: string,
+  page: number,
+  size: number
+) {
+  page = Math.max(1, isNaN(page) ? 1 : page)
+  size = Math.min(100, isNaN(size) ? 10 : size)
+
+  const user: any = userId
+  const payments = await PaymentHistoryModel.find({ user, deleted: false })
+    .skip((page - 1) * size)
+    .limit(size)
+
+  const total = await PaymentHistoryModel.find({ user, deleted: false }).count()
+
+  return {
+    success: true,
+    data: { total, page, size, payments },
+  }
+}
+
 export async function getPaymentHistory(userId: string) {
   const user: any = userId
   const histories = await PaymentHistoryModel.find({ user })
@@ -33,6 +76,14 @@ export async function getPaymentHistory(userId: string) {
   return {
     success: true,
     data: { histories },
+  }
+}
+
+export async function getPaymentHistoryById(paymentId: string) {
+  const payment = await PaymentHistoryModel.findById(paymentId)
+  return {
+    success: true,
+    data: { payment },
   }
 }
 
@@ -66,5 +117,20 @@ export async function storePaymentHistory(
   return {
     success: true,
     data: { paymentHistory },
+  }
+}
+
+export async function deleteHistory(paymentId: string) {
+  const payment = await PaymentHistoryModel.findById(paymentId)
+  if (!payment) {
+    throw Error("It doesn't exists")
+  }
+
+  payment.deleted = true
+  await payment.save()
+
+  return {
+    success: true,
+    data: { id: payment.id },
   }
 }

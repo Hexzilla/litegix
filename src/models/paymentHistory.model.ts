@@ -6,6 +6,7 @@ export interface PaymentHistory extends Document {
   date: Date
   invoice: string
   receipt: string
+  deleted: boolean
 }
 
 const PaymentHistorySchema = new Schema<PaymentHistory>(
@@ -30,6 +31,10 @@ const PaymentHistorySchema = new Schema<PaymentHistory>(
     invoice: {
       type: String,
       required: [true, "can't be blank"],
+    },
+    deleted: {
+      type: Boolean,
+      default: false,
     },
     receipt: {
       type: String,
