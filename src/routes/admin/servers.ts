@@ -36,6 +36,12 @@ router.get(
 )
 
 router.get(
+  '/new',
+  auth.required,
+  ch(() => serverSvc.createServer())
+)
+
+router.get(
   '/:serverId',
   auth.required,
   ch(({ params }) => serverSvc.getServerById(params.serverId))
