@@ -98,10 +98,7 @@ var WebappSchema = new Schema<Webapp>(
       type: String,
       required: [true, "can't be blank"],
     },
-    webAppStack: {
-      type: String,
-      required: [true, "can't be blank"],
-    },
+    webAppStack: String,
     stackMode: {
       type: String,
     },

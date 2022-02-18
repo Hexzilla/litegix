@@ -58,6 +58,23 @@ router.post(
   )
 )
 
+router.post(
+  '/phpMyAdmin',
+  auth.required,
+  body('name').isString(),
+  body('domain.name').isString(),
+  body('domain.selection').isString(),
+  body('domain.wwwEnabled').isBoolean(),
+  body('domain.wwwVersion').isNumeric(),
+  body('isUserExists').isBoolean(),
+  body('owner').isString(),
+  body('phpVersion').isString(),
+  body('sslMethod').isString(),
+  body('enableAutoSSL').isBoolean(),
+  validate,
+  ch(({ server, body }) => webappService.storePhpMyAdmin(server, body))
+)
+
 router.get(
   '/wordpress',
   auth.required,

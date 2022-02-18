@@ -270,50 +270,57 @@ export async function createPhpMyAdmin(server: Server) {
 
 /**
  */
-export async function storePhpMyAdmin(server: Server, payload: any) {
+export async function storePhpMyAdmin(server: Server, data: WebappRequest) {
   const exists = await WebappModel.findOne({
     server: server,
-    name: payload.name,
+    name: data.name,
   })
   if (exists) {
     throw new Error('The name has already been taken.')
   }
 
   // check parameters
-  const systemUser = await SystemUserModel.findById(payload.owner)
-  if (!systemUser) {
-    throw new Error('The user doen not exists.')
+  let systemUser: SystemUser | null = null
+  if (data.isUserExists) {
+    systemUser = await SystemUserModel.findById(data.owner)
+    if (!systemUser) {
+      throw new Error('The user doen not exists.')
+    }
+  } else {
+    systemUser = await SystemUserModel.findOne({ name: data.owner })
+    if (!systemUser) {
+      systemUser = new SystemUserModel({
+        name: data.owner,
+        password: 'litegix',
+      })
+      systemUser.server = server
+      await systemUser.save()
+    }
   }
 
-  let domainName = payload.domainName
-  if (payload.domainType == 'litegix') {
-    domainName = `${payload.domainName}${payload.domainSuffix}`
-  }
-
-  const res = await agentSvc.createPhpMyAdmin(server.address, {
-    ...payload,
-    domainName,
-  })
+  /*const res = await agentSvc.createWordpress(server.address, postData)
   if (res.error != 0) {
     throw new Error(`Agent error ${res.error}`)
-  }
+  }*/
 
-  const data = {
-    ...payload,
-    domainName,
-    webType: 'phpmyadmin',
+  const domainModel = new DomainModel(data.domain)
+  const domain = await domainModel.save()
+
+  const webapp = new WebappModel({
+    ...data,
+    domains: [domain],
+    appType: 'phpmyadmin',
+    sslMethod: 'basic',
     server: server,
     owner: systemUser,
-  }
-
-  const webapp = new WebappModel(data)
+  })
   await webapp.save()
 
   /**let domain = new Domains(domain_data)
   domain.applicationId = application.id
   await domain.save()*/
 
-  const message = `Added new web application ${payload.name}`
+  const message = `Added new web application ${data.name}`
   await activitySvc.createServerActivityLogInfo(server, message)
 
   return {
