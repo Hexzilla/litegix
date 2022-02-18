@@ -83,102 +83,60 @@ export async function createCustomWebApplication(server: Server) {
 
 /**
  */
-export async function storeCustomWebApplication(server: Server, payload: any) {
+export async function storeCustomWebApplication(
+  server: Server,
+  data: WebappRequest
+) {
   const exists = await WebappModel.findOne({
     server: server,
-    name: payload.name,
+    name: data.name,
   })
   if (exists) {
     throw new Error('The name has already been taken.')
   }
 
   // check parameters
-  const systemUser = await SystemUserModel.findById(payload.owner)
-  if (!systemUser) {
-    throw new Error('The user doen not exists.')
+  let systemUser: SystemUser | null = null
+  if (data.isUserExists) {
+    systemUser = await SystemUserModel.findById(data.owner)
+    if (!systemUser) {
+      throw new Error('The user doen not exists.')
+    }
+  } else {
+    systemUser = await SystemUserModel.findOne({ name: data.owner })
+    if (!systemUser) {
+      systemUser = new SystemUserModel({
+        name: data.owner,
+        password: 'litegix',
+      })
+      systemUser.server = server
+      await systemUser.save()
+    }
   }
 
-  let domainName = payload.domainName
-  if (payload.domainType == 'litegix') {
-    domainName = `${payload.domainName}${payload.domainSuffix}`
-  }
-  const postData = {
-    ...payload,
-    domainName,
-  }
-  const res = await agentSvc.createWebApplication(server.address, postData)
+  /*const res = await agentSvc.createWordpress(server.address, postData)
   if (res.error != 0) {
     throw new Error(`Agent error ${res.error}`)
-  }
+  }*/
 
-  const data = {
-    ...payload,
-    domainName,
-    webType: 'custom',
+  const domainModel = new DomainModel(data.domain)
+  const domain = await domainModel.save()
+
+  const webapp = new WebappModel({
+    ...data,
+    domains: [domain],
+    appType: 'custom',
+    sslMethod: 'basic',
     server: server,
     owner: systemUser,
-    publicPath: `/home/${systemUser.name}/webapps/${payload.suffixName}`,
-  }
-  /*const data = {
-    server_user_id: payload.user,
-    name: payload.name,
-    rootPath: '/home/' + user.username + '/webapps/' + payload.name,
-    publicPath:
-      payload.publicPath == null
-        ? '/home/' + user.username + '/webapps/' + payload.name
-        : payload.publicPath,
-    phpVersion: payload.phpVersion,
-    stack: payload.stack,
-    stackMode: payload.stackMode,
-    type: 'custom',
-    defaultApp: false,
-    alias: null,
-    pullKey1: 'jwMZwtXP3ItQRKKoMSZboAXr1561748870',
-    pullKey2: 'zU4gYF96NZGjNqGSjUhasn0YZmlK2Ctu',
-    advancedSSL: {
-      advancedSSL: payload.ssl_tlsMethod == 'advanced',
-      autoSSL: payload.autoSSL,
-    },
-    settings: {
-      disableFunctions: payload.disableFunctions,
-      timezone: payload.timezone,
-      maxExecutionTime: payload.maxExecutionTime,
-      maxInputTime: payload.maxExecutionTime,
-      maxInputVars: payload.maxInputVars,
-      memoryLimit: payload.memoryLimit,
-      postMaxSize: payload.postMaxSize,
-      uploadMaxFilesize: payload.uploadMaxFilesize,
-      allowUrlFopen: payload.allowUrlFopen,
-      sessionGcMaxlifetime: payload.sessionGcMaxlifetime,
-      processManager: payload.processManager,
-      processManagerStartServers: payload.processManagerStartServers,
-      processManagerMinSpareServers: payload.processManagerMinSpareServers,
-      processManagerMaxSpareServers: payload.processManagerMaxSpareServers,
-      processManagerMaxChildren: payload.processManagerMaxChildren,
-      processManagerMaxRequests: payload.processManagerMaxRequests,
-      openBasedir: payload.openBasedir,
-      clickjackingProtection: payload.clickjackingProtection,
-      xssProtection: payload.xssProtection,
-      mimeSniffingProtection: payload.mimeSniffingProtection,
-    },
-  }*/
-
-  /*let domain_data = {
-    name: payload.domain_name,
-    type: 'primary',
-    www: 'www_enable',
-    dns_integration: payload.dns_integration,
-    rediraction: payload.domain_rediraction,
-  }*/
-
-  const webapp = new WebappModel(data)
+  })
   await webapp.save()
 
   /**let domain = new Domains(domain_data)
   domain.applicationId = application.id
   await domain.save()*/
 
-  const message = `Added new web application ${payload.name}`
+  const message = `Added new web application ${data.name}`
   await activitySvc.createServerActivityLogInfo(server, message)
 
   return {

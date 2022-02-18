@@ -158,22 +158,10 @@ var WebappSchema = new Schema<Webapp>(
       mimeSniffingProtection: Boolean,
     },
     wordpress: {
-      siteTitle: {
-        type: String,
-        required: [true, "can't be blank"],
-      },
-      adminUserName: {
-        type: String,
-        required: [true, "can't be blank"],
-      },
-      adminPassword: {
-        type: String,
-        required: [true, "can't be blank"],
-      },
-      adminEmail: {
-        type: String,
-        required: [true, "can't be blank"],
-      },
+      siteTitle: String,
+      adminUserName: String,
+      adminPassword: String,
+      adminEmail: String,
       databaseName: String,
       databasePass: String,
       databaseUser: String,
